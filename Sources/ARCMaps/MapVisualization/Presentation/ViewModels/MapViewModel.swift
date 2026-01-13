@@ -1,7 +1,8 @@
-import Foundation
-import SwiftUI
+import ARCLogger
 import CoreLocation
+import Foundation
 import MapKit
+import SwiftUI
 
 /// ViewModel for map visualization
 @MainActor
@@ -22,32 +23,26 @@ public final class MapViewModel: ObservableObject {
     // MARK: - Dependencies
 
     private let locationService: LocationService
-    private let logger: LoggerProtocol
+    private let logger = ARCLogger(category: "MapViewModel")
 
     // MARK: - Initialization
 
-    public init(
-        locationService: LocationService,
-        logger: LoggerProtocol
-    ) {
+    public init(locationService: LocationService) {
         self.locationService = locationService
-        self.logger = logger
     }
 
     // MARK: - Public Methods
 
     /// Set places to display on map
     public func setPlaces(_ places: [MapPlace]) {
-        Task {
-            await logger.info("Setting \(places.count) places on map")
-        }
+        logger.info("Setting \(places.count) places on map")
         self.places = places
         applyFilter()
     }
 
     /// Request location permission and get user location
     public func requestLocationPermission() async {
-        await logger.info("Requesting location permission")
+        logger.info("Requesting location permission")
 
         isLoadingLocation = true
         defer { isLoadingLocation = false }
@@ -58,7 +53,7 @@ public final class MapViewModel: ObservableObject {
             await updateUserLocation()
         } else {
             error = .locationPermissionDenied
-            await logger.warning("Location permission denied")
+            logger.warning("Location permission denied")
         }
     }
 
@@ -66,18 +61,16 @@ public final class MapViewModel: ObservableObject {
     public func updateUserLocation() async {
         do {
             userLocation = try await locationService.getCurrentLocation()
-            await logger.debug("User location updated")
+            logger.debug("User location updated")
         } catch {
-            await logger.error("Failed to get user location", error: error)
+            logger.error("Failed to get user location: \(error.localizedDescription)")
         }
     }
 
     /// Apply current filter
     public func applyFilter() {
         filteredPlaces = places.filter { filter.matches($0) }
-        Task {
-            await logger.debug("Filtered to \(filteredPlaces.count) places")
-        }
+        logger.debug("Filtered to \(filteredPlaces.count) places")
     }
 
     /// Update filter and reapply
@@ -88,9 +81,7 @@ public final class MapViewModel: ObservableObject {
 
     /// Select a place
     public func selectPlace(_ place: MapPlace) {
-        Task {
-            await logger.info("Selected place: \(place.name)")
-        }
+        logger.info("Selected place: \(place.name)")
         selectedPlace = place
 
         // Center map on selected place
@@ -110,9 +101,7 @@ public final class MapViewModel: ObservableObject {
     /// Fit all filtered places in view
     public func fitAllPlaces() {
         guard !filteredPlaces.isEmpty else {
-            Task {
-                await logger.warning("No places to fit")
-            }
+            logger.warning("No places to fit")
             return
         }
 
@@ -120,15 +109,13 @@ public final class MapViewModel: ObservableObject {
 
         if let region = MKCoordinateRegion.fitting(coordinates) {
             cameraPosition = .region(region)
-            Task {
-                await logger.debug("Fitted \(filteredPlaces.count) places in view")
-            }
+            logger.debug("Fitted \(filteredPlaces.count) places in view")
         }
     }
 
     /// Open place in external maps app
     public func openInExternalMaps(_ place: MapPlace, app: ExternalMapApp) async {
-        await logger.info("Opening \(place.name) in \(app.rawValue)")
+        logger.info("Opening \(place.name) in \(app.rawValue)")
 
         do {
             try await ExternalMapLauncher.open(
@@ -139,17 +126,15 @@ public final class MapViewModel: ObservableObject {
             )
         } catch let mapError as MapError {
             error = mapError
-            await logger.error("Failed to open external map", error: mapError)
+            logger.error("Failed to open external map: \(mapError)")
         } catch {
-            await logger.error("Failed to open external map", error: error)
+            logger.error("Failed to open external map: \(error.localizedDescription)")
         }
     }
 
     /// Change map style
     public func changeMapStyle(_ style: MapStyle) {
-        Task {
-            await logger.info("Changing map style to: \(style.rawValue)")
-        }
+        logger.info("Changing map style to: \(style.rawValue)")
         mapStyle = style
     }
 

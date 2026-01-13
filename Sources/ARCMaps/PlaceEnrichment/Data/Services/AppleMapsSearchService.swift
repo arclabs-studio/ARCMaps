@@ -1,29 +1,26 @@
-import Foundation
+import ARCLogger
 import CoreLocation
+import Foundation
 import MapKit
 
 /// Apple MapKit local search service implementation
 public actor AppleMapsSearchService: PlaceEnrichmentService {
 
-    private let logger: LoggerProtocol
     private let cache: PlaceSearchCache
+    private let logger = ARCLogger(category: "AppleMapsSearchService")
 
-    public init(
-        logger: LoggerProtocol,
-        cache: PlaceSearchCache
-    ) {
-        self.logger = logger
+    public init(cache: PlaceSearchCache) {
         self.cache = cache
     }
 
     // MARK: - PlaceEnrichmentService
 
     public func searchPlaces(query: PlaceSearchQuery) async throws -> [PlaceSearchResult] {
-        await logger.debug("Searching places with Apple Maps: \(query.fullTextQuery)")
+        logger.debug("Searching places with Apple Maps: \(query.fullTextQuery)")
 
         // Check cache first
         if let cachedResults = await cache.getResults(for: query) {
-            await logger.debug("Returning \(cachedResults.count) cached results")
+            logger.debug("Returning \(cachedResults.count) cached results")
             return cachedResults
         }
 
@@ -67,22 +64,22 @@ public actor AppleMapsSearchService: PlaceEnrichmentService {
             // Cache results
             await cache.setResults(results, for: query)
 
-            await logger.info("Found \(results.count) places")
+            logger.info("Found \(results.count) places")
             return results
 
         } catch {
-            await logger.error("Failed to search places with Apple Maps", error: error)
+            logger.error("Failed to search places with Apple Maps: \(error.localizedDescription)")
             throw PlaceEnrichmentError.networkError(error.localizedDescription)
         }
     }
 
     public func getPlaceDetails(placeId: String) async throws -> EnrichedPlaceData {
-        await logger.warning("Apple Maps does not support detailed place information")
+        logger.warning("Apple Maps does not support detailed place information")
         throw PlaceEnrichmentError.serviceUnavailable(.apple)
     }
 
     public func getPhotoURL(photoReference: String, maxWidth: Int) async throws -> URL {
-        await logger.warning("Apple Maps does not support photo URLs")
+        logger.warning("Apple Maps does not support photo URLs")
         throw PlaceEnrichmentError.photoDownloadFailed(photoReference)
     }
 

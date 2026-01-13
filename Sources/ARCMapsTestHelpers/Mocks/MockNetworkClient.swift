@@ -18,7 +18,7 @@ public actor MockNetworkClient: NetworkClientProtocol {
         method: HTTPMethod,
         headers: [String : String]?,
         body: Data?
-    ) async throws -> T where T : Decodable {
+    ) async throws -> T where T : Decodable & Sendable {
         requestCount += 1
         lastURL = url
         lastMethod = method

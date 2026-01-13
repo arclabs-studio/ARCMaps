@@ -1,3 +1,4 @@
+import ARCLogger
 import Foundation
 import SwiftUI
 
@@ -19,25 +20,23 @@ public final class PlaceEnrichmentViewModel: ObservableObject {
 
     private let googleService: PlaceEnrichmentService
     private let appleService: PlaceEnrichmentService
-    private let logger: LoggerProtocol
+    private let logger = ARCLogger(category: "PlaceEnrichmentViewModel")
 
     // MARK: - Initialization
 
     public init(
         googleService: PlaceEnrichmentService,
-        appleService: PlaceEnrichmentService,
-        logger: LoggerProtocol
+        appleService: PlaceEnrichmentService
     ) {
         self.googleService = googleService
         self.appleService = appleService
-        self.logger = logger
     }
 
     // MARK: - Public Methods
 
     /// Search for places matching the query
     public func searchPlaces(query: PlaceSearchQuery) async {
-        await logger.info("Searching places: \(query.fullTextQuery)")
+        logger.info("Searching places: \(query.fullTextQuery)")
 
         isSearching = true
         error = nil
@@ -53,7 +52,7 @@ public final class PlaceEnrichmentViewModel: ObservableObject {
             // Sort by match score
             searchResults = results.sorted { $0.matchScore > $1.matchScore }
 
-            await logger.info("Found \(results.count) results from \(selectedProvider.displayName)")
+            logger.info("Found \(results.count) results from \(selectedProvider.displayName)")
 
             if results.isEmpty {
                 error = .noResultsFound
@@ -61,7 +60,7 @@ public final class PlaceEnrichmentViewModel: ObservableObject {
 
         } catch let enrichmentError as PlaceEnrichmentError {
             error = enrichmentError
-            await logger.error("Search failed", error: enrichmentError)
+            logger.error("Search failed: \(enrichmentError)")
 
             // Fallback to alternative provider
             await searchWithFallback(query: query)
@@ -69,13 +68,13 @@ public final class PlaceEnrichmentViewModel: ObservableObject {
         } catch {
             let enrichmentError = PlaceEnrichmentError.networkError(error.localizedDescription)
             self.error = enrichmentError
-            await logger.error("Search failed", error: error)
+            logger.error("Search failed: \(error.localizedDescription)")
         }
     }
 
     /// Select a search result and fetch full details
     public func selectResult(_ result: PlaceSearchResult) async {
-        await logger.info("Selected result: \(result.name)")
+        logger.info("Selected result: \(result.name)")
 
         selectedResult = result
         isLoadingDetails = true
@@ -87,16 +86,16 @@ public final class PlaceEnrichmentViewModel: ObservableObject {
 
         do {
             enrichedData = try await service.getPlaceDetails(placeId: result.id)
-            await logger.info("Loaded enriched data for: \(result.name)")
+            logger.info("Loaded enriched data for: \(result.name)")
 
         } catch let enrichmentError as PlaceEnrichmentError {
             error = enrichmentError
-            await logger.error("Failed to load details", error: enrichmentError)
+            logger.error("Failed to load details: \(enrichmentError)")
 
         } catch {
             let enrichmentError = PlaceEnrichmentError.networkError(error.localizedDescription)
             self.error = enrichmentError
-            await logger.error("Failed to load details", error: error)
+            logger.error("Failed to load details: \(error.localizedDescription)")
         }
     }
 
@@ -107,9 +106,7 @@ public final class PlaceEnrichmentViewModel: ObservableObject {
 
     /// Change provider (Google <-> Apple)
     public func changeProvider(_ provider: PlaceProvider) {
-        Task {
-            await logger.info("Changing provider to: \(provider.displayName)")
-        }
+        logger.info("Changing provider to: \(provider.displayName)")
         selectedProvider = provider
 
         // Clear current results
@@ -139,21 +136,21 @@ public final class PlaceEnrichmentViewModel: ObservableObject {
         let fallbackProvider: PlaceProvider = selectedProvider == .google ? .apple : .google
         let fallbackService = fallbackProvider == .google ? googleService : appleService
 
-        await logger.info("Attempting fallback to \(fallbackProvider.displayName)")
+        logger.info("Attempting fallback to \(fallbackProvider.displayName)")
 
         do {
             let results = try await fallbackService.searchPlaces(query: query)
             searchResults = results.sorted { $0.matchScore > $1.matchScore }
             selectedProvider = fallbackProvider
 
-            await logger.info("Fallback successful: \(results.count) results")
+            logger.info("Fallback successful: \(results.count) results")
 
             if results.isEmpty {
                 error = .noResultsFound
             }
 
         } catch {
-            await logger.error("Fallback also failed", error: error)
+            logger.error("Fallback also failed: \(error.localizedDescription)")
         }
     }
 }

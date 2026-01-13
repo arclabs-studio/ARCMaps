@@ -33,5 +33,5 @@ public struct ARCMapsConfiguration: Sendable {
     }
 
     /// Shared configuration instance
-    public static var shared = ARCMapsConfiguration()
+    @MainActor public static var shared = ARCMapsConfiguration()
 }

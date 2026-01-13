@@ -1,17 +1,17 @@
-import Foundation
+import ARCLogger
 import CoreLocation
+import Foundation
 
 /// CoreLocation-based location service
 @MainActor
 public final class CoreLocationService: NSObject, LocationService, CLLocationManagerDelegate {
     private let locationManager: CLLocationManager
-    private let logger: LoggerProtocol
+    private let logger = ARCLogger(category: "CoreLocationService")
     private var continuation: CheckedContinuation<Bool, Never>?
     private var locationContinuation: CheckedContinuation<CLLocationCoordinate2D, Error>?
 
-    public init(logger: LoggerProtocol) {
+    public override init() {
         self.locationManager = CLLocationManager()
-        self.logger = logger
         super.init()
         self.locationManager.delegate = self
     }
@@ -22,8 +22,13 @@ public final class CoreLocationService: NSObject, LocationService, CLLocationMan
         let status = locationManager.authorizationStatus
 
         switch status {
+        #if os(iOS)
         case .authorizedWhenInUse, .authorizedAlways:
             return true
+        #else
+        case .authorized, .authorizedAlways:
+            return true
+        #endif
         case .notDetermined:
             return await withCheckedContinuation { continuation in
                 self.continuation = continuation
@@ -43,7 +48,13 @@ public final class CoreLocationService: NSObject, LocationService, CLLocationMan
     public func getCurrentLocation() async throws -> CLLocationCoordinate2D {
         let status = locationManager.authorizationStatus
 
-        guard status == .authorizedWhenInUse || status == .authorizedAlways else {
+        #if os(iOS)
+        let isAuthorized = status == .authorizedWhenInUse || status == .authorizedAlways
+        #else
+        let isAuthorized = status == .authorized || status == .authorizedAlways
+        #endif
+
+        guard isAuthorized else {
             throw MapError.locationPermissionDenied
         }
 
@@ -54,22 +65,26 @@ public final class CoreLocationService: NSObject, LocationService, CLLocationMan
     }
 
     public func startMonitoring() async {
-        await logger.info("Starting location monitoring")
+        logger.info("Starting location monitoring")
         locationManager.startUpdatingLocation()
     }
 
     public func stopMonitoring() async {
-        await logger.info("Stopping location monitoring")
+        logger.info("Stopping location monitoring")
         locationManager.stopUpdatingLocation()
     }
 
     // MARK: - CLLocationManagerDelegate
 
     nonisolated public func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
-        Task { @MainActor in
-            let status = manager.authorizationStatus
-            let authorized = status == .authorizedWhenInUse || status == .authorizedAlways
+        let status = manager.authorizationStatus
+        #if os(iOS)
+        let authorized = status == .authorizedWhenInUse || status == .authorizedAlways
+        #else
+        let authorized = status == .authorized || status == .authorizedAlways
+        #endif
 
+        Task { @MainActor in
             if let continuation = self.continuation {
                 continuation.resume(returning: authorized)
                 self.continuation = nil
@@ -90,7 +105,7 @@ public final class CoreLocationService: NSObject, LocationService, CLLocationMan
 
     nonisolated public func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
         Task { @MainActor in
-            await logger.error("Location error", error: error)
+            logger.error("Location error: \(error.localizedDescription)")
 
             if let continuation = self.locationContinuation {
                 continuation.resume(throwing: MapError.locationUnavailable)

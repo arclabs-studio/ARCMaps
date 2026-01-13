@@ -7,22 +7,16 @@ final class MapViewModelTests: XCTestCase {
 
     var sut: MapViewModel!
     var mockLocationService: MockLocationService!
-    var mockLogger: MockLogger!
 
     override func setUp() async throws {
         mockLocationService = MockLocationService()
-        mockLogger = MockLogger()
 
-        sut = MapViewModel(
-            locationService: mockLocationService,
-            logger: mockLogger
-        )
+        sut = MapViewModel(locationService: mockLocationService)
     }
 
     override func tearDown() async throws {
         sut = nil
         mockLocationService = nil
-        mockLogger = nil
     }
 
     func testSetPlaces() {

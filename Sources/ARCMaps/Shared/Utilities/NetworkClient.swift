@@ -10,7 +10,7 @@ public enum HTTPMethod: String, Sendable {
 
 /// Network client protocol
 public protocol NetworkClientProtocol: Sendable {
-    func request<T: Decodable>(
+    func request<T: Decodable & Sendable>(
         url: URL,
         method: HTTPMethod,
         headers: [String: String]?,
@@ -28,7 +28,7 @@ public actor DefaultNetworkClient: NetworkClientProtocol {
         self.decoder = decoder
     }
 
-    public func request<T: Decodable>(
+    public func request<T: Decodable & Sendable>(
         url: URL,
         method: HTTPMethod = .get,
         headers: [String: String]? = nil,

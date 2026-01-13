@@ -1,36 +1,35 @@
-import Foundation
+import ARCLogger
 import CoreLocation
+import Foundation
 
 /// Google Places API service implementation
 public actor GooglePlacesService: PlaceEnrichmentService {
 
     private let apiKey: String
     private let networkClient: NetworkClientProtocol
-    private let logger: LoggerProtocol
     private let cache: PlaceSearchCache
+    private let logger = ARCLogger(category: "GooglePlacesService")
 
     private let baseURL = "https://maps.googleapis.com/maps/api/place"
 
     public init(
         apiKey: String,
         networkClient: NetworkClientProtocol,
-        logger: LoggerProtocol,
         cache: PlaceSearchCache
     ) {
         self.apiKey = apiKey
         self.networkClient = networkClient
-        self.logger = logger
         self.cache = cache
     }
 
     // MARK: - PlaceEnrichmentService
 
     public func searchPlaces(query: PlaceSearchQuery) async throws -> [PlaceSearchResult] {
-        await logger.debug("Searching places with query: \(query.fullTextQuery)")
+        logger.debug("Searching places with query: \(query.fullTextQuery)")
 
         // Check cache first
         if let cachedResults = await cache.getResults(for: query) {
-            await logger.debug("Returning \(cachedResults.count) cached results")
+            logger.debug("Returning \(cachedResults.count) cached results")
             return cachedResults
         }
 
@@ -65,7 +64,7 @@ public actor GooglePlacesService: PlaceEnrichmentService {
             )
 
             guard response.status == "OK" || response.status == "ZERO_RESULTS" else {
-                await logger.error("Google Places API error: \(response.status)", error: nil)
+                logger.error("Google Places API error: \(response.status)")
                 throw mapGoogleError(response.status)
             }
 
@@ -74,19 +73,19 @@ public actor GooglePlacesService: PlaceEnrichmentService {
             // Cache results
             await cache.setResults(results, for: query)
 
-            await logger.info("Found \(results.count) places")
+            logger.info("Found \(results.count) places")
             return results
 
         } catch let error as PlaceEnrichmentError {
             throw error
         } catch {
-            await logger.error("Failed to search places", error: error)
+            logger.error("Failed to search places: \(error.localizedDescription)")
             throw PlaceEnrichmentError.networkError(error.localizedDescription)
         }
     }
 
     public func getPlaceDetails(placeId: String) async throws -> EnrichedPlaceData {
-        await logger.debug("Fetching details for place: \(placeId)")
+        logger.debug("Fetching details for place: \(placeId)")
 
         var components = URLComponents(string: "\(baseURL)/details/json")!
         components.queryItems = [
@@ -109,19 +108,19 @@ public actor GooglePlacesService: PlaceEnrichmentService {
             )
 
             guard response.status == "OK" else {
-                await logger.error("Google Places API error: \(response.status)", error: nil)
+                logger.error("Google Places API error: \(response.status)")
                 throw mapGoogleError(response.status)
             }
 
             let enrichedData = GooglePlacesMapper.mapToEnrichedData(response.result)
 
-            await logger.info("Fetched details for: \(enrichedData.name)")
+            logger.info("Fetched details for: \(enrichedData.name)")
             return enrichedData
 
         } catch let error as PlaceEnrichmentError {
             throw error
         } catch {
-            await logger.error("Failed to fetch place details", error: error)
+            logger.error("Failed to fetch place details: \(error.localizedDescription)")
             throw PlaceEnrichmentError.networkError(error.localizedDescription)
         }
     }
