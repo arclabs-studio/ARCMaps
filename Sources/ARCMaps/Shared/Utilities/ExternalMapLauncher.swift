@@ -119,7 +119,9 @@ public enum ExternalMapLauncher {
             throw MapError.navigationFailed
         }
 
-        await UIApplication.shared.open(url)
+        await MainActor.run {
+            UIApplication.shared.open(url)
+        }
         #else
         throw MapError.navigationFailed
         #endif
