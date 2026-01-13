@@ -1,24 +1,41 @@
+//
+//  MapViewModel.swift
+//  ARCMaps
+//
+//  Created by ARC Labs Studio on 13/01/2026.
+//
+
 import ARCLogger
 import CoreLocation
 import Foundation
 import MapKit
+import Observation
 import SwiftUI
 
+// MARK: - Constants
+
+private enum MapDefaults {
+    /// Default latitude delta for single place view (approximately 1km visible area).
+    static let defaultSpanLatitudeDelta: CLLocationDegrees = 0.01
+    /// Default longitude delta for single place view (approximately 1km visible area).
+    static let defaultSpanLongitudeDelta: CLLocationDegrees = 0.01
+}
+
 /// ViewModel for map visualization
+@Observable
 @MainActor
-public final class MapViewModel: ObservableObject {
+public final class MapViewModel {
+    // MARK: - State
 
-    // MARK: - Published State
-
-    @Published public var places: [MapPlace] = []
-    @Published public var filteredPlaces: [MapPlace] = []
-    @Published public var selectedPlace: MapPlace?
-    @Published public var userLocation: CLLocationCoordinate2D?
-    @Published public var cameraPosition: MapCameraPosition = .automatic
-    @Published public var filter: MapFilter = .all
-    @Published public var mapStyle: MapStyle = .standard
-    @Published public var isLoadingLocation = false
-    @Published public var error: MapError?
+    public var places: [MapPlace] = []
+    public var filteredPlaces: [MapPlace] = []
+    public var selectedPlace: MapPlace?
+    public var userLocation: CLLocationCoordinate2D?
+    public var cameraPosition: MapCameraPosition = .automatic
+    public var filter: MapFilter = .all
+    public var mapStyle: MapStyle = .standard
+    public var isLoadingLocation = false
+    public var error: MapError?
 
     // MARK: - Dependencies
 
@@ -89,11 +106,14 @@ public final class MapViewModel: ObservableObject {
     }
 
     /// Center map on a place
-    public func centerOnPlace(_ place: MapPlace, animated: Bool = true) {
+    public func centerOnPlace(_ place: MapPlace, animated _: Bool = true) {
         cameraPosition = .region(
             MKCoordinateRegion(
                 center: place.coordinate,
-                span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
+                span: MKCoordinateSpan(
+                    latitudeDelta: MapDefaults.defaultSpanLatitudeDelta,
+                    longitudeDelta: MapDefaults.defaultSpanLongitudeDelta
+                )
             )
         )
     }
@@ -105,7 +125,7 @@ public final class MapViewModel: ObservableObject {
             return
         }
 
-        let coordinates = filteredPlaces.map { $0.coordinate }
+        let coordinates = filteredPlaces.map(\.coordinate)
 
         if let region = MKCoordinateRegion.fitting(coordinates) {
             cameraPosition = .region(region)
@@ -140,7 +160,7 @@ public final class MapViewModel: ObservableObject {
 
     /// Get distance from user to place
     public func distanceToPlace(_ place: MapPlace) -> Double? {
-        guard let userLocation = userLocation else { return nil }
+        guard let userLocation else { return nil }
         return place.distance(from: userLocation)
     }
 

@@ -1,9 +1,15 @@
-import Foundation
+//
+//  MapPlaceFixtures.swift
+//  ARCMaps
+//
+//  Created by ARC Labs Studio on 13/01/2026.
+//
+
 import CoreLocation
+import Foundation
 @testable import ARCMaps
 
 public enum MapPlaceFixtures {
-
     public static var wishlistRestaurant: MapPlace {
         MapPlace(
             id: "map_place_1",

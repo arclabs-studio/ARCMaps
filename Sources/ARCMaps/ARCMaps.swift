@@ -1,3 +1,10 @@
+//
+//  ARCMaps.swift
+//  ARCMaps
+//
+//  Created by ARC Labs Studio on 13/01/2026.
+//
+
 import Foundation
 
 /// ARCMaps - Comprehensive mapping and place enrichment solution for iOS
@@ -30,7 +37,6 @@ import Foundation
 /// - ``PlaceEnrichmentError``
 /// - ``MapError``
 public struct ARCMaps {
-
     /// Package version
     public static let version = "1.0.0"
 

@@ -1,3 +1,10 @@
+//
+//  WishlistMarker.swift
+//  ARCMaps
+//
+//  Created by ARC Labs Studio on 13/01/2026.
+//
+
 import SwiftUI
 
 /// Marker for wishlist places

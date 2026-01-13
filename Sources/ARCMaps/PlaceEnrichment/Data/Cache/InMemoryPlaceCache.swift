@@ -1,4 +1,21 @@
+//
+//  InMemoryPlaceCache.swift
+//  ARCMaps
+//
+//  Created by ARC Labs Studio on 13/01/2026.
+//
+
 import Foundation
+
+// MARK: - Constants
+
+/// Default configuration values for InMemoryPlaceCache.
+public enum CacheDefaults {
+    /// Maximum number of cached search queries (default: 100).
+    public static let maxSize = 100
+    /// Cache entry expiration time in seconds (default: 3600 = 1 hour).
+    public static let expirationSeconds: TimeInterval = 3600
+}
 
 /// In-memory cache for place search results
 public actor InMemoryPlaceCache: PlaceSearchCache {
@@ -11,7 +28,15 @@ public actor InMemoryPlaceCache: PlaceSearchCache {
         let timestamp: Date
     }
 
-    public init(maxCacheSize: Int = 100, expirationInterval: TimeInterval = 3600) {
+    /// Creates an in-memory cache with the specified configuration.
+    ///
+    /// - Parameters:
+    ///   - maxCacheSize: Maximum number of cached queries. Default is ``CacheDefaults/maxSize``.
+    ///   - expirationInterval: Time in seconds before entries expire. Default is ``CacheDefaults/expirationSeconds``.
+    public init(
+        maxCacheSize: Int = CacheDefaults.maxSize,
+        expirationInterval: TimeInterval = CacheDefaults.expirationSeconds
+    ) {
         self.maxCacheSize = maxCacheSize
         self.expirationInterval = expirationInterval
     }

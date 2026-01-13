@@ -1,3 +1,10 @@
+//
+//  CoreLocationService.swift
+//  ARCMaps
+//
+//  Created by ARC Labs Studio on 13/01/2026.
+//
+
 import ARCLogger
 import CoreLocation
 import Foundation
@@ -10,10 +17,10 @@ public final class CoreLocationService: NSObject, LocationService, CLLocationMan
     private var continuation: CheckedContinuation<Bool, Never>?
     private var locationContinuation: CheckedContinuation<CLLocationCoordinate2D, Error>?
 
-    public override init() {
-        self.locationManager = CLLocationManager()
+    override public init() {
+        locationManager = CLLocationManager()
         super.init()
-        self.locationManager.delegate = self
+        locationManager.delegate = self
     }
 
     // MARK: - LocationService
@@ -76,7 +83,7 @@ public final class CoreLocationService: NSObject, LocationService, CLLocationMan
 
     // MARK: - CLLocationManagerDelegate
 
-    nonisolated public func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
+    public nonisolated func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
         let status = manager.authorizationStatus
         #if os(iOS)
         let authorized = status == .authorizedWhenInUse || status == .authorizedAlways
@@ -92,7 +99,7 @@ public final class CoreLocationService: NSObject, LocationService, CLLocationMan
         }
     }
 
-    nonisolated public func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+    public nonisolated func locationManager(_: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         Task { @MainActor in
             guard let location = locations.last else { return }
 
@@ -103,7 +110,7 @@ public final class CoreLocationService: NSObject, LocationService, CLLocationMan
         }
     }
 
-    nonisolated public func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+    public nonisolated func locationManager(_: CLLocationManager, didFailWithError error: Error) {
         Task { @MainActor in
             logger.error("Location error: \(error.localizedDescription)")
 

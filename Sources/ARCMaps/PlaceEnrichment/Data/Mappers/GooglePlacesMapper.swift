@@ -1,9 +1,15 @@
-import Foundation
+//
+//  GooglePlacesMapper.swift
+//  ARCMaps
+//
+//  Created by ARC Labs Studio on 13/01/2026.
+//
+
 import CoreLocation
+import Foundation
 
 /// Mapper for Google Places API responses
 enum GooglePlacesMapper {
-
     static func mapToSearchResult(_ dto: GooglePlaceResult) -> PlaceSearchResult {
         PlaceSearchResult(
             id: dto.placeId,
@@ -18,7 +24,7 @@ enum GooglePlacesMapper {
             rating: dto.rating,
             userRatingsTotal: dto.userRatingsTotal,
             priceLevel: dto.priceLevel,
-            photoReferences: dto.photos?.map { $0.photoReference } ?? []
+            photoReferences: dto.photos?.map(\.photoReference) ?? []
         )
     }
 

@@ -1,5 +1,12 @@
-import Foundation
+//
+//  MapProvider.swift
+//  ARCMaps
+//
+//  Created by ARC Labs Studio on 13/01/2026.
+//
+
 import CoreLocation
+import Foundation
 
 /// Abstraction over map providers (Apple MapKit, Google Maps)
 @MainActor
