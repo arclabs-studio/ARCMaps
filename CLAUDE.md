@@ -54,13 +54,17 @@ Common utilities: `DistanceCalculator`, `ExternalMapLauncher`, coordinate extens
 ### Dependency Injection
 Services take protocols in their initializers:
 - `NetworkClientProtocol` for HTTP requests
-- `LoggerProtocol` for logging
 - `PlaceSearchCache` for caching
 - `LocationService` for location updates
 
+### Logging
+All services and ViewModels use ARCLogger directly with service-specific categories:
+- `GooglePlacesService`, `AppleMapsSearchService`, `CoreLocationService`
+- `MapViewModel`, `PlaceEnrichmentViewModel`
+
 ### Testing
 Test helpers are in `ARCMapsTestHelpers` target:
-- **Mocks**: `MockNetworkClient`, `MockPlaceEnrichmentService`, `MockLocationService`, `MockPlaceSearchCache`, `MockLogger`
+- **Mocks**: `MockNetworkClient`, `MockPlaceEnrichmentService`, `MockLocationService`, `MockPlaceSearchCache`
 - **Fixtures**: `PlaceSearchResultFixtures`, `MapPlaceFixtures`, `EnrichedPlaceDataFixtures`
 
 Tests use async setUp/tearDown with `sut` (system under test) pattern.
@@ -77,8 +81,18 @@ ARCMapsConfiguration.shared = ARCMapsConfiguration(
 
 ## Dependencies
 
-External packages (currently commented out in Package.swift):
-- `ARCLogger` - structured logging
-- `ARCNetworking` - HTTP client
+### External Packages (SPM)
+- `ARCLogger` (v1.0.0+) - Privacy-focused structured logging framework
 
-Internal stubs exist in `Shared/Utilities/` (`Logger.swift`, `NetworkClient.swift`) while external packages are unavailable.
+### Git Submodules
+- `ARCDevTools/` - Development standards and tooling (SwiftLint, SwiftFormat, hooks)
+  - `ARCDevTools/ARCKnowledge/` - Development guidelines and standards documentation
+
+### Internal Stubs
+- `NetworkClient.swift` in `Shared/Utilities/` - HTTP client stub (pending ARCNetworking integration)
+
+### Submodule Setup
+After cloning, initialize submodules:
+```bash
+git submodule update --init --recursive
+```

@@ -6,18 +6,15 @@ final class GooglePlacesServiceTests: XCTestCase {
 
     var sut: GooglePlacesService!
     var mockNetworkClient: MockNetworkClient!
-    var mockLogger: MockLogger!
     var mockCache: MockPlaceSearchCache!
 
     override func setUp() async throws {
         mockNetworkClient = MockNetworkClient()
-        mockLogger = MockLogger()
         mockCache = MockPlaceSearchCache()
 
         sut = GooglePlacesService(
             apiKey: "test-api-key",
             networkClient: mockNetworkClient,
-            logger: mockLogger,
             cache: mockCache
         )
     }
@@ -25,7 +22,6 @@ final class GooglePlacesServiceTests: XCTestCase {
     override func tearDown() async throws {
         sut = nil
         mockNetworkClient = nil
-        mockLogger = nil
         mockCache = nil
     }
 

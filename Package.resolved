@@ -1,0 +1,15 @@
+{
+  "originHash" : "750d90441fffb171ae4696887907dc56b966aafd6ee61ee792ce3d662d15c5c4",
+  "pins" : [
+    {
+      "identity" : "arclogger",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/arclabs-studio/ARCLogger",
+      "state" : {
+        "revision" : "c6fcb3571628d315e9fc7c00f28c12ac99fe42ca",
+        "version" : "1.0.0"
+      }
+    }
+  ],
+  "version" : 3
+}

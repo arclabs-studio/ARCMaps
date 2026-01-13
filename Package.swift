@@ -21,19 +21,13 @@ let package = Package(
         )
     ],
     dependencies: [
-        // Note: ARCLogger and ARCNetworking are assumed to be local packages
-        // If they don't exist, we'll create mock implementations
-        // Uncomment these when the packages are available:
-        // .package(path: "../ARCLogger"),
-        // .package(path: "../ARCNetworking")
+        .package(url: "https://github.com/arclabs-studio/ARCLogger", from: "1.0.0")
     ],
     targets: [
         .target(
             name: "ARCMaps",
             dependencies: [
-                // Uncomment when packages are available:
-                // .product(name: "ARCLogger", package: "ARCLogger"),
-                // .product(name: "ARCNetworking", package: "ARCNetworking")
+                .product(name: "ARCLogger", package: "ARCLogger")
             ],
             path: "Sources/ARCMaps",
             swiftSettings: [
