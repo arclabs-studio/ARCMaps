@@ -1,9 +1,15 @@
-import Foundation
+//
+//  MockLocationService.swift
+//  ARCMaps
+//
+//  Created by ARC Labs Studio on 13/01/2026.
+//
+
 import CoreLocation
+import Foundation
 @testable import ARCMaps
 
 public actor MockLocationService: LocationService {
-
     public var mockPermissionGranted = true
     #if os(iOS)
     public var mockAuthorizationStatus: CLAuthorizationStatus = .authorizedWhenInUse

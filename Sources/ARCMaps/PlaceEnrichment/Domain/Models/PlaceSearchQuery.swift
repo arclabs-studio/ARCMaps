@@ -1,3 +1,10 @@
+//
+//  PlaceSearchQuery.swift
+//  ARCMaps
+//
+//  Created by ARC Labs Studio on 13/01/2026.
+//
+
 import Foundation
 
 /// Represents a search query for finding places
@@ -39,8 +46,8 @@ public struct PlaceSearchQuery: Sendable, Equatable, Hashable {
     /// Full text query combining all available fields
     public var fullTextQuery: String {
         var components = [name]
-        if let address = address { components.append(address) }
-        if let city = city { components.append(city) }
+        if let address { components.append(address) }
+        if let city { components.append(city) }
         return components.joined(separator: ", ")
     }
 
@@ -51,7 +58,7 @@ public struct PlaceSearchQuery: Sendable, Equatable, Hashable {
         hasher.combine(city)
         hasher.combine(countryCode)
         hasher.combine(radiusMeters)
-        if let coordinate = coordinate {
+        if let coordinate {
             hasher.combine(coordinate.latitude)
             hasher.combine(coordinate.longitude)
         }
@@ -60,11 +67,11 @@ public struct PlaceSearchQuery: Sendable, Equatable, Hashable {
     // Equatable conformance
     public static func == (lhs: PlaceSearchQuery, rhs: PlaceSearchQuery) -> Bool {
         lhs.name == rhs.name &&
-        lhs.address == rhs.address &&
-        lhs.city == rhs.city &&
-        lhs.countryCode == rhs.countryCode &&
-        lhs.radiusMeters == rhs.radiusMeters &&
-        lhs.coordinate?.latitude == rhs.coordinate?.latitude &&
-        lhs.coordinate?.longitude == rhs.coordinate?.longitude
+            lhs.address == rhs.address &&
+            lhs.city == rhs.city &&
+            lhs.countryCode == rhs.countryCode &&
+            lhs.radiusMeters == rhs.radiusMeters &&
+            lhs.coordinate?.latitude == rhs.coordinate?.latitude &&
+            lhs.coordinate?.longitude == rhs.coordinate?.longitude
     }
 }

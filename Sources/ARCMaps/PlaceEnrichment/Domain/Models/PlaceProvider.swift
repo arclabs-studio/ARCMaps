@@ -1,3 +1,10 @@
+//
+//  PlaceProvider.swift
+//  ARCMaps
+//
+//  Created by ARC Labs Studio on 13/01/2026.
+//
+
 import Foundation
 
 /// Supported place data providers
@@ -13,8 +20,8 @@ public enum PlaceProvider: String, Sendable, CaseIterable, Equatable, Codable {
     /// Icon system name
     public var iconName: String {
         switch self {
-        case .google: return "globe"
-        case .apple: return "map"
+        case .google: "globe"
+        case .apple: "map"
         }
     }
 }

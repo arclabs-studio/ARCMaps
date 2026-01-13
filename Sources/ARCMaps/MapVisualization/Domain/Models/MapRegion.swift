@@ -1,5 +1,12 @@
-import Foundation
+//
+//  MapRegion.swift
+//  ARCMaps
+//
+//  Created by ARC Labs Studio on 13/01/2026.
+//
+
 import CoreLocation
+import Foundation
 import MapKit
 
 /// Represents a map region
@@ -30,13 +37,14 @@ public struct MapRegion: Sendable, Equatable {
     public static func fitting(_ coordinates: [CLLocationCoordinate2D], padding: Double = 0.1) -> MapRegion? {
         guard !coordinates.isEmpty else { return nil }
 
-        let lats = coordinates.map { $0.latitude }
-        let lons = coordinates.map { $0.longitude }
+        let lats = coordinates.map(\.latitude)
+        let lons = coordinates.map(\.longitude)
 
         guard let minLat = lats.min(),
               let maxLat = lats.max(),
               let minLon = lons.min(),
-              let maxLon = lons.max() else {
+              let maxLon = lons.max()
+        else {
             return nil
         }
 
@@ -54,7 +62,7 @@ public struct MapRegion: Sendable, Equatable {
 
     public static func == (lhs: MapRegion, rhs: MapRegion) -> Bool {
         lhs.center == rhs.center &&
-        lhs.span.latitudeDelta == rhs.span.latitudeDelta &&
-        lhs.span.longitudeDelta == rhs.span.longitudeDelta
+            lhs.span.latitudeDelta == rhs.span.latitudeDelta &&
+            lhs.span.longitudeDelta == rhs.span.longitudeDelta
     }
 }

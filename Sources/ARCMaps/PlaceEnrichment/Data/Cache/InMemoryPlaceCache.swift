@@ -1,3 +1,10 @@
+//
+//  InMemoryPlaceCache.swift
+//  ARCMaps
+//
+//  Created by ARC Labs Studio on 13/01/2026.
+//
+
 import Foundation
 
 /// In-memory cache for place search results

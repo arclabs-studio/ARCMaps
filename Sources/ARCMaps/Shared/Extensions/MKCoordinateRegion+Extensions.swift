@@ -1,18 +1,26 @@
-import MapKit
+//
+//  MKCoordinateRegion+Extensions.swift
+//  ARCMaps
+//
+//  Created by ARC Labs Studio on 13/01/2026.
+//
+
 import CoreLocation
+import MapKit
 
 extension MKCoordinateRegion {
     /// Create region that fits all coordinates with padding
     public static func fitting(_ coordinates: [CLLocationCoordinate2D], padding: Double = 0.1) -> MKCoordinateRegion? {
         guard !coordinates.isEmpty else { return nil }
 
-        let lats = coordinates.map { $0.latitude }
-        let lons = coordinates.map { $0.longitude }
+        let lats = coordinates.map(\.latitude)
+        let lons = coordinates.map(\.longitude)
 
         guard let minLat = lats.min(),
               let maxLat = lats.max(),
               let minLon = lons.min(),
-              let maxLon = lons.max() else {
+              let maxLon = lons.max()
+        else {
             return nil
         }
 

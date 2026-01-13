@@ -1,3 +1,10 @@
+//
+//  MapFilter.swift
+//  ARCMaps
+//
+//  Created by ARC Labs Studio on 13/01/2026.
+//
+
 import Foundation
 
 /// Filter options for map places
@@ -32,14 +39,14 @@ public struct MapFilter: Sendable, Equatable {
         }
 
         // Rating filter
-        if let minRating = minRating {
+        if let minRating {
             guard let rating = place.rating, rating >= minRating else {
                 return false
             }
         }
 
         // Date range filter
-        if let dateRange = dateRange, let visitDate = place.visitDate {
+        if let dateRange, let visitDate = place.visitDate {
             guard dateRange.contains(visitDate) else { return false }
         }
 

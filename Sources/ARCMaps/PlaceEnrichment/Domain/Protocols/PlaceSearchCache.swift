@@ -1,3 +1,10 @@
+//
+//  PlaceSearchCache.swift
+//  ARCMaps
+//
+//  Created by ARC Labs Studio on 13/01/2026.
+//
+
 import Foundation
 
 /// Cache for place search results

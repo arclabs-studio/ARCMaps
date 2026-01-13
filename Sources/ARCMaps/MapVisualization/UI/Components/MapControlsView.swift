@@ -1,3 +1,10 @@
+//
+//  MapControlsView.swift
+//  ARCMaps
+//
+//  Created by ARC Labs Studio on 13/01/2026.
+//
+
 import SwiftUI
 
 /// Map control buttons
@@ -40,9 +47,9 @@ struct MapControlsView: View {
 
     private func mapStyleIcon(_ style: MapStyle) -> String {
         switch style {
-        case .standard: return "map"
-        case .satellite: return "globe.americas"
-        case .hybrid: return "map.fill"
+        case .standard: "map"
+        case .satellite: "globe.americas"
+        case .hybrid: "map.fill"
         }
     }
 }

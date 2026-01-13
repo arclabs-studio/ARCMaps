@@ -1,3 +1,10 @@
+//
+//  NetworkClient.swift
+//  ARCMaps
+//
+//  Created by ARC Labs Studio on 13/01/2026.
+//
+
 import Foundation
 
 /// HTTP method
@@ -49,7 +56,7 @@ public actor DefaultNetworkClient: NetworkClientProtocol {
             throw NetworkError.invalidResponse
         }
 
-        guard (200...299).contains(httpResponse.statusCode) else {
+        guard (200 ... 299).contains(httpResponse.statusCode) else {
             throw NetworkError.httpError(statusCode: httpResponse.statusCode)
         }
 
@@ -66,11 +73,11 @@ public enum NetworkError: LocalizedError, Sendable {
     public var errorDescription: String? {
         switch self {
         case .invalidResponse:
-            return "Invalid server response"
-        case .httpError(let code):
-            return "HTTP error: \(code)"
-        case .decodingError(let message):
-            return "Failed to decode response: \(message)"
+            "Invalid server response"
+        case let .httpError(code):
+            "HTTP error: \(code)"
+        case let .decodingError(message):
+            "Failed to decode response: \(message)"
         }
     }
 }

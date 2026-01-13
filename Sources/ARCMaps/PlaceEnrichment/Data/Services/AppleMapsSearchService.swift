@@ -1,3 +1,10 @@
+//
+//  AppleMapsSearchService.swift
+//  ARCMaps
+//
+//  Created by ARC Labs Studio on 13/01/2026.
+//
+
 import ARCLogger
 import CoreLocation
 import Foundation
@@ -5,7 +12,6 @@ import MapKit
 
 /// Apple MapKit local search service implementation
 public actor AppleMapsSearchService: PlaceEnrichmentService {
-
     private let cache: PlaceSearchCache
     private let logger = ARCLogger(category: "AppleMapsSearchService")
 
@@ -43,7 +49,8 @@ public actor AppleMapsSearchService: PlaceEnrichmentService {
 
             let results = response.mapItems.compactMap { mapItem -> PlaceSearchResult? in
                 guard let name = mapItem.name,
-                      let coordinate = mapItem.placemark.location?.coordinate else {
+                      let coordinate = mapItem.placemark.location?.coordinate
+                else {
                     return nil
                 }
 
@@ -66,19 +73,18 @@ public actor AppleMapsSearchService: PlaceEnrichmentService {
 
             logger.info("Found \(results.count) places")
             return results
-
         } catch {
             logger.error("Failed to search places with Apple Maps: \(error.localizedDescription)")
             throw PlaceEnrichmentError.networkError(error.localizedDescription)
         }
     }
 
-    public func getPlaceDetails(placeId: String) async throws -> EnrichedPlaceData {
+    public func getPlaceDetails(placeId _: String) async throws -> EnrichedPlaceData {
         logger.warning("Apple Maps does not support detailed place information")
         throw PlaceEnrichmentError.serviceUnavailable(.apple)
     }
 
-    public func getPhotoURL(photoReference: String, maxWidth: Int) async throws -> URL {
+    public func getPhotoURL(photoReference: String, maxWidth _: Int) async throws -> URL {
         logger.warning("Apple Maps does not support photo URLs")
         throw PlaceEnrichmentError.photoDownloadFailed(photoReference)
     }

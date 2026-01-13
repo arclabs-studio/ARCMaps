@@ -1,14 +1,22 @@
+//
+//  GooglePlacesServiceTests.swift
+//  ARCMaps
+//
+//  Created by ARC Labs Studio on 13/01/2026.
+//
+
 import XCTest
 @testable import ARCMaps
 @testable import ARCMapsTestHelpers
 
 final class GooglePlacesServiceTests: XCTestCase {
-
     var sut: GooglePlacesService!
     var mockNetworkClient: MockNetworkClient!
     var mockCache: MockPlaceSearchCache!
 
     override func setUp() async throws {
+        try await super.setUp()
+
         mockNetworkClient = MockNetworkClient()
         mockCache = MockPlaceSearchCache()
 
@@ -23,6 +31,8 @@ final class GooglePlacesServiceTests: XCTestCase {
         sut = nil
         mockNetworkClient = nil
         mockCache = nil
+
+        try await super.tearDown()
     }
 
     // MARK: - Search Places Tests

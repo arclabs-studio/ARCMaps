@@ -1,14 +1,22 @@
+//
+//  MapViewModelTests.swift
+//  ARCMaps
+//
+//  Created by ARC Labs Studio on 13/01/2026.
+//
+
 import XCTest
 @testable import ARCMaps
 @testable import ARCMapsTestHelpers
 
 @MainActor
 final class MapViewModelTests: XCTestCase {
-
     var sut: MapViewModel!
     var mockLocationService: MockLocationService!
 
     override func setUp() async throws {
+        try await super.setUp()
+
         mockLocationService = MockLocationService()
 
         sut = MapViewModel(locationService: mockLocationService)
@@ -17,6 +25,8 @@ final class MapViewModelTests: XCTestCase {
     override func tearDown() async throws {
         sut = nil
         mockLocationService = nil
+
+        try await super.tearDown()
     }
 
     func testSetPlaces() {

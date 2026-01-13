@@ -1,5 +1,12 @@
-import SwiftUI
+//
+//  PlaceCalloutView.swift
+//  ARCMaps
+//
+//  Created by ARC Labs Studio on 13/01/2026.
+//
+
 import CoreLocation
+import SwiftUI
 
 /// Callout view shown when tapping a place marker
 public struct PlaceCalloutView: View {
@@ -149,7 +156,7 @@ public struct PlaceCalloutView: View {
     }
 
     private var distanceText: String? {
-        guard let userLocation = userLocation else { return nil }
+        guard let userLocation else { return nil }
 
         let distance = place.distance(from: userLocation)
         return DistanceCalculator.formatDistance(distance) + " away"
@@ -157,9 +164,9 @@ public struct PlaceCalloutView: View {
 
     private func mapIcon(for app: ExternalMapApp) -> String {
         switch app {
-        case .appleMaps: return "map"
-        case .googleMaps: return "globe"
-        case .waze: return "car.fill"
+        case .appleMaps: "map"
+        case .googleMaps: "globe"
+        case .waze: "car.fill"
         }
     }
 }

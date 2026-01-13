@@ -1,5 +1,12 @@
-import Foundation
+//
+//  EnrichedPlaceData.swift
+//  ARCMaps
+//
+//  Created by ARC Labs Studio on 13/01/2026.
+//
+
 import CoreLocation
+import Foundation
 
 /// Complete enriched data for a place
 public struct EnrichedPlaceData: Sendable, Equatable {

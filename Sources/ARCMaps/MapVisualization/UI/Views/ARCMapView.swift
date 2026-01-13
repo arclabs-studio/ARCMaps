@@ -1,12 +1,19 @@
-import SwiftUI
+//
+//  ARCMapView.swift
+//  ARCMaps
+//
+//  Created by ARC Labs Studio on 13/01/2026.
+//
+
 import MapKit
+import SwiftUI
 
 /// Main map view component
 public struct ARCMapView: View {
-    @StateObject private var viewModel: MapViewModel
+    @Bindable var viewModel: MapViewModel
 
     public init(viewModel: MapViewModel) {
-        _viewModel = StateObject(wrappedValue: viewModel)
+        self.viewModel = viewModel
     }
 
     public var body: some View {
@@ -41,7 +48,10 @@ public struct ARCMapView: View {
         .task {
             await viewModel.requestLocationPermission()
         }
-        .alert("Map Error", isPresented: .constant(viewModel.error != nil)) {
+        .alert(
+            "Map Error",
+            isPresented: .constant(viewModel.error != nil)
+        ) {
             Button("OK") {
                 viewModel.error = nil
             }

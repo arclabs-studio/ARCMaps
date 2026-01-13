@@ -1,8 +1,14 @@
+//
+//  MockPlaceSearchCache.swift
+//  ARCMaps
+//
+//  Created by ARC Labs Studio on 13/01/2026.
+//
+
 import Foundation
 @testable import ARCMaps
 
 public actor MockPlaceSearchCache: PlaceSearchCache {
-
     public var cache: [PlaceSearchQuery: [PlaceSearchResult]] = [:]
     public private(set) var getResultsCalled = false
     public private(set) var setResultsCalled = false

@@ -1,20 +1,28 @@
+//
+//  PlaceEnrichmentViewModel.swift
+//  ARCMaps
+//
+//  Created by ARC Labs Studio on 13/01/2026.
+//
+
 import ARCLogger
 import Foundation
+import Observation
 import SwiftUI
 
 /// ViewModel for place enrichment flow
+@Observable
 @MainActor
-public final class PlaceEnrichmentViewModel: ObservableObject {
+public final class PlaceEnrichmentViewModel {
+    // MARK: - State
 
-    // MARK: - Published State
-
-    @Published public var searchResults: [PlaceSearchResult] = []
-    @Published public var selectedResult: PlaceSearchResult?
-    @Published public var enrichedData: EnrichedPlaceData?
-    @Published public var isSearching = false
-    @Published public var isLoadingDetails = false
-    @Published public var error: PlaceEnrichmentError?
-    @Published public var selectedProvider: PlaceProvider = .google
+    public var searchResults: [PlaceSearchResult] = []
+    public var selectedResult: PlaceSearchResult?
+    public var enrichedData: EnrichedPlaceData?
+    public var isSearching = false
+    public var isLoadingDetails = false
+    public var error: PlaceEnrichmentError?
+    public var selectedProvider: PlaceProvider = .google
 
     // MARK: - Dependencies
 
@@ -57,14 +65,12 @@ public final class PlaceEnrichmentViewModel: ObservableObject {
             if results.isEmpty {
                 error = .noResultsFound
             }
-
         } catch let enrichmentError as PlaceEnrichmentError {
             error = enrichmentError
             logger.error("Search failed: \(enrichmentError)")
 
             // Fallback to alternative provider
             await searchWithFallback(query: query)
-
         } catch {
             let enrichmentError = PlaceEnrichmentError.networkError(error.localizedDescription)
             self.error = enrichmentError
@@ -87,11 +93,9 @@ public final class PlaceEnrichmentViewModel: ObservableObject {
         do {
             enrichedData = try await service.getPlaceDetails(placeId: result.id)
             logger.info("Loaded enriched data for: \(result.name)")
-
         } catch let enrichmentError as PlaceEnrichmentError {
             error = enrichmentError
             logger.error("Failed to load details: \(enrichmentError)")
-
         } catch {
             let enrichmentError = PlaceEnrichmentError.networkError(error.localizedDescription)
             self.error = enrichmentError
@@ -148,7 +152,6 @@ public final class PlaceEnrichmentViewModel: ObservableObject {
             if results.isEmpty {
                 error = .noResultsFound
             }
-
         } catch {
             logger.error("Fallback also failed: \(error.localizedDescription)")
         }

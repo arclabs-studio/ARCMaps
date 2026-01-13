@@ -1,8 +1,14 @@
+//
+//  ARCMapsConfiguration.swift
+//  ARCMaps
+//
+//  Created by ARC Labs Studio on 13/01/2026.
+//
+
 import Foundation
 
 /// Global configuration for ARCMaps
 public struct ARCMapsConfiguration: Sendable {
-
     /// Google Places API key
     public let googlePlacesAPIKey: String?
 

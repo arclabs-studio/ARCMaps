@@ -1,10 +1,16 @@
+//
+//  GooglePlacesService.swift
+//  ARCMaps
+//
+//  Created by ARC Labs Studio on 13/01/2026.
+//
+
 import ARCLogger
 import CoreLocation
 import Foundation
 
 /// Google Places API service implementation
 public actor GooglePlacesService: PlaceEnrichmentService {
-
     private let apiKey: String
     private let networkClient: NetworkClientProtocol
     private let cache: PlaceSearchCache
@@ -34,7 +40,9 @@ public actor GooglePlacesService: PlaceEnrichmentService {
         }
 
         // Build request
-        var components = URLComponents(string: "\(baseURL)/textsearch/json")!
+        guard var components = URLComponents(string: "\(baseURL)/textsearch/json") else {
+            throw PlaceEnrichmentError.invalidQuery
+        }
         components.queryItems = [
             URLQueryItem(name: "query", value: query.fullTextQuery),
             URLQueryItem(name: "key", value: apiKey),
@@ -75,7 +83,6 @@ public actor GooglePlacesService: PlaceEnrichmentService {
 
             logger.info("Found \(results.count) places")
             return results
-
         } catch let error as PlaceEnrichmentError {
             throw error
         } catch {
@@ -87,11 +94,20 @@ public actor GooglePlacesService: PlaceEnrichmentService {
     public func getPlaceDetails(placeId: String) async throws -> EnrichedPlaceData {
         logger.debug("Fetching details for place: \(placeId)")
 
-        var components = URLComponents(string: "\(baseURL)/details/json")!
+        guard var components = URLComponents(string: "\(baseURL)/details/json") else {
+            throw PlaceEnrichmentError.invalidQuery
+        }
+
+        let detailFields = [
+            "name", "formatted_address", "geometry", "photos", "rating",
+            "user_ratings_total", "price_level", "opening_hours", "website",
+            "formatted_phone_number", "reviews", "types"
+        ].joined(separator: ",")
+
         components.queryItems = [
             URLQueryItem(name: "place_id", value: placeId),
             URLQueryItem(name: "key", value: apiKey),
-            URLQueryItem(name: "fields", value: "name,formatted_address,geometry,photos,rating,user_ratings_total,price_level,opening_hours,website,formatted_phone_number,reviews,types"),
+            URLQueryItem(name: "fields", value: detailFields),
             URLQueryItem(name: "language", value: Locale.current.language.languageCode?.identifier ?? "en")
         ]
 
@@ -116,7 +132,6 @@ public actor GooglePlacesService: PlaceEnrichmentService {
 
             logger.info("Fetched details for: \(enrichedData.name)")
             return enrichedData
-
         } catch let error as PlaceEnrichmentError {
             throw error
         } catch {
@@ -126,7 +141,9 @@ public actor GooglePlacesService: PlaceEnrichmentService {
     }
 
     public func getPhotoURL(photoReference: String, maxWidth: Int) async throws -> URL {
-        var components = URLComponents(string: "\(baseURL)/photo")!
+        guard var components = URLComponents(string: "\(baseURL)/photo") else {
+            throw PlaceEnrichmentError.photoDownloadFailed(photoReference)
+        }
         components.queryItems = [
             URLQueryItem(name: "photoreference", value: photoReference),
             URLQueryItem(name: "maxwidth", value: "\(maxWidth)"),
@@ -145,15 +162,15 @@ public actor GooglePlacesService: PlaceEnrichmentService {
     private func mapGoogleError(_ status: String) -> PlaceEnrichmentError {
         switch status {
         case "ZERO_RESULTS":
-            return .noResultsFound
+            .noResultsFound
         case "INVALID_REQUEST":
-            return .invalidQuery
+            .invalidQuery
         case "OVER_QUERY_LIMIT":
-            return .rateLimitExceeded
+            .rateLimitExceeded
         case "REQUEST_DENIED":
-            return .invalidAPIKey
+            .invalidAPIKey
         default:
-            return .serviceUnavailable(.google)
+            .serviceUnavailable(.google)
         }
     }
 }

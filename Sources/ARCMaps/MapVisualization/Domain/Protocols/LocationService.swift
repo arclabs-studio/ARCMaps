@@ -1,5 +1,12 @@
-import Foundation
+//
+//  LocationService.swift
+//  ARCMaps
+//
+//  Created by ARC Labs Studio on 13/01/2026.
+//
+
 import CoreLocation
+import Foundation
 
 /// Service for managing location permissions and updates
 public protocol LocationService: Sendable {

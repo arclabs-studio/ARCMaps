@@ -1,5 +1,12 @@
-import Foundation
+//
+//  ExternalMapLauncher.swift
+//  ARCMaps
+//
+//  Created by ARC Labs Studio on 13/01/2026.
+//
+
 import CoreLocation
+import Foundation
 #if canImport(UIKit)
 import UIKit
 #endif
@@ -12,9 +19,9 @@ public enum ExternalMapApp: String, CaseIterable, Sendable {
 
     var urlScheme: String {
         switch self {
-        case .appleMaps: return "http://maps.apple.com"
-        case .googleMaps: return "comgooglemaps"
-        case .waze: return "waze"
+        case .appleMaps: "http://maps.apple.com"
+        case .googleMaps: "comgooglemaps"
+        case .waze: "waze"
         }
     }
 
@@ -30,7 +37,6 @@ public enum ExternalMapApp: String, CaseIterable, Sendable {
 
 /// Utility for launching external map applications
 public enum ExternalMapLauncher {
-
     /// Open coordinate in external map app
     /// - Parameters:
     ///   - coordinate: Coordinate to open
@@ -68,7 +74,7 @@ public enum ExternalMapLauncher {
             url = buildWazeURL(coordinate: coordinate)
         }
 
-        guard let url = url else {
+        guard let url else {
             throw MapError.navigationFailed
         }
 
@@ -90,9 +96,9 @@ public enum ExternalMapLauncher {
             URLQueryItem(name: "ll", value: "\(coordinate.latitude),\(coordinate.longitude)")
         ]
 
-        if let name = name {
+        if let name {
             queryItems.append(URLQueryItem(name: "q", value: name))
-        } else if let address = address {
+        } else if let address {
             queryItems.append(URLQueryItem(name: "address", value: address))
         }
 
@@ -105,7 +111,7 @@ public enum ExternalMapLauncher {
         name: String?
     ) -> URL? {
         var components = URLComponents(string: "comgooglemaps://")
-        var queryItems: [URLQueryItem] = [
+        let queryItems: [URLQueryItem] = [
             URLQueryItem(name: "center", value: "\(coordinate.latitude),\(coordinate.longitude)"),
             URLQueryItem(name: "q", value: name ?? "\(coordinate.latitude),\(coordinate.longitude)")
         ]

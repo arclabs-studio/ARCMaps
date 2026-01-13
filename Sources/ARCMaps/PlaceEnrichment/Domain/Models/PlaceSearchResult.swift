@@ -1,5 +1,12 @@
-import Foundation
+//
+//  PlaceSearchResult.swift
+//  ARCMaps
+//
+//  Created by ARC Labs Studio on 13/01/2026.
+//
+
 import CoreLocation
+import Foundation
 
 /// Represents a search result from a place provider
 public struct PlaceSearchResult: Sendable, Identifiable, Equatable {

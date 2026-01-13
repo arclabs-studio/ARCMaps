@@ -1,5 +1,12 @@
-import Foundation
+//
+//  MapPlace.swift
+//  ARCMaps
+//
+//  Created by ARC Labs Studio on 13/01/2026.
+//
+
 import CoreLocation
+import Foundation
 
 /// Represents a place to display on the map
 public struct MapPlace: Sendable, Identifiable, Equatable {
@@ -50,15 +57,15 @@ public enum PlaceStatus: String, Sendable, CaseIterable, Equatable, Codable {
 
     public var iconName: String {
         switch self {
-        case .wishlist: return "heart.fill"
-        case .visited: return "checkmark.circle.fill"
+        case .wishlist: "heart.fill"
+        case .visited: "checkmark.circle.fill"
         }
     }
 
     public var colorName: String {
         switch self {
-        case .wishlist: return "red"
-        case .visited: return "green"
+        case .wishlist: "red"
+        case .visited: "green"
         }
     }
 }

@@ -1,8 +1,14 @@
+//
+//  MockNetworkClient.swift
+//  ARCMaps
+//
+//  Created by ARC Labs Studio on 13/01/2026.
+//
+
 import Foundation
 @testable import ARCMaps
 
 public actor MockNetworkClient: NetworkClientProtocol {
-
     public var mockResponse: Any?
     public var shouldThrowError = false
     public var errorToThrow: Error = NetworkError.invalidResponse
@@ -16,9 +22,9 @@ public actor MockNetworkClient: NetworkClientProtocol {
     public func request<T>(
         url: URL,
         method: HTTPMethod,
-        headers: [String : String]?,
-        body: Data?
-    ) async throws -> T where T : Decodable & Sendable {
+        headers _: [String: String]?,
+        body _: Data?
+    ) async throws -> T where T: Decodable & Sendable {
         requestCount += 1
         lastURL = url
         lastMethod = method

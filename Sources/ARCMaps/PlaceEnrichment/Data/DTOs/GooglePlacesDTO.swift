@@ -1,3 +1,10 @@
+//
+//  GooglePlacesDTO.swift
+//  ARCMaps
+//
+//  Created by ARC Labs Studio on 13/01/2026.
+//
+
 import Foundation
 
 // MARK: - Response DTOs

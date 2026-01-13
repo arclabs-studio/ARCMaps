@@ -1,9 +1,15 @@
-import Foundation
+//
+//  DistanceCalculator.swift
+//  ARCMaps
+//
+//  Created by ARC Labs Studio on 13/01/2026.
+//
+
 import CoreLocation
+import Foundation
 
 /// Utility for calculating distances between coordinates
 public enum DistanceCalculator {
-
     /// Calculate distance between two coordinates in meters
     public static func distance(
         from: CLLocationCoordinate2D,

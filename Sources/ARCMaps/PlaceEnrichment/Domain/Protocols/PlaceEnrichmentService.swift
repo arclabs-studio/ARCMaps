@@ -1,5 +1,12 @@
-import Foundation
+//
+//  PlaceEnrichmentService.swift
+//  ARCMaps
+//
+//  Created by ARC Labs Studio on 13/01/2026.
+//
+
 import CoreLocation
+import Foundation
 
 /// Service for enriching places with external data
 public protocol PlaceEnrichmentService: Sendable {

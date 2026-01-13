@@ -1,8 +1,14 @@
+//
+//  MockPlaceEnrichmentService.swift
+//  ARCMaps
+//
+//  Created by ARC Labs Studio on 13/01/2026.
+//
+
 import Foundation
 @testable import ARCMaps
 
 public actor MockPlaceEnrichmentService: PlaceEnrichmentService {
-
     public var mockSearchResults: [PlaceSearchResult] = []
     public var mockEnrichedData: EnrichedPlaceData?
     public var mockPhotoURL: URL?
@@ -27,7 +33,7 @@ public actor MockPlaceEnrichmentService: PlaceEnrichmentService {
         return mockSearchResults
     }
 
-    public func getPlaceDetails(placeId: String) async throws -> EnrichedPlaceData {
+    public func getPlaceDetails(placeId _: String) async throws -> EnrichedPlaceData {
         getPlaceDetailsCalled = true
 
         if shouldThrowError {
@@ -41,14 +47,18 @@ public actor MockPlaceEnrichmentService: PlaceEnrichmentService {
         return data
     }
 
-    public func getPhotoURL(photoReference: String, maxWidth: Int) async throws -> URL {
+    public func getPhotoURL(photoReference: String, maxWidth _: Int) async throws -> URL {
         getPhotoURLCalled = true
 
         if shouldThrowError {
             throw errorToThrow
         }
 
-        return mockPhotoURL ?? URL(string: "https://example.com/photo.jpg")!
+        guard let url = mockPhotoURL ?? URL(string: "https://example.com/photo.jpg") else {
+            throw PlaceEnrichmentError.photoDownloadFailed(photoReference)
+        }
+
+        return url
     }
 
     public func reset() {

@@ -1,9 +1,15 @@
-import XCTest
+//
+//  DistanceCalculatorTests.swift
+//  ARCMaps
+//
+//  Created by ARC Labs Studio on 13/01/2026.
+//
+
 import CoreLocation
+import XCTest
 @testable import ARCMaps
 
 final class DistanceCalculatorTests: XCTestCase {
-
     func testDistanceBetweenCoordinates() {
         // Given
         let madrid = CLLocationCoordinate2D(latitude: 40.4168, longitude: -3.7038)

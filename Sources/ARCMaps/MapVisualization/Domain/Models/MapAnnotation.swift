@@ -1,5 +1,12 @@
-import Foundation
+//
+//  MapAnnotation.swift
+//  ARCMaps
+//
+//  Created by ARC Labs Studio on 13/01/2026.
+//
+
 import CoreLocation
+import Foundation
 
 /// Custom map annotation with additional metadata
 public struct MapAnnotation: Sendable, Identifiable, Equatable {
