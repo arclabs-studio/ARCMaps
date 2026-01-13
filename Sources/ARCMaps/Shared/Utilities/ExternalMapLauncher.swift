@@ -11,10 +11,30 @@ import Foundation
 import UIKit
 #endif
 
-/// External maps apps
+/// External map applications supported for navigation and location viewing.
+///
+/// Use with ``ExternalMapLauncher`` to open coordinates in the user's preferred map app.
+///
+/// ## Example
+/// ```swift
+/// // Check which apps are available
+/// let availableApps = ExternalMapApp.allCases.filter { $0.canOpen() }
+///
+/// // Open in user's preferred app
+/// try await ExternalMapLauncher.open(
+///     coordinate: place.coordinate,
+///     name: place.name,
+///     app: .appleMaps
+/// )
+/// ```
 public enum ExternalMapApp: String, CaseIterable, Sendable {
+    /// Apple Maps - always available on iOS/macOS.
     case appleMaps = "Apple Maps"
+
+    /// Google Maps - requires app to be installed.
     case googleMaps = "Google Maps"
+
+    /// Waze - requires app to be installed.
     case waze = "Waze"
 
     var urlScheme: String {
@@ -25,7 +45,11 @@ public enum ExternalMapApp: String, CaseIterable, Sendable {
         }
     }
 
-    func canOpen() -> Bool {
+    /// Checks whether this map app is installed and can be opened.
+    ///
+    /// - Returns: `true` if the app can be opened, `false` otherwise.
+    /// - Note: Always returns `false` on macOS.
+    public func canOpen() -> Bool {
         #if canImport(UIKit)
         guard let url = URL(string: urlScheme + "://") else { return false }
         return UIApplication.shared.canOpenURL(url)
@@ -35,15 +59,32 @@ public enum ExternalMapApp: String, CaseIterable, Sendable {
     }
 }
 
-/// Utility for launching external map applications
+/// Utility for opening locations in external map applications.
+///
+/// `ExternalMapLauncher` provides a unified interface for opening coordinates
+/// in Apple Maps, Google Maps, or Waze, handling URL scheme construction
+/// and app availability checking.
+///
+/// ## Example
+/// ```swift
+/// // Open a place in Apple Maps
+/// try await ExternalMapLauncher.open(
+///     coordinate: CLLocationCoordinate2D(latitude: 37.7749, longitude: -122.4194),
+///     name: "Golden Gate Bridge",
+///     app: .appleMaps
+/// )
+/// ```
 public enum ExternalMapLauncher {
-    /// Open coordinate in external map app
+    /// Opens a coordinate in the specified external map application.
+    ///
     /// - Parameters:
-    ///   - coordinate: Coordinate to open
-    ///   - name: Optional place name
-    ///   - address: Optional address
-    ///   - app: External map app to use
-    /// - Throws: MapError if app not installed or launch fails
+    ///   - coordinate: The geographic coordinate to display.
+    ///   - name: Optional place name to display in the map app.
+    ///   - address: Optional address (used by Apple Maps if name is not provided).
+    ///   - app: The external map application to open.
+    /// - Throws: ``MapError/invalidCoordinate`` if the coordinate is invalid,
+    ///   ``MapError/externalAppNotInstalled(_:)`` if the app is not installed,
+    ///   or ``MapError/navigationFailed`` if the URL cannot be opened.
     public static func open(
         coordinate: CLLocationCoordinate2D,
         name: String? = nil,

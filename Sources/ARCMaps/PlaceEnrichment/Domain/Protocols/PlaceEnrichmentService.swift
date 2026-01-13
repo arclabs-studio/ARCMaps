@@ -8,7 +8,28 @@
 import CoreLocation
 import Foundation
 
-/// Service for enriching places with external data
+/// A service that fetches place data from external providers.
+///
+/// `PlaceEnrichmentService` defines the interface for searching places and
+/// retrieving detailed information. Implementations include ``GooglePlacesService``
+/// and ``AppleMapsSearchService``.
+///
+/// ## Conformance Requirements
+/// Implementations must be `Sendable` for safe concurrent usage.
+///
+/// ## Example
+/// ```swift
+/// let service: PlaceEnrichmentService = GooglePlacesService(networkClient: client)
+///
+/// // Search for places
+/// let query = PlaceSearchQuery(name: "Coffee", city: "Seattle")
+/// let results = try await service.searchPlaces(query: query)
+///
+/// // Get detailed info
+/// if let first = results.first {
+///     let details = try await service.getPlaceDetails(placeId: first.id)
+/// }
+/// ```
 public protocol PlaceEnrichmentService: Sendable {
     /// Search for places matching the query
     /// - Parameter query: Search query with name, address, etc.

@@ -7,23 +7,55 @@
 
 import Foundation
 
-/// Global configuration for ARCMaps
+/// Global configuration settings for the ARCMaps package.
+///
+/// Configure `ARCMapsConfiguration.shared` before using ARCMaps services.
+/// This must be done on the main actor, typically in your app's initialization.
+///
+/// ## Example
+/// ```swift
+/// @main
+/// struct MyApp: App {
+///     init() {
+///         ARCMapsConfiguration.shared = ARCMapsConfiguration(
+///             googlePlacesAPIKey: "YOUR_API_KEY",
+///             defaultProvider: .google,
+///             maxCacheSize: 200,
+///             cacheExpirationSeconds: 7200
+///         )
+///     }
+///
+///     var body: some Scene {
+///         WindowGroup {
+///             ContentView()
+///         }
+///     }
+/// }
+/// ```
 public struct ARCMapsConfiguration: Sendable {
-    /// Google Places API key
+    /// API key for Google Places API. Required when using the Google provider.
     public let googlePlacesAPIKey: String?
 
-    /// Default place provider
+    /// The default provider to use for place searches.
     public let defaultProvider: PlaceProvider
 
-    /// Maximum cached search results
+    /// Maximum number of search results to cache.
     public let maxCacheSize: Int
 
-    /// Cache expiration in seconds
+    /// Time in seconds before cached results expire.
     public let cacheExpirationSeconds: TimeInterval
 
-    /// Default photo max width
+    /// Default maximum width in pixels for fetched photos.
     public let defaultPhotoMaxWidth: Int
 
+    /// Creates a new configuration with the specified settings.
+    ///
+    /// - Parameters:
+    ///   - googlePlacesAPIKey: API key for Google Places (required for Google provider).
+    ///   - defaultProvider: The default provider for place searches.
+    ///   - maxCacheSize: Maximum cached search results (default: 100).
+    ///   - cacheExpirationSeconds: Cache TTL in seconds (default: 3600 = 1 hour).
+    ///   - defaultPhotoMaxWidth: Default photo width in pixels (default: 400).
     public init(
         googlePlacesAPIKey: String? = nil,
         defaultProvider: PlaceProvider = .google,
@@ -38,6 +70,8 @@ public struct ARCMapsConfiguration: Sendable {
         self.defaultPhotoMaxWidth = defaultPhotoMaxWidth
     }
 
-    /// Shared configuration instance
+    /// The shared configuration instance used throughout the package.
+    ///
+    /// Set this property during app initialization before using any ARCMaps services.
     @MainActor public static var shared = ARCMapsConfiguration()
 }

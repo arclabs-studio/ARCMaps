@@ -8,7 +8,26 @@
 import CoreLocation
 import Foundation
 
-/// Service for managing location permissions and updates
+/// A service that manages device location permissions and provides location updates.
+///
+/// `LocationService` abstracts CoreLocation functionality, providing a cleaner async/await
+/// interface for requesting permissions and tracking the user's location.
+/// The default implementation is ``CoreLocationService``.
+///
+/// ## Conformance Requirements
+/// Implementations must be `Sendable` for safe concurrent usage.
+///
+/// ## Example
+/// ```swift
+/// let locationService: LocationService = CoreLocationService()
+///
+/// // Request permission
+/// let granted = await locationService.requestPermission()
+/// if granted {
+///     let location = try await locationService.getCurrentLocation()
+///     print("User is at: \(location.latitude), \(location.longitude)")
+/// }
+/// ```
 public protocol LocationService: Sendable {
     /// Request location permissions
     /// - Returns: Whether permission was granted

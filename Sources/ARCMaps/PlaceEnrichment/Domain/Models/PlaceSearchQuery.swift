@@ -7,26 +7,53 @@
 
 import Foundation
 
-/// Represents a search query for finding places
+/// A query for searching places from external providers like Google Places or Apple Maps.
+///
+/// `PlaceSearchQuery` encapsulates all the parameters needed to search for places,
+/// including name matching, location-based filtering, and geographic proximity.
+///
+/// ## Example
+/// ```swift
+/// // Simple name-based search
+/// let basicQuery = PlaceSearchQuery(name: "La Taverna")
+///
+/// // Location-aware search with radius
+/// let locationQuery = PlaceSearchQuery(
+///     name: "Coffee Shop",
+///     city: "San Francisco",
+///     countryCode: "US",
+///     coordinate: (37.7749, -122.4194),
+///     radiusMeters: 5000
+/// )
+/// ```
 public struct PlaceSearchQuery: Sendable, Equatable, Hashable {
-    /// Name of the place (e.g., "La Taverna")
+    /// The name of the place to search for (e.g., "La Taverna", "Coffee Shop").
     public let name: String
 
-    /// Optional address for more precise search
+    /// Street address for more precise search results.
     public let address: String?
 
-    /// Optional city for filtering results
+    /// City name for filtering results to a specific location.
     public let city: String?
 
-    /// Optional country code (ISO 3166-1 alpha-2)
+    /// ISO 3166-1 alpha-2 country code (e.g., "US", "ES", "GB").
     public let countryCode: String?
 
-    /// Optional coordinate for proximity search
+    /// Geographic coordinates for proximity-based search.
     public let coordinate: (latitude: Double, longitude: Double)?
 
-    /// Search radius in meters (used with coordinate)
+    /// Search radius in meters when using coordinate-based search.
     public let radiusMeters: Int?
 
+    /// Creates a new place search query with the specified parameters.
+    ///
+    /// - Parameters:
+    ///   - name: The name of the place to search for.
+    ///   - address: Street address for precision (optional).
+    ///   - city: City name for filtering (optional).
+    ///   - countryCode: ISO 3166-1 alpha-2 country code (optional).
+    ///   - coordinate: Geographic coordinates for proximity search (optional).
+    ///   - radiusMeters: Search radius in meters (optional, used with coordinate).
     public init(
         name: String,
         address: String? = nil,
@@ -43,7 +70,12 @@ public struct PlaceSearchQuery: Sendable, Equatable, Hashable {
         self.radiusMeters = radiusMeters
     }
 
-    /// Full text query combining all available fields
+    /// A combined text query string using all available location fields.
+    ///
+    /// Joins name, address, and city (if available) with commas for use
+    /// in text-based search APIs.
+    ///
+    /// - Returns: A comma-separated string like "La Taverna, 123 Main St, Madrid".
     public var fullTextQuery: String {
         var components = [name]
         if let address { components.append(address) }
