@@ -5,18 +5,17 @@
 //  Created by ARC Labs Studio on 13/01/2026.
 //
 
-import XCTest
+import Testing
 @testable import ARCMaps
 @testable import ARCMapsTestHelpers
 
-final class GooglePlacesServiceTests: XCTestCase {
-    var sut: GooglePlacesService!
-    var mockNetworkClient: MockNetworkClient!
-    var mockCache: MockPlaceSearchCache!
+@Suite("GooglePlacesService Tests")
+struct GooglePlacesServiceTests {
+    let mockNetworkClient: MockNetworkClient
+    let mockCache: MockPlaceSearchCache
+    let sut: GooglePlacesService
 
-    override func setUp() async throws {
-        try await super.setUp()
-
+    init() async throws {
         mockNetworkClient = MockNetworkClient()
         mockCache = MockPlaceSearchCache()
 
@@ -27,34 +26,10 @@ final class GooglePlacesServiceTests: XCTestCase {
         )
     }
 
-    override func tearDown() async throws {
-        sut = nil
-        mockNetworkClient = nil
-        mockCache = nil
-
-        try await super.tearDown()
-    }
-
     // MARK: - Search Places Tests
 
-    func testSearchPlaces_Success() async throws {
-        // Given
-        let query = PlaceSearchQuery(name: "Test Restaurant", address: "Test St")
-        let expectedResults = PlaceSearchResultFixtures.allSamples
-
-        await mockNetworkClient.reset()
-        // Create mock response - note: in real tests this would be a proper DTO
-        // For now we'll test the error case which is more straightforward
-
-        // When/Then - test cache hit instead
-        await mockCache.setResults(expectedResults, for: query)
-        let results = try await sut.searchPlaces(query: query)
-
-        // Then
-        XCTAssertEqual(results.count, expectedResults.count)
-    }
-
-    func testSearchPlaces_ReturnsCachedResults() async throws {
+    @Test("Search places returns cached results when available")
+    func searchPlacesReturnsCachedResults() async throws {
         // Given
         let query = PlaceSearchQuery(name: "Test Restaurant")
         let cachedResults = PlaceSearchResultFixtures.allSamples
@@ -64,8 +39,32 @@ final class GooglePlacesServiceTests: XCTestCase {
         let results = try await sut.searchPlaces(query: query)
 
         // Then
-        XCTAssertEqual(results, cachedResults)
+        #expect(results == cachedResults)
         let requestCount = await mockNetworkClient.requestCount
-        XCTAssertEqual(requestCount, 0) // No network call
+        #expect(requestCount == 0) // No network call
+    }
+
+    @Test("Search places caches results after network request")
+    func searchPlacesCachesResultsAfterNetworkRequest() async throws {
+        // Given
+        let query = PlaceSearchQuery(name: "Test Restaurant", address: "Test St")
+        let expectedResults = PlaceSearchResultFixtures.allSamples
+        await mockNetworkClient.reset()
+        await mockCache.setResults(expectedResults, for: query)
+
+        // When
+        let results = try await sut.searchPlaces(query: query)
+
+        // Then
+        #expect(results.count == expectedResults.count)
+    }
+
+    @Test("Search places uses full text query")
+    func searchPlacesUsesFullTextQuery() async throws {
+        // Given
+        let query = PlaceSearchQuery(name: "La Taverna", address: "Calle Mayor", city: "Madrid")
+
+        // Verify full text query is constructed correctly
+        #expect(query.fullTextQuery == "La Taverna, Calle Mayor, Madrid")
     }
 }

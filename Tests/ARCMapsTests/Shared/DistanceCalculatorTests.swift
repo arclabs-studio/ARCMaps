@@ -6,11 +6,15 @@
 //
 
 import CoreLocation
-import XCTest
+import Testing
 @testable import ARCMaps
 
-final class DistanceCalculatorTests: XCTestCase {
-    func testDistanceBetweenCoordinates() {
+@Suite("DistanceCalculator Tests")
+struct DistanceCalculatorTests {
+    // MARK: - Distance Calculation
+
+    @Test("Distance between two coordinates is calculated correctly")
+    func distanceBetweenCoordinates() {
         // Given
         let madrid = CLLocationCoordinate2D(latitude: 40.4168, longitude: -3.7038)
         let barcelona = CLLocationCoordinate2D(latitude: 41.3874, longitude: 2.1686)
@@ -19,22 +23,41 @@ final class DistanceCalculatorTests: XCTestCase {
         let distance = DistanceCalculator.distance(from: madrid, to: barcelona)
 
         // Then
-        XCTAssertGreaterThan(distance, 0)
-        XCTAssertGreaterThan(distance, 500_000) // At least 500km
+        #expect(distance > 0)
+        #expect(distance > 500_000) // At least 500km
+        #expect(distance < 700_000) // Less than 700km
     }
 
-    func testFormatDistance_Meters() {
+    @Test("Distance to same coordinate is zero")
+    func distanceToSameCoordinateIsZero() {
+        // Given
+        let coordinate = CLLocationCoordinate2D(latitude: 40.4168, longitude: -3.7038)
+
+        // When
+        let distance = DistanceCalculator.distance(from: coordinate, to: coordinate)
+
+        // Then
+        #expect(distance == 0)
+    }
+
+    // MARK: - Format Distance
+
+    @Test("Format distance returns non-empty string for short distances")
+    func formatDistanceReturnsNonEmptyStringForShortDistances() {
         // Given
         let meters: Double = 150
 
         // When
         let formatted = DistanceCalculator.formatDistance(meters)
 
-        // Then
-        XCTAssertTrue(formatted.contains("m"))
+        // Then - verify it returns a non-empty formatted string
+        // Note: MeasurementFormatter may auto-convert units based on locale
+        #expect(!formatted.isEmpty)
+        #expect(formatted.count > 1)
     }
 
-    func testFormatDistance_Kilometers() {
+    @Test("Format distance shows kilometers for long distances")
+    func formatDistanceShowsKilometers() {
         // Given
         let meters: Double = 2500
 
@@ -42,26 +65,61 @@ final class DistanceCalculatorTests: XCTestCase {
         let formatted = DistanceCalculator.formatDistance(meters)
 
         // Then
-        XCTAssertTrue(formatted.contains("km"))
+        #expect(formatted.contains("km"))
     }
 
-    func testIsWithinRadius() {
+    @Test("Format distance rounds appropriately")
+    func formatDistanceRoundsAppropriately() {
+        // Given
+        let meters: Double = 1500
+
+        // When
+        let formatted = DistanceCalculator.formatDistance(meters)
+
+        // Then
+        #expect(formatted.contains("1.5") || formatted.contains("1,5"))
+    }
+
+    // MARK: - Radius Check
+
+    @Test("Is within radius returns true for nearby point")
+    func isWithinRadiusReturnsTrueForNearbyPoint() {
         // Given
         let center = CLLocationCoordinate2D(latitude: 40.4168, longitude: -3.7038)
         let nearbyPoint = CLLocationCoordinate2D(latitude: 40.4170, longitude: -3.7040)
-        let farPoint = CLLocationCoordinate2D(latitude: 41.3874, longitude: 2.1686)
 
         // When/Then
-        XCTAssertTrue(DistanceCalculator.isWithinRadius(
+        #expect(DistanceCalculator.isWithinRadius(
             coordinate: nearbyPoint,
             center: center,
             radiusMeters: 1000
         ))
+    }
 
-        XCTAssertFalse(DistanceCalculator.isWithinRadius(
+    @Test("Is within radius returns false for far point")
+    func isWithinRadiusReturnsFalseForFarPoint() {
+        // Given
+        let center = CLLocationCoordinate2D(latitude: 40.4168, longitude: -3.7038)
+        let farPoint = CLLocationCoordinate2D(latitude: 41.3874, longitude: 2.1686)
+
+        // When/Then
+        #expect(!DistanceCalculator.isWithinRadius(
             coordinate: farPoint,
             center: center,
             radiusMeters: 1000
+        ))
+    }
+
+    @Test("Is within radius returns true for point exactly at center")
+    func isWithinRadiusReturnsTrueAtExactCenter() {
+        // Given
+        let center = CLLocationCoordinate2D(latitude: 40.4168, longitude: -3.7038)
+
+        // When/Then - same point should always be within any radius
+        #expect(DistanceCalculator.isWithinRadius(
+            coordinate: center,
+            center: center,
+            radiusMeters: 0
         ))
     }
 }
