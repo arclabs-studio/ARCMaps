@@ -10,14 +10,10 @@ public protocol LoggerProtocol: Sendable {
 }
 
 /// Default logger implementation using OSLog
-public actor DefaultLogger: LoggerProtocol {
-    private let subsystem: String
-    private let category: String
+public final class DefaultLogger: LoggerProtocol, @unchecked Sendable {
     private let logger: os.Logger
 
     public init(subsystem: String = "com.arclabs.ARCMaps", category: String = "default") {
-        self.subsystem = subsystem
-        self.category = category
         self.logger = os.Logger(subsystem: subsystem, category: category)
     }
 

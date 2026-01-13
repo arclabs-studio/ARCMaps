@@ -5,7 +5,11 @@ import CoreLocation
 public actor MockLocationService: LocationService {
 
     public var mockPermissionGranted = true
+    #if os(iOS)
     public var mockAuthorizationStatus: CLAuthorizationStatus = .authorizedWhenInUse
+    #else
+    public var mockAuthorizationStatus: CLAuthorizationStatus = .authorized
+    #endif
     public var mockCurrentLocation: CLLocationCoordinate2D?
     public var shouldThrowError = false
     public var errorToThrow: MapError = .locationUnavailable

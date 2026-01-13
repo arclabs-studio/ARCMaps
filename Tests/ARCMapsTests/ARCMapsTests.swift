@@ -3,7 +3,12 @@ import Testing
 
 struct ARCMapsTests {
     @Test
-    func testHelloFunction() {
-        #expect(ARCMaps.hello() == "Hello from ARCMaps!")
+    func testPackageVersion() {
+        #expect(ARCMaps.version == "1.0.0")
+    }
+
+    @Test
+    func testPackageName() {
+        #expect(ARCMaps.name == "ARCMaps")
     }
 }

@@ -22,8 +22,13 @@ public final class CoreLocationService: NSObject, LocationService, CLLocationMan
         let status = locationManager.authorizationStatus
 
         switch status {
+        #if os(iOS)
         case .authorizedWhenInUse, .authorizedAlways:
             return true
+        #else
+        case .authorized, .authorizedAlways:
+            return true
+        #endif
         case .notDetermined:
             return await withCheckedContinuation { continuation in
                 self.continuation = continuation
@@ -43,7 +48,13 @@ public final class CoreLocationService: NSObject, LocationService, CLLocationMan
     public func getCurrentLocation() async throws -> CLLocationCoordinate2D {
         let status = locationManager.authorizationStatus
 
-        guard status == .authorizedWhenInUse || status == .authorizedAlways else {
+        #if os(iOS)
+        let isAuthorized = status == .authorizedWhenInUse || status == .authorizedAlways
+        #else
+        let isAuthorized = status == .authorized || status == .authorizedAlways
+        #endif
+
+        guard isAuthorized else {
             throw MapError.locationPermissionDenied
         }
 
@@ -66,10 +77,14 @@ public final class CoreLocationService: NSObject, LocationService, CLLocationMan
     // MARK: - CLLocationManagerDelegate
 
     nonisolated public func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
-        Task { @MainActor in
-            let status = manager.authorizationStatus
-            let authorized = status == .authorizedWhenInUse || status == .authorizedAlways
+        let status = manager.authorizationStatus
+        #if os(iOS)
+        let authorized = status == .authorizedWhenInUse || status == .authorizedAlways
+        #else
+        let authorized = status == .authorized || status == .authorizedAlways
+        #endif
 
+        Task { @MainActor in
             if let continuation = self.continuation {
                 continuation.resume(returning: authorized)
                 self.continuation = nil

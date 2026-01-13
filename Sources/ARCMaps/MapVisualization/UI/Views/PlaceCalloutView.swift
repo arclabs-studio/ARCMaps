@@ -111,7 +111,9 @@ public struct PlaceCalloutView: View {
                 }
                 .padding()
             }
+            #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
+            #endif
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Close") {
