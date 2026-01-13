@@ -8,6 +8,15 @@
 import MapKit
 import SwiftUI
 
+// MARK: - Constants
+
+private enum ViewDefaults {
+    /// Initial height for the place detail sheet.
+    static let sheetInitialHeight: CGFloat = 300
+    /// Corner radius for the loading indicator background.
+    static let loadingIndicatorCornerRadius: CGFloat = 12
+}
+
 /// Main map view component
 public struct ARCMapView: View {
     @Bindable var viewModel: MapViewModel
@@ -42,7 +51,7 @@ public struct ARCMapView: View {
                 ProgressView("Getting location...")
                     .padding()
                     .background(.regularMaterial)
-                    .cornerRadius(12)
+                    .cornerRadius(ViewDefaults.loadingIndicatorCornerRadius)
             }
         }
         .task {
@@ -102,7 +111,7 @@ public struct ARCMapView: View {
                     await viewModel.openInExternalMaps(place, app: app)
                 }
             )
-            .presentationDetents([.height(300), .medium])
+            .presentationDetents([.height(ViewDefaults.sheetInitialHeight), .medium])
         }
     }
 }

@@ -12,6 +12,15 @@ import MapKit
 import Observation
 import SwiftUI
 
+// MARK: - Constants
+
+private enum MapDefaults {
+    /// Default latitude delta for single place view (approximately 1km visible area).
+    static let defaultSpanLatitudeDelta: CLLocationDegrees = 0.01
+    /// Default longitude delta for single place view (approximately 1km visible area).
+    static let defaultSpanLongitudeDelta: CLLocationDegrees = 0.01
+}
+
 /// ViewModel for map visualization
 @Observable
 @MainActor
@@ -101,7 +110,10 @@ public final class MapViewModel {
         cameraPosition = .region(
             MKCoordinateRegion(
                 center: place.coordinate,
-                span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
+                span: MKCoordinateSpan(
+                    latitudeDelta: MapDefaults.defaultSpanLatitudeDelta,
+                    longitudeDelta: MapDefaults.defaultSpanLongitudeDelta
+                )
             )
         )
     }
