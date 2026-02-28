@@ -9,7 +9,6 @@ included:
 # Excluded directories
 excluded:
   - .build
-  - .claude
   - DerivedData
   - Pods
   - Carthage
@@ -110,8 +109,16 @@ file_length:
 # Custom rules for ARC Labs
 custom_rules:
 
-  # Note: observable_viewmodel rule disabled - regex cannot detect @Observable on preceding lines
-  # ViewModels in this project correctly use @Observable (verified manually)
+  # ViewModels should use @Observable
+  observable_viewmodel:
+    name: "ViewModels should use @Observable"
+    regex: "final\\s+class\\s+\\w+ViewModel(?!.*@Observable)"
+    excluded_match_kinds:
+      - comment
+      - doccomment
+      - string
+    message: "ViewModels must use @Observable in Swift 6"
+    severity: warning
 
   # No empty line after guard (from ARCKnowledge)
   no_empty_line_after_guard:
@@ -133,6 +140,13 @@ custom_rules:
     regex: 'try!'
     message: "Avoid force try. Use proper error handling"
     severity: error
+
+# Multiline declarations - first param on same line as opening paren (ARC Labs style)
+multiline_arguments:
+  first_argument_location: same_line
+
+multiline_parameters:
+  first_argument_location: same_line
 
 # Reporter (output format)
 reporter: "xcode"
