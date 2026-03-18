@@ -107,7 +107,7 @@ import Testing
 
         // Then
         #expect(sut.filteredPlaces.count == 1)
-        #expect(sut.filteredPlaces.allSatisfy(\.isFavorite))
+        #expect(sut.filteredPlaces.allSatisfy { $0.isFavorite })
     }
 
     // MARK: - Selection

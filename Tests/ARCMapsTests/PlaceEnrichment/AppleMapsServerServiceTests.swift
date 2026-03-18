@@ -42,21 +42,24 @@ extension MockNetworkClient {
 
     @Test("Search places returns mapped results") func searchPlacesReturnsMappedResults() async throws {
         // Given
-        let response =
-            AppleMapsServerSearchResponse(results: [AppleMapsServerSearchResult(place: AppleMapsServerPlace(placeId: "server_place_1",
-                                                                                                            name: "La Taverna Server",
-                                                                                                            formattedAddressLines: ["Calle Mayor 15",
-                                                                                                                                    "Madrid"],
-                                                                                                            coordinate: AppleMapsServerCoordinate(latitude: 40.4168,
-                                                                                                                                                  longitude: -3.7038),
-                                                                                                            pointOfInterestCategory: "restaurant")),
-                                                    AppleMapsServerSearchResult(place: AppleMapsServerPlace(placeId: "server_place_2",
-                                                                                                            name: "El Café",
-                                                                                                            formattedAddressLines: ["Gran Vía 20",
-                                                                                                                                    "Madrid"],
-                                                                                                            coordinate: AppleMapsServerCoordinate(latitude: 40.4200,
-                                                                                                                                                  longitude: -3.7050),
-                                                                                                            pointOfInterestCategory: "cafe"))])
+        let place1 = AppleMapsServerPlace(
+            placeId: "server_place_1",
+            name: "La Taverna Server",
+            formattedAddressLines: ["Calle Mayor 15", "Madrid"],
+            coordinate: AppleMapsServerCoordinate(latitude: 40.4168, longitude: -3.7038),
+            pointOfInterestCategory: "restaurant"
+        )
+        let place2 = AppleMapsServerPlace(
+            placeId: "server_place_2",
+            name: "El Café",
+            formattedAddressLines: ["Gran Vía 20", "Madrid"],
+            coordinate: AppleMapsServerCoordinate(latitude: 40.4200, longitude: -3.7050),
+            pointOfInterestCategory: "cafe"
+        )
+        let response = AppleMapsServerSearchResponse(results: [
+            AppleMapsServerSearchResult(place: place1),
+            AppleMapsServerSearchResult(place: place2)
+        ])
         await mockNetworkClient.setMockResponse(response)
         let query = PlaceSearchQuery(name: "restaurant Madrid")
 
@@ -76,19 +79,24 @@ extension MockNetworkClient {
     @Test("Search places filters results with missing required fields")
     func searchPlacesFiltersInvalidResults() async throws {
         // Given - one result with missing placeId
-        let response =
-            AppleMapsServerSearchResponse(results: [AppleMapsServerSearchResult(place: AppleMapsServerPlace(placeId: nil,
-                                                                                                            name: "Missing ID Place",
-                                                                                                            formattedAddressLines: nil,
-                                                                                                            coordinate: AppleMapsServerCoordinate(latitude: 40.0,
-                                                                                                                                                  longitude: -3.0),
-                                                                                                            pointOfInterestCategory: nil)),
-                                                    AppleMapsServerSearchResult(place: AppleMapsServerPlace(placeId: "valid_place",
-                                                                                                            name: "Valid Place",
-                                                                                                            formattedAddressLines: ["Address"],
-                                                                                                            coordinate: AppleMapsServerCoordinate(latitude: 40.0,
-                                                                                                                                                  longitude: -3.0),
-                                                                                                            pointOfInterestCategory: "restaurant"))])
+        let invalidPlace = AppleMapsServerPlace(
+            placeId: nil,
+            name: "Missing ID Place",
+            formattedAddressLines: nil,
+            coordinate: AppleMapsServerCoordinate(latitude: 40.0, longitude: -3.0),
+            pointOfInterestCategory: nil
+        )
+        let validPlace = AppleMapsServerPlace(
+            placeId: "valid_place",
+            name: "Valid Place",
+            formattedAddressLines: ["Address"],
+            coordinate: AppleMapsServerCoordinate(latitude: 40.0, longitude: -3.0),
+            pointOfInterestCategory: "restaurant"
+        )
+        let response = AppleMapsServerSearchResponse(results: [
+            AppleMapsServerSearchResult(place: invalidPlace),
+            AppleMapsServerSearchResult(place: validPlace)
+        ])
         await mockNetworkClient.setMockResponse(response)
 
         // When
@@ -115,13 +123,16 @@ extension MockNetworkClient {
 
     @Test("Search places caches results after fetch") func searchPlacesCachesResultsAfterFetch() async throws {
         // Given
-        let response =
-            AppleMapsServerSearchResponse(results: [AppleMapsServerSearchResult(place: AppleMapsServerPlace(placeId: "cache_test",
-                                                                                                            name: "Cache Test Place",
-                                                                                                            formattedAddressLines: ["Address"],
-                                                                                                            coordinate: AppleMapsServerCoordinate(latitude: 40.0,
-                                                                                                                                                  longitude: -3.0),
-                                                                                                            pointOfInterestCategory: "restaurant"))])
+        let place = AppleMapsServerPlace(
+            placeId: "cache_test",
+            name: "Cache Test Place",
+            formattedAddressLines: ["Address"],
+            coordinate: AppleMapsServerCoordinate(latitude: 40.0, longitude: -3.0),
+            pointOfInterestCategory: "restaurant"
+        )
+        let response = AppleMapsServerSearchResponse(
+            results: [AppleMapsServerSearchResult(place: place)]
+        )
         await mockNetworkClient.setMockResponse(response)
         let query = PlaceSearchQuery(name: "cache test")
 
