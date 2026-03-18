@@ -36,6 +36,22 @@ public struct ARCMapsConfiguration: Sendable {
     /// API key for Google Places API. Required when using the Google provider.
     public let googlePlacesAPIKey: String?
 
+    /// The 10-character Key ID for the Apple Maps Server API private key.
+    ///
+    /// Found in the Apple Developer Portal under Certificates, Identifiers & Profiles → Keys.
+    public let appleMapsKeyID: String?
+
+    /// The 10-character Team ID associated with your Apple Developer account.
+    ///
+    /// Found in the Apple Developer Portal under Membership details.
+    public let appleMapsTeamID: String?
+
+    /// The PEM-encoded ES256 private key for Apple Maps Server API authentication.
+    ///
+    /// The private key file (`.p8`) downloaded from the Apple Developer Portal.
+    /// Paste the full PEM content including the `-----BEGIN PRIVATE KEY-----` header/footer.
+    public let appleMapsPrivateKey: String?
+
     /// The default provider to use for place searches.
     public let defaultProvider: PlaceProvider
 
@@ -52,18 +68,27 @@ public struct ARCMapsConfiguration: Sendable {
     ///
     /// - Parameters:
     ///   - googlePlacesAPIKey: API key for Google Places (required for Google provider).
+    ///   - appleMapsKeyID: Key ID for Apple Maps Server API JWT authentication.
+    ///   - appleMapsTeamID: Team ID for Apple Maps Server API JWT authentication.
+    ///   - appleMapsPrivateKey: PEM private key for Apple Maps Server API JWT authentication.
     ///   - defaultProvider: The default provider for place searches.
     ///   - maxCacheSize: Maximum cached search results (default: 100).
     ///   - cacheExpirationSeconds: Cache TTL in seconds (default: 3600 = 1 hour).
     ///   - defaultPhotoMaxWidth: Default photo width in pixels (default: 400).
     public init(
         googlePlacesAPIKey: String? = nil,
+        appleMapsKeyID: String? = nil,
+        appleMapsTeamID: String? = nil,
+        appleMapsPrivateKey: String? = nil,
         defaultProvider: PlaceProvider = .google,
         maxCacheSize: Int = 100,
         cacheExpirationSeconds: TimeInterval = 3600,
         defaultPhotoMaxWidth: Int = 400
     ) {
         self.googlePlacesAPIKey = googlePlacesAPIKey
+        self.appleMapsKeyID = appleMapsKeyID
+        self.appleMapsTeamID = appleMapsTeamID
+        self.appleMapsPrivateKey = appleMapsPrivateKey
         self.defaultProvider = defaultProvider
         self.maxCacheSize = maxCacheSize
         self.cacheExpirationSeconds = cacheExpirationSeconds
