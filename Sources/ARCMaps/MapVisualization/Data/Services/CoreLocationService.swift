@@ -10,8 +10,7 @@ import CoreLocation
 import Foundation
 
 /// CoreLocation-based location service
-@MainActor
-public final class CoreLocationService: NSObject, LocationService, CLLocationManagerDelegate {
+@MainActor public final class CoreLocationService: NSObject, LocationService, CLLocationManagerDelegate {
     private let locationManager: CLLocationManager
     private let logger = ARCLogger(category: "CoreLocationService")
     private var continuation: CheckedContinuation<Bool, Never>?

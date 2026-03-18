@@ -57,13 +57,11 @@ public struct MapFilter: Sendable, Equatable {
     ///   - minRating: The minimum rating threshold, or `nil` to disable rating filtering.
     ///   - dateRange: The date range for visit dates, or `nil` to disable date filtering.
     ///   - filterByFavorites: When `true`, only favorites are included. Defaults to `false`.
-    public init(
-        statuses: Set<PlaceStatus> = Set(PlaceStatus.allCases),
-        categories: Set<String> = [],
-        minRating: Double? = nil,
-        dateRange: DateRange? = nil,
-        filterByFavorites: Bool = false
-    ) {
+    public init(statuses: Set<PlaceStatus> = Set(PlaceStatus.allCases),
+                categories: Set<String> = [],
+                minRating: Double? = nil,
+                dateRange: DateRange? = nil,
+                filterByFavorites: Bool = false) {
         self.statuses = statuses
         self.categories = categories
         self.minRating = minRating

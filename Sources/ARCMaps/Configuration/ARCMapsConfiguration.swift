@@ -75,16 +75,14 @@ public struct ARCMapsConfiguration: Sendable {
     ///   - maxCacheSize: Maximum cached search results (default: 100).
     ///   - cacheExpirationSeconds: Cache TTL in seconds (default: 3600 = 1 hour).
     ///   - defaultPhotoMaxWidth: Default photo width in pixels (default: 400).
-    public init(
-        googlePlacesAPIKey: String? = nil,
-        appleMapsKeyID: String? = nil,
-        appleMapsTeamID: String? = nil,
-        appleMapsPrivateKey: String? = nil,
-        defaultProvider: PlaceProvider = .google,
-        maxCacheSize: Int = 100,
-        cacheExpirationSeconds: TimeInterval = 3600,
-        defaultPhotoMaxWidth: Int = 400
-    ) {
+    public init(googlePlacesAPIKey: String? = nil,
+                appleMapsKeyID: String? = nil,
+                appleMapsTeamID: String? = nil,
+                appleMapsPrivateKey: String? = nil,
+                defaultProvider: PlaceProvider = .google,
+                maxCacheSize: Int = 100,
+                cacheExpirationSeconds: TimeInterval = 3600,
+                defaultPhotoMaxWidth: Int = 400) {
         self.googlePlacesAPIKey = googlePlacesAPIKey
         self.appleMapsKeyID = appleMapsKeyID
         self.appleMapsTeamID = appleMapsTeamID

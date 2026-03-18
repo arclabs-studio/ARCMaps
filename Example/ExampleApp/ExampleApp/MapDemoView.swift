@@ -55,7 +55,7 @@ struct MapDemoView: View {
         }
     }
 
-    @ViewBuilder private var featureSelectionToggle: some View {
+    private var featureSelectionToggle: some View {
         Toggle(isOn: $featureSelectionEnabled) {
             VStack(alignment: .leading, spacing: 2) {
                 Text("Native POI Selection")
@@ -73,10 +73,8 @@ struct MapDemoView: View {
     @ViewBuilder private var mapView: some View {
         #if os(iOS)
         if #available(iOS 18.0, *) {
-            ARCMapView(
-                viewModel: viewModel,
-                featureSelectionMode: featureSelectionEnabled ? .pointsOfInterestOnly : .disabled
-            )
+            ARCMapView(viewModel: viewModel,
+                       featureSelectionMode: featureSelectionEnabled ? .pointsOfInterestOnly : .disabled)
         } else {
             ARCMapView(viewModel: viewModel)
         }

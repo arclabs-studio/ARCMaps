@@ -34,11 +34,10 @@ public actor AppleMapsSearchService: PlaceEnrichmentService {
         searchRequest.naturalLanguageQuery = query.fullTextQuery
 
         if let coordinate = query.coordinate {
-            let region = MKCoordinateRegion(
-                center: CLLocationCoordinate2D(latitude: coordinate.latitude, longitude: coordinate.longitude),
-                latitudinalMeters: Double(query.radiusMeters ?? 10000),
-                longitudinalMeters: Double(query.radiusMeters ?? 10000)
-            )
+            let region = MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: coordinate.latitude,
+                                                                           longitude: coordinate.longitude),
+                                            latitudinalMeters: Double(query.radiusMeters ?? 10000),
+                                            longitudinalMeters: Double(query.radiusMeters ?? 10000))
             searchRequest.region = region
         }
 
@@ -54,18 +53,16 @@ public actor AppleMapsSearchService: PlaceEnrichmentService {
                     return nil
                 }
 
-                return PlaceSearchResult(
-                    id: mapItem.placemark.description,
-                    provider: .apple,
-                    name: name,
-                    address: formatAddress(mapItem.placemark),
-                    coordinate: coordinate,
-                    types: [],
-                    rating: nil, // Apple Maps doesn't provide ratings in search
-                    userRatingsTotal: nil,
-                    priceLevel: nil,
-                    photoReferences: []
-                )
+                return PlaceSearchResult(id: mapItem.placemark.description,
+                                         provider: .apple,
+                                         name: name,
+                                         address: formatAddress(mapItem.placemark),
+                                         coordinate: coordinate,
+                                         types: [],
+                                         rating: nil, // Apple Maps doesn't provide ratings in search
+                                         userRatingsTotal: nil,
+                                         priceLevel: nil,
+                                         photoReferences: [])
             }
 
             // Cache results

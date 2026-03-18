@@ -84,14 +84,13 @@ public enum MapFeatureSelectionMode: Sendable {
 
 // MARK: - Marker Resolution Helper
 
-private extension MapPlace {
+extension MapPlace {
     /// Resolves the appropriate marker view type for this place.
     ///
     /// - `.pending` → `PendingMarker`
     /// - `.visited && isFavorite` → `FavoriteMarker`
     /// - `.visited && !isFavorite` → `VisitedMarker`
-    @MainActor @ViewBuilder
-    var markerView: some View {
+    @MainActor @ViewBuilder fileprivate var markerView: some View {
         switch status {
         case .pending:
             PendingMarker(place: self)
@@ -157,10 +156,8 @@ public struct ARCMapView: View {
     ///   - viewModel: The view model managing map state, places, and user location.
     ///   - featureSelectionMode: Controls native POI selection behavior on iOS 18+.
     ///     Default is `.disabled`, which provides a cleaner experience focused on your custom markers.
-    public init(
-        viewModel: MapViewModel,
-        featureSelectionMode: MapFeatureSelectionMode = .disabled
-    ) {
+    public init(viewModel: MapViewModel,
+                featureSelectionMode: MapFeatureSelectionMode = .disabled) {
         self.viewModel = viewModel
         self.featureSelectionMode = featureSelectionMode
     }
@@ -172,15 +169,13 @@ public struct ARCMapView: View {
             VStack {
                 HStack {
                     Spacer()
-                    MapControlsView(
-                        onFitAll: {
-                            viewModel.fitAllPlaces()
-                        },
-                        onChangeStyle: { style in
-                            viewModel.changeMapStyle(style)
-                        },
-                        currentStyle: viewModel.mapStyle
-                    )
+                    MapControlsView(onFitAll: {
+                                        viewModel.fitAllPlaces()
+                                    },
+                                    onChangeStyle: { style in
+                                        viewModel.changeMapStyle(style)
+                                    },
+                                    currentStyle: viewModel.mapStyle)
                 }
                 .padding()
 
@@ -197,10 +192,8 @@ public struct ARCMapView: View {
         .task {
             await viewModel.requestLocationPermission()
         }
-        .alert(
-            "Map Error",
-            isPresented: .constant(viewModel.error != nil)
-        ) {
+        .alert("Map Error",
+               isPresented: .constant(viewModel.error != nil)) {
             Button("OK") {
                 viewModel.error = nil
             }
@@ -214,10 +207,8 @@ public struct ARCMapView: View {
     @ViewBuilder private var mapView: some View {
         #if os(iOS)
         if #available(iOS 18.0, *) {
-            FeatureSelectionMapView(
-                viewModel: viewModel,
-                featureSelectionMode: featureSelectionMode
-            )
+            FeatureSelectionMapView(viewModel: viewModel,
+                                    featureSelectionMode: featureSelectionMode)
         } else {
             legacyMapView
         }
@@ -261,14 +252,12 @@ public struct ARCMapView: View {
 
     /// Shared place callout sheet.
     private func placeCalloutSheet(for place: MapPlace) -> some View {
-        PlaceCalloutView(
-            place: place,
-            userLocation: viewModel.userLocation,
-            onOpenInMaps: { app in
-                await viewModel.openInExternalMaps(place, app: app)
-            }
-        )
-        .presentationDetents([.height(ViewDefaults.sheetInitialHeight), .medium])
+        PlaceCalloutView(place: place,
+                         userLocation: viewModel.userLocation,
+                         onOpenInMaps: { app in
+                             await viewModel.openInExternalMaps(place, app: app)
+                         })
+                         .presentationDetents([.height(ViewDefaults.sheetInitialHeight), .medium])
     }
 }
 
@@ -290,8 +279,7 @@ public struct ARCMapView: View {
 ///
 /// - Note: This view is only compiled for iOS. macOS uses the legacy view
 ///   because feature selection APIs are not available on that platform.
-@available(iOS 18.0, *)
-private struct FeatureSelectionMapView: View {
+@available(iOS 18.0, *) private struct FeatureSelectionMapView: View {
     /// The view model managing map state and place data.
     @Bindable var viewModel: MapViewModel
 
@@ -321,14 +309,12 @@ private struct FeatureSelectionMapView: View {
             MapScaleView()
         }
         .sheet(item: $viewModel.selectedPlace) { place in
-            PlaceCalloutView(
-                place: place,
-                userLocation: viewModel.userLocation,
-                onOpenInMaps: { app in
-                    await viewModel.openInExternalMaps(place, app: app)
-                }
-            )
-            .presentationDetents([.height(ViewDefaults.sheetInitialHeight), .medium])
+            PlaceCalloutView(place: place,
+                             userLocation: viewModel.userLocation,
+                             onOpenInMaps: { app in
+                                 await viewModel.openInExternalMaps(place, app: app)
+                             })
+                             .presentationDetents([.height(ViewDefaults.sheetInitialHeight), .medium])
         }
     }
 

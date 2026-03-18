@@ -12,8 +12,7 @@ import SwiftUI
 
 /// ViewModel for place enrichment flow
 @Observable
-@MainActor
-public final class PlaceEnrichmentViewModel {
+@MainActor public final class PlaceEnrichmentViewModel {
     // MARK: - State
 
     public var searchResults: [PlaceSearchResult] = []
@@ -40,11 +39,9 @@ public final class PlaceEnrichmentViewModel {
     ///   - appleServerService: Apple Maps Server service (secondary fallback). Pass `nil` if
     ///     Apple Maps Server API credentials are not configured.
     ///   - appleService: Apple MapKit on-device service (final fallback, always available).
-    public init(
-        googleService: PlaceEnrichmentService,
-        appleServerService: PlaceEnrichmentService? = nil,
-        appleService: PlaceEnrichmentService
-    ) {
+    public init(googleService: PlaceEnrichmentService,
+                appleServerService: PlaceEnrichmentService? = nil,
+                appleService: PlaceEnrichmentService) {
         self.googleService = googleService
         self.appleServerService = appleServerService
         self.appleService = appleService

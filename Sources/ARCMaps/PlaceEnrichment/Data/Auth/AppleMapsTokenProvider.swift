@@ -77,16 +77,12 @@ public actor AppleMapsTokenProvider: AppleMapsTokenProviding {
     // MARK: - Private
 
     private func generateJWT(issuedAt: Date, expiry: Date) throws -> String {
-        let header: [String: Any] = [
-            "alg": "ES256",
-            "kid": keyID,
-            "typ": "JWT"
-        ]
-        let payload: [String: Any] = [
-            "iss": teamID,
-            "iat": Int(issuedAt.timeIntervalSince1970),
-            "exp": Int(expiry.timeIntervalSince1970)
-        ]
+        let header: [String: Any] = ["alg": "ES256",
+                                     "kid": keyID,
+                                     "typ": "JWT"]
+        let payload: [String: Any] = ["iss": teamID,
+                                      "iat": Int(issuedAt.timeIntervalSince1970),
+                                      "exp": Int(expiry.timeIntervalSince1970)]
 
         let headerB64 = try encodeJWTPart(header)
         let payloadB64 = try encodeJWTPart(payload)
@@ -110,9 +106,9 @@ public actor AppleMapsTokenProvider: AppleMapsTokenProviding {
 
 // MARK: - Data Base64URL Extension
 
-private extension Data {
+extension Data {
     /// Base64 URL-encoded string without padding characters.
-    var base64URLEncoded: String {
+    fileprivate var base64URLEncoded: String {
         base64EncodedString()
             .replacingOccurrences(of: "+", with: "-")
             .replacingOccurrences(of: "/", with: "_")

@@ -76,18 +76,16 @@ public struct MapPlace: Sendable, Identifiable, Equatable {
     ///   - isFavorite: Whether the place is a favorite (only meaningful for `.visited` places).
     ///   - visitDate: Date when visited, if applicable.
     ///   - imageURL: URL to a place image.
-    public init(
-        id: String,
-        name: String,
-        coordinate: CLLocationCoordinate2D,
-        address: String? = nil,
-        category: String? = nil,
-        rating: Double? = nil,
-        status: PlaceStatus,
-        isFavorite: Bool = false,
-        visitDate: Date? = nil,
-        imageURL: URL? = nil
-    ) {
+    public init(id: String,
+                name: String,
+                coordinate: CLLocationCoordinate2D,
+                address: String? = nil,
+                category: String? = nil,
+                rating: Double? = nil,
+                status: PlaceStatus,
+                isFavorite: Bool = false,
+                visitDate: Date? = nil,
+                imageURL: URL? = nil) {
         self.id = id
         self.name = name
         self.coordinate = coordinate

@@ -16,11 +16,9 @@ public struct PlaceCalloutView: View {
 
     @Environment(\.dismiss) private var dismiss
 
-    public init(
-        place: MapPlace,
-        userLocation: CLLocationCoordinate2D?,
-        onOpenInMaps: @escaping (ExternalMapApp) async -> Void
-    ) {
+    public init(place: MapPlace,
+                userLocation: CLLocationCoordinate2D?,
+                onOpenInMaps: @escaping (ExternalMapApp) async -> Void) {
         self.place = place
         self.userLocation = userLocation
         self.onOpenInMaps = onOpenInMaps

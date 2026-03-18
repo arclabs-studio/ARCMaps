@@ -23,8 +23,7 @@ extension MockNetworkClient {
     }
 }
 
-@Suite("AppleMapsServerService Tests", .serialized)
-struct AppleMapsServerServiceTests {
+@Suite("AppleMapsServerService Tests", .serialized) struct AppleMapsServerServiceTests {
     let mockNetworkClient: MockNetworkClient
     let mockCache: MockPlaceSearchCache
     let mockTokenProvider: MockAppleMapsTokenProvider
@@ -34,34 +33,30 @@ struct AppleMapsServerServiceTests {
         mockNetworkClient = MockNetworkClient()
         mockCache = MockPlaceSearchCache()
         mockTokenProvider = MockAppleMapsTokenProvider()
-        sut = AppleMapsServerService(
-            tokenProvider: mockTokenProvider,
-            networkClient: mockNetworkClient,
-            cache: mockCache
-        )
+        sut = AppleMapsServerService(tokenProvider: mockTokenProvider,
+                                     networkClient: mockNetworkClient,
+                                     cache: mockCache)
     }
 
     // MARK: - Search Places
 
-    @Test("Search places returns mapped results")
-    func searchPlacesReturnsMappedResults() async throws {
+    @Test("Search places returns mapped results") func searchPlacesReturnsMappedResults() async throws {
         // Given
-        let response = AppleMapsServerSearchResponse(results: [
-            AppleMapsServerSearchResult(place: AppleMapsServerPlace(
-                placeId: "server_place_1",
-                name: "La Taverna Server",
-                formattedAddressLines: ["Calle Mayor 15", "Madrid"],
-                coordinate: AppleMapsServerCoordinate(latitude: 40.4168, longitude: -3.7038),
-                pointOfInterestCategory: "restaurant"
-            )),
-            AppleMapsServerSearchResult(place: AppleMapsServerPlace(
-                placeId: "server_place_2",
-                name: "El Café",
-                formattedAddressLines: ["Gran Vía 20", "Madrid"],
-                coordinate: AppleMapsServerCoordinate(latitude: 40.4200, longitude: -3.7050),
-                pointOfInterestCategory: "cafe"
-            ))
-        ])
+        let response =
+            AppleMapsServerSearchResponse(results: [AppleMapsServerSearchResult(place: AppleMapsServerPlace(placeId: "server_place_1",
+                                                                                                            name: "La Taverna Server",
+                                                                                                            formattedAddressLines: ["Calle Mayor 15",
+                                                                                                                                    "Madrid"],
+                                                                                                            coordinate: AppleMapsServerCoordinate(latitude: 40.4168,
+                                                                                                                                                  longitude: -3.7038),
+                                                                                                            pointOfInterestCategory: "restaurant")),
+                                                    AppleMapsServerSearchResult(place: AppleMapsServerPlace(placeId: "server_place_2",
+                                                                                                            name: "El Café",
+                                                                                                            formattedAddressLines: ["Gran Vía 20",
+                                                                                                                                    "Madrid"],
+                                                                                                            coordinate: AppleMapsServerCoordinate(latitude: 40.4200,
+                                                                                                                                                  longitude: -3.7050),
+                                                                                                            pointOfInterestCategory: "cafe"))])
         await mockNetworkClient.setMockResponse(response)
         let query = PlaceSearchQuery(name: "restaurant Madrid")
 
@@ -81,22 +76,19 @@ struct AppleMapsServerServiceTests {
     @Test("Search places filters results with missing required fields")
     func searchPlacesFiltersInvalidResults() async throws {
         // Given - one result with missing placeId
-        let response = AppleMapsServerSearchResponse(results: [
-            AppleMapsServerSearchResult(place: AppleMapsServerPlace(
-                placeId: nil,
-                name: "Missing ID Place",
-                formattedAddressLines: nil,
-                coordinate: AppleMapsServerCoordinate(latitude: 40.0, longitude: -3.0),
-                pointOfInterestCategory: nil
-            )),
-            AppleMapsServerSearchResult(place: AppleMapsServerPlace(
-                placeId: "valid_place",
-                name: "Valid Place",
-                formattedAddressLines: ["Address"],
-                coordinate: AppleMapsServerCoordinate(latitude: 40.0, longitude: -3.0),
-                pointOfInterestCategory: "restaurant"
-            ))
-        ])
+        let response =
+            AppleMapsServerSearchResponse(results: [AppleMapsServerSearchResult(place: AppleMapsServerPlace(placeId: nil,
+                                                                                                            name: "Missing ID Place",
+                                                                                                            formattedAddressLines: nil,
+                                                                                                            coordinate: AppleMapsServerCoordinate(latitude: 40.0,
+                                                                                                                                                  longitude: -3.0),
+                                                                                                            pointOfInterestCategory: nil)),
+                                                    AppleMapsServerSearchResult(place: AppleMapsServerPlace(placeId: "valid_place",
+                                                                                                            name: "Valid Place",
+                                                                                                            formattedAddressLines: ["Address"],
+                                                                                                            coordinate: AppleMapsServerCoordinate(latitude: 40.0,
+                                                                                                                                                  longitude: -3.0),
+                                                                                                            pointOfInterestCategory: "restaurant"))])
         await mockNetworkClient.setMockResponse(response)
 
         // When
@@ -107,8 +99,7 @@ struct AppleMapsServerServiceTests {
         #expect(results[0].id == "valid_place")
     }
 
-    @Test("Search places returns cached results when available")
-    func searchPlacesReturnsCachedResults() async throws {
+    @Test("Search places returns cached results when available") func searchPlacesReturnsCachedResults() async throws {
         // Given
         let cachedResults = [PlaceSearchResultFixtures.sampleRestaurant]
         let query = PlaceSearchQuery(name: "cached query")
@@ -122,18 +113,15 @@ struct AppleMapsServerServiceTests {
         #expect(await mockNetworkClient.requestCount == 0)
     }
 
-    @Test("Search places caches results after fetch")
-    func searchPlacesCachesResultsAfterFetch() async throws {
+    @Test("Search places caches results after fetch") func searchPlacesCachesResultsAfterFetch() async throws {
         // Given
-        let response = AppleMapsServerSearchResponse(results: [
-            AppleMapsServerSearchResult(place: AppleMapsServerPlace(
-                placeId: "cache_test",
-                name: "Cache Test Place",
-                formattedAddressLines: ["Address"],
-                coordinate: AppleMapsServerCoordinate(latitude: 40.0, longitude: -3.0),
-                pointOfInterestCategory: "restaurant"
-            ))
-        ])
+        let response =
+            AppleMapsServerSearchResponse(results: [AppleMapsServerSearchResult(place: AppleMapsServerPlace(placeId: "cache_test",
+                                                                                                            name: "Cache Test Place",
+                                                                                                            formattedAddressLines: ["Address"],
+                                                                                                            coordinate: AppleMapsServerCoordinate(latitude: 40.0,
+                                                                                                                                                  longitude: -3.0),
+                                                                                                            pointOfInterestCategory: "restaurant"))])
         await mockNetworkClient.setMockResponse(response)
         let query = PlaceSearchQuery(name: "cache test")
 
@@ -146,8 +134,7 @@ struct AppleMapsServerServiceTests {
         #expect(cached?.count == 1)
     }
 
-    @Test("Search places throws network error on failure")
-    func searchPlacesThrowsNetworkError() async throws {
+    @Test("Search places throws network error on failure") func searchPlacesThrowsNetworkError() async throws {
         // Given
         await mockNetworkClient.setShouldThrowError(true)
         let query = PlaceSearchQuery(name: "failing query")
@@ -158,15 +145,12 @@ struct AppleMapsServerServiceTests {
         }
     }
 
-    @Test("Search places includes user location in request")
-    func searchPlacesIncludesUserLocation() async throws {
+    @Test("Search places includes user location in request") func searchPlacesIncludesUserLocation() async throws {
         // Given
         let response = AppleMapsServerSearchResponse(results: [])
         await mockNetworkClient.setMockResponse(response)
-        let query = PlaceSearchQuery(
-            name: "nearby restaurant",
-            coordinate: (latitude: 40.4168, longitude: -3.7038)
-        )
+        let query = PlaceSearchQuery(name: "nearby restaurant",
+                                     coordinate: (latitude: 40.4168, longitude: -3.7038))
 
         // When
         _ = try await sut.searchPlaces(query: query)
@@ -178,18 +162,16 @@ struct AppleMapsServerServiceTests {
 
     // MARK: - Get Place Details
 
-    @Test("Get place details returns enriched data")
-    func getPlaceDetailsReturnsEnrichedData() async throws {
+    @Test("Get place details returns enriched data") func getPlaceDetailsReturnsEnrichedData() async throws {
         // Given
-        let placeResponse = AppleMapsServerPlaceResponse(
-            id: "server_detail_1",
-            name: "Detailed Restaurant",
-            formattedAddressLines: ["Calle Mayor 15", "Madrid, Spain"],
-            coordinate: AppleMapsServerCoordinate(latitude: 40.4168, longitude: -3.7038),
-            pointOfInterestCategory: "restaurant",
-            url: "https://example.com",
-            telephone: "+34 91 000 0000"
-        )
+        let placeResponse = AppleMapsServerPlaceResponse(id: "server_detail_1",
+                                                         name: "Detailed Restaurant",
+                                                         formattedAddressLines: ["Calle Mayor 15", "Madrid, Spain"],
+                                                         coordinate: AppleMapsServerCoordinate(latitude: 40.4168,
+                                                                                               longitude: -3.7038),
+                                                         pointOfInterestCategory: "restaurant",
+                                                         url: "https://example.com",
+                                                         telephone: "+34 91 000 0000")
         await mockNetworkClient.setMockResponse(placeResponse)
 
         // When
@@ -205,8 +187,7 @@ struct AppleMapsServerServiceTests {
         #expect(details.reviews.isEmpty)
     }
 
-    @Test("Get place details throws on invalid response")
-    func getPlaceDetailsThrowsOnInvalidResponse() async throws {
+    @Test("Get place details throws on invalid response") func getPlaceDetailsThrowsOnInvalidResponse() async throws {
         // Given - response with missing name and coordinate
         await mockNetworkClient.setShouldThrowError(true)
 
@@ -218,8 +199,7 @@ struct AppleMapsServerServiceTests {
 
     // MARK: - Get Photo URL
 
-    @Test("Get photo URL throws photoDownloadFailed")
-    func getPhotoURLThrowsPhotoDownloadFailed() async throws {
+    @Test("Get photo URL throws photoDownloadFailed") func getPhotoURLThrowsPhotoDownloadFailed() async throws {
         // When/Then
         await #expect(throws: PlaceEnrichmentError.self) {
             _ = try await sut.getPhotoURL(photoReference: "some_ref", maxWidth: 400)

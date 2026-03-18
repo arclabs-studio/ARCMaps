@@ -9,8 +9,7 @@ import Testing
 @testable import ARCMaps
 @testable import ARCMapsTestHelpers
 
-@Suite("GooglePlacesService Tests")
-struct GooglePlacesServiceTests {
+@Suite("GooglePlacesService Tests") struct GooglePlacesServiceTests {
     let mockNetworkClient: MockNetworkClient
     let mockCache: MockPlaceSearchCache
     let sut: GooglePlacesService
@@ -19,17 +18,14 @@ struct GooglePlacesServiceTests {
         mockNetworkClient = MockNetworkClient()
         mockCache = MockPlaceSearchCache()
 
-        sut = GooglePlacesService(
-            apiKey: "test-api-key",
-            networkClient: mockNetworkClient,
-            cache: mockCache
-        )
+        sut = GooglePlacesService(apiKey: "test-api-key",
+                                  networkClient: mockNetworkClient,
+                                  cache: mockCache)
     }
 
     // MARK: - Search Places Tests
 
-    @Test("Search places returns cached results when available")
-    func searchPlacesReturnsCachedResults() async throws {
+    @Test("Search places returns cached results when available") func searchPlacesReturnsCachedResults() async throws {
         // Given
         let query = PlaceSearchQuery(name: "Test Restaurant")
         let cachedResults = PlaceSearchResultFixtures.allSamples
@@ -59,8 +55,7 @@ struct GooglePlacesServiceTests {
         #expect(results.count == expectedResults.count)
     }
 
-    @Test("Search places uses full text query")
-    func searchPlacesUsesFullTextQuery() async throws {
+    @Test("Search places uses full text query") func searchPlacesUsesFullTextQuery() {
         // Given
         let query = PlaceSearchQuery(name: "La Taverna", address: "Calle Mayor", city: "Madrid")
 

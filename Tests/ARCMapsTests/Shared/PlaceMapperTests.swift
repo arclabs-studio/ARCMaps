@@ -10,12 +10,10 @@ import Testing
 @testable import ARCMaps
 @testable import ARCMapsTestHelpers
 
-@Suite("PlaceMapper Tests")
-struct PlaceMapperTests {
+@Suite("PlaceMapper Tests") struct PlaceMapperTests {
     // MARK: - toMapPlace
 
-    @Test("toMapPlace preserves id from search result")
-    func toMapPlacePreservesID() {
+    @Test("toMapPlace preserves id from search result") func toMapPlacePreservesID() {
         // Given
         let result = PlaceSearchResultFixtures.sampleRestaurant
 
@@ -26,8 +24,7 @@ struct PlaceMapperTests {
         #expect(place.id == result.id)
     }
 
-    @Test("toMapPlace preserves name from search result")
-    func toMapPlacePreservesName() {
+    @Test("toMapPlace preserves name from search result") func toMapPlacePreservesName() {
         // Given
         let result = PlaceSearchResultFixtures.sampleRestaurant
 
@@ -38,8 +35,7 @@ struct PlaceMapperTests {
         #expect(place.name == result.name)
     }
 
-    @Test("toMapPlace preserves coordinate from search result")
-    func toMapPlacePreservesCoordinate() {
+    @Test("toMapPlace preserves coordinate from search result") func toMapPlacePreservesCoordinate() {
         // Given
         let result = PlaceSearchResultFixtures.sampleRestaurant
 
@@ -51,8 +47,7 @@ struct PlaceMapperTests {
         #expect(place.coordinate.longitude == result.coordinate.longitude)
     }
 
-    @Test("toMapPlace preserves address from search result")
-    func toMapPlacePreservesAddress() {
+    @Test("toMapPlace preserves address from search result") func toMapPlacePreservesAddress() {
         // Given
         let result = PlaceSearchResultFixtures.sampleRestaurant
 
@@ -63,8 +58,7 @@ struct PlaceMapperTests {
         #expect(place.address == result.address)
     }
 
-    @Test("toMapPlace uses first type as category")
-    func toMapPlaceUsesFirstTypeAsCategory() {
+    @Test("toMapPlace uses first type as category") func toMapPlaceUsesFirstTypeAsCategory() {
         // Given
         let result = PlaceSearchResultFixtures.sampleRestaurant // types: ["restaurant", "food"]
 
@@ -75,8 +69,7 @@ struct PlaceMapperTests {
         #expect(place.category == "restaurant")
     }
 
-    @Test("toMapPlace sets nil category when types is empty")
-    func toMapPlaceSetNilCategoryWhenTypesEmpty() {
+    @Test("toMapPlace sets nil category when types is empty") func toMapPlaceSetNilCategoryWhenTypesEmpty() {
         // Given
         let result = PlaceSearchResultFixtures.sampleBar // photoReferences: []
 
@@ -87,8 +80,7 @@ struct PlaceMapperTests {
         #expect(place.category == result.types.first) // "bar"
     }
 
-    @Test("toMapPlace preserves rating from search result")
-    func toMapPlacePreservesRating() {
+    @Test("toMapPlace preserves rating from search result") func toMapPlacePreservesRating() {
         // Given
         let result = PlaceSearchResultFixtures.sampleRestaurant // rating: 4.5
 
@@ -99,8 +91,7 @@ struct PlaceMapperTests {
         #expect(place.rating == result.rating)
     }
 
-    @Test("toMapPlace applies specified status")
-    func toMapPlaceAppliesSpecifiedStatus() {
+    @Test("toMapPlace applies specified status") func toMapPlaceAppliesSpecifiedStatus() {
         // Given
         let result = PlaceSearchResultFixtures.sampleRestaurant
 
@@ -114,8 +105,7 @@ struct PlaceMapperTests {
         #expect(visitedPlace.status == .visited)
     }
 
-    @Test("toMapPlace always sets isFavorite to false")
-    func toMapPlaceAlwaysSetsIsFavoriteFalse() {
+    @Test("toMapPlace always sets isFavorite to false") func toMapPlaceAlwaysSetsIsFavoriteFalse() {
         // Given
         let result = PlaceSearchResultFixtures.sampleRestaurant
 
@@ -126,8 +116,7 @@ struct PlaceMapperTests {
         #expect(place.isFavorite == false)
     }
 
-    @Test("toMapPlace sets visitDate to nil")
-    func toMapPlaceSetsVisitDateNil() {
+    @Test("toMapPlace sets visitDate to nil") func toMapPlaceSetsVisitDateNil() {
         // Given
         let result = PlaceSearchResultFixtures.sampleRestaurant
 
@@ -138,8 +127,7 @@ struct PlaceMapperTests {
         #expect(place.visitDate == nil)
     }
 
-    @Test("toMapPlace sets imageURL to nil")
-    func toMapPlaceSetsImageURLNil() {
+    @Test("toMapPlace sets imageURL to nil") func toMapPlaceSetsImageURLNil() {
         // Given
         let result = PlaceSearchResultFixtures.sampleRestaurant
 
@@ -150,8 +138,7 @@ struct PlaceMapperTests {
         #expect(place.imageURL == nil)
     }
 
-    @Test("toMapPlace handles result with no rating")
-    func toMapPlaceHandlesResultWithNoRating() {
+    @Test("toMapPlace handles result with no rating") func toMapPlaceHandlesResultWithNoRating() {
         // Given - Apple Maps results have no rating
         let appleResult = PlaceSearchResultFixtures.sampleBar // provider: .apple, rating: 4.0
 

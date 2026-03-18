@@ -10,8 +10,7 @@ import Testing
 @testable import ARCMapsTestHelpers
 
 @Suite("MapViewModel Tests", .serialized)
-@MainActor
-struct MapViewModelTests {
+@MainActor struct MapViewModelTests {
     let mockLocationService: MockLocationService
     let sut: MapViewModel
 
@@ -22,8 +21,7 @@ struct MapViewModelTests {
 
     // MARK: - Places Management
 
-    @Test("Set places updates both places and filtered places")
-    func setPlacesUpdatesBothCollections() {
+    @Test("Set places updates both places and filtered places") func setPlacesUpdatesBothCollections() {
         // Given
         let places = MapPlaceFixtures.allSamples
 
@@ -35,8 +33,7 @@ struct MapViewModelTests {
         #expect(sut.filteredPlaces.count == places.count)
     }
 
-    @Test("Set places replaces existing places")
-    func setPlacesReplacesExisting() {
+    @Test("Set places replaces existing places") func setPlacesReplacesExisting() {
         // Given
         sut.setPlaces(MapPlaceFixtures.allSamples)
         let newPlaces = MapPlaceFixtures.wishlistOnly
@@ -50,8 +47,7 @@ struct MapViewModelTests {
 
     // MARK: - Filtering
 
-    @Test("Apply status filter shows only matching places")
-    func applyStatusFilterShowsOnlyMatching() {
+    @Test("Apply status filter shows only matching places") func applyStatusFilterShowsOnlyMatching() {
         // Given
         let places = MapPlaceFixtures.allSamples
         sut.setPlaces(places)
@@ -67,8 +63,7 @@ struct MapViewModelTests {
         #expect(sut.filteredPlaces.allSatisfy { $0.status == .pending })
     }
 
-    @Test("Apply visited status filter shows only visited places")
-    func applyVisitedStatusFilter() {
+    @Test("Apply visited status filter shows only visited places") func applyVisitedStatusFilter() {
         // Given
         let places = MapPlaceFixtures.allSamples
         sut.setPlaces(places)
@@ -84,8 +79,7 @@ struct MapViewModelTests {
         #expect(sut.filteredPlaces.allSatisfy { $0.status == .visited })
     }
 
-    @Test("Clear filter shows all places")
-    func clearFilterShowsAllPlaces() {
+    @Test("Clear filter shows all places") func clearFilterShowsAllPlaces() {
         // Given
         let places = MapPlaceFixtures.allSamples
         sut.setPlaces(places)
@@ -101,8 +95,7 @@ struct MapViewModelTests {
         #expect(sut.filteredPlaces.count == places.count)
     }
 
-    @Test("Apply favorites filter shows only favorite places")
-    func applyFavoritesFilterShowsOnlyFavorites() {
+    @Test("Apply favorites filter shows only favorite places") func applyFavoritesFilterShowsOnlyFavorites() {
         // Given
         let places = MapPlaceFixtures.allSamplesWithFavorite
         sut.setPlaces(places)
@@ -114,13 +107,12 @@ struct MapViewModelTests {
 
         // Then
         #expect(sut.filteredPlaces.count == 1)
-        #expect(sut.filteredPlaces.allSatisfy { $0.isFavorite })
+        #expect(sut.filteredPlaces.allSatisfy(\.isFavorite))
     }
 
     // MARK: - Selection
 
-    @Test("Select place updates selected place")
-    func selectPlaceUpdatesSelectedPlace() {
+    @Test("Select place updates selected place") func selectPlaceUpdatesSelectedPlace() {
         // Given
         let place = MapPlaceFixtures.pendingRestaurant
 
@@ -131,8 +123,7 @@ struct MapViewModelTests {
         #expect(sut.selectedPlace == place)
     }
 
-    @Test("Clear selection sets selected place to nil")
-    func clearSelectionSetsSelectedPlaceToNil() {
+    @Test("Clear selection sets selected place to nil") func clearSelectionSetsSelectedPlaceToNil() {
         // Given
         let place = MapPlaceFixtures.pendingRestaurant
         sut.selectPlace(place)
@@ -146,8 +137,7 @@ struct MapViewModelTests {
 
     // MARK: - Camera Position
 
-    @Test("Initial camera position is automatic")
-    func initialCameraPositionIsAutomatic() {
+    @Test("Initial camera position is automatic") func initialCameraPositionIsAutomatic() {
         // Then
         switch sut.cameraPosition {
         case .automatic:
@@ -157,8 +147,7 @@ struct MapViewModelTests {
         }
     }
 
-    @Test("Selecting place updates camera position")
-    func selectingPlaceUpdatesCameraPosition() {
+    @Test("Selecting place updates camera position") func selectingPlaceUpdatesCameraPosition() {
         // Given
         let place = MapPlaceFixtures.pendingRestaurant
 

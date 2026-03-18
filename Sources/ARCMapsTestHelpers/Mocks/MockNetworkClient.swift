@@ -19,12 +19,10 @@ public actor MockNetworkClient: NetworkClientProtocol {
 
     public init() {}
 
-    public func request<T>(
-        url: URL,
-        method: HTTPMethod,
-        headers _: [String: String]?,
-        body _: Data?
-    ) async throws -> T where T: Decodable & Sendable {
+    public func request<T: Decodable & Sendable>(url: URL,
+                                                 method: HTTPMethod,
+                                                 headers _: [String: String]?,
+                                                 body _: Data?) async throws -> T {
         requestCount += 1
         lastURL = url
         lastMethod = method

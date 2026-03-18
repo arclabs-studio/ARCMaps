@@ -9,13 +9,11 @@ import Testing
 @testable import ARCMaps
 
 struct ARCMapsTests {
-    @Test
-    func packageVersion() {
+    @Test func packageVersion() {
         #expect(ARCMaps.version == "1.0.0")
     }
 
-    @Test
-    func packageName() {
+    @Test func packageName() {
         #expect(ARCMaps.name == "ARCMaps")
     }
 }

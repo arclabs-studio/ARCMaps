@@ -85,12 +85,10 @@ public enum ExternalMapLauncher {
     /// - Throws: ``MapError/invalidCoordinate`` if the coordinate is invalid,
     ///   ``MapError/externalAppNotInstalled(_:)`` if the app is not installed,
     ///   or ``MapError/navigationFailed`` if the URL cannot be opened.
-    public static func open(
-        coordinate: CLLocationCoordinate2D,
-        name: String? = nil,
-        address: String? = nil,
-        app: ExternalMapApp
-    ) async throws {
+    public static func open(coordinate: CLLocationCoordinate2D,
+                            name: String? = nil,
+                            address: String? = nil,
+                            app: ExternalMapApp) async throws {
         #if canImport(UIKit)
         guard coordinate.isValid else {
             throw MapError.invalidCoordinate
@@ -129,15 +127,12 @@ public enum ExternalMapLauncher {
 
     // MARK: - Private URL Builders
 
-    private static func buildAppleMapsURL(
-        coordinate: CLLocationCoordinate2D,
-        name: String?,
-        address: String?
-    ) -> URL? {
+    private static func buildAppleMapsURL(coordinate: CLLocationCoordinate2D,
+                                          name: String?,
+                                          address: String?) -> URL? {
         var components = URLComponents(string: "http://maps.apple.com/")
-        var queryItems: [URLQueryItem] = [
-            URLQueryItem(name: "ll", value: "\(coordinate.latitude),\(coordinate.longitude)")
-        ]
+        var queryItems: [URLQueryItem] = [URLQueryItem(name: "ll",
+                                                       value: "\(coordinate.latitude),\(coordinate.longitude)")]
 
         if let name {
             queryItems.append(URLQueryItem(name: "q", value: name))
@@ -149,15 +144,13 @@ public enum ExternalMapLauncher {
         return components?.url
     }
 
-    private static func buildGoogleMapsURL(
-        coordinate: CLLocationCoordinate2D,
-        name: String?
-    ) -> URL? {
+    private static func buildGoogleMapsURL(coordinate: CLLocationCoordinate2D,
+                                           name: String?) -> URL? {
         var components = URLComponents(string: "comgooglemaps://")
-        let queryItems: [URLQueryItem] = [
-            URLQueryItem(name: "center", value: "\(coordinate.latitude),\(coordinate.longitude)"),
-            URLQueryItem(name: "q", value: name ?? "\(coordinate.latitude),\(coordinate.longitude)")
-        ]
+        let queryItems: [URLQueryItem] = [URLQueryItem(name: "center",
+                                                       value: "\(coordinate.latitude),\(coordinate.longitude)"),
+                                          URLQueryItem(name: "q",
+                                                       value: name ?? "\(coordinate.latitude),\(coordinate.longitude)")]
 
         components?.queryItems = queryItems
         return components?.url
@@ -165,10 +158,8 @@ public enum ExternalMapLauncher {
 
     private static func buildWazeURL(coordinate: CLLocationCoordinate2D) -> URL? {
         var components = URLComponents(string: "waze://")
-        components?.queryItems = [
-            URLQueryItem(name: "ll", value: "\(coordinate.latitude),\(coordinate.longitude)"),
-            URLQueryItem(name: "navigate", value: "yes")
-        ]
+        components?.queryItems = [URLQueryItem(name: "ll", value: "\(coordinate.latitude),\(coordinate.longitude)"),
+                                  URLQueryItem(name: "navigate", value: "yes")]
         return components?.url
     }
 }

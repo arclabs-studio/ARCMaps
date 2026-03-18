@@ -17,14 +17,12 @@ public struct MapAnnotation: Sendable, Identifiable, Equatable {
     public let markerType: MarkerType
     public let metadata: [String: String]
 
-    public init(
-        id: String,
-        coordinate: CLLocationCoordinate2D,
-        title: String,
-        subtitle: String? = nil,
-        markerType: MarkerType = .standard,
-        metadata: [String: String] = [:]
-    ) {
+    public init(id: String,
+                coordinate: CLLocationCoordinate2D,
+                title: String,
+                subtitle: String? = nil,
+                markerType: MarkerType = .standard,
+                metadata: [String: String] = [:]) {
         self.id = id
         self.coordinate = coordinate
         self.title = title

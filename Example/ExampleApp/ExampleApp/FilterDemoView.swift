@@ -121,17 +121,15 @@ struct FilterDemoView: View {
             Form {
                 // Favorites shortcut
                 Section("Favorites") {
-                    Toggle(isOn: Binding(
-                        get: { favoritesOnly },
-                        set: { newValue in
-                            favoritesOnly = newValue
-                            // Favorites are always a subset of visited places
-                            if newValue {
-                                selectedStatuses = [.visited]
-                            }
-                            applyFilters()
-                        }
-                    )) {
+                    Toggle(isOn: Binding(get: { favoritesOnly },
+                                         set: { newValue in
+                                             favoritesOnly = newValue
+                                             // Favorites are always a subset of visited places
+                                             if newValue {
+                                                 selectedStatuses = [.visited]
+                                             }
+                                             applyFilters()
+                                         })) {
                         Label("Favorites only", systemImage: "star.fill")
                             .foregroundStyle(.yellow)
                     }
@@ -140,19 +138,17 @@ struct FilterDemoView: View {
                 // Status filter
                 Section("Status") {
                     ForEach(PlaceStatus.allCases, id: \.self) { status in
-                        Toggle(isOn: Binding(
-                            get: { selectedStatuses.contains(status) },
-                            set: { isSelected in
-                                if isSelected {
-                                    selectedStatuses.insert(status)
-                                } else {
-                                    selectedStatuses.remove(status)
-                                    // Favorites require .visited — clear if deselected
-                                    if status == .visited { favoritesOnly = false }
-                                }
-                                applyFilters()
-                            }
-                        )) {
+                        Toggle(isOn: Binding(get: { selectedStatuses.contains(status) },
+                                             set: { isSelected in
+                                                 if isSelected {
+                                                     selectedStatuses.insert(status)
+                                                 } else {
+                                                     selectedStatuses.remove(status)
+                                                     // Favorites require .visited — clear if deselected
+                                                     if status == .visited { favoritesOnly = false }
+                                                 }
+                                                 applyFilters()
+                                             })) {
                             Label(status.rawValue, systemImage: status.iconName)
                                 .foregroundStyle(status == .pending ? .red : .green)
                         }
@@ -162,17 +158,15 @@ struct FilterDemoView: View {
                 // Category filter
                 Section("Category") {
                     ForEach(SampleData.categories, id: \.self) { category in
-                        Toggle(isOn: Binding(
-                            get: { selectedCategories.contains(category) },
-                            set: { isSelected in
-                                if isSelected {
-                                    selectedCategories.insert(category)
-                                } else {
-                                    selectedCategories.remove(category)
-                                }
-                                applyFilters()
-                            }
-                        )) {
+                        Toggle(isOn: Binding(get: { selectedCategories.contains(category) },
+                                             set: { isSelected in
+                                                 if isSelected {
+                                                     selectedCategories.insert(category)
+                                                 } else {
+                                                     selectedCategories.remove(category)
+                                                 }
+                                                 applyFilters()
+                                             })) {
                             Text(category.capitalized)
                         }
                     }
@@ -221,12 +215,10 @@ struct FilterDemoView: View {
     // MARK: - Filter Logic
 
     private func applyFilters() {
-        let filter = MapFilter(
-            statuses: selectedStatuses.isEmpty ? Set(PlaceStatus.allCases) : selectedStatuses,
-            categories: selectedCategories,
-            minRating: minRating > 0 ? minRating : nil,
-            filterByFavorites: favoritesOnly
-        )
+        let filter = MapFilter(statuses: selectedStatuses.isEmpty ? Set(PlaceStatus.allCases) : selectedStatuses,
+                               categories: selectedCategories,
+                               minRating: minRating > 0 ? minRating : nil,
+                               filterByFavorites: favoritesOnly)
         viewModel.updateFilter(filter)
     }
 

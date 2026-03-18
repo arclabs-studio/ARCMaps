@@ -8,12 +8,10 @@
 import Testing
 @testable import ARCMaps
 
-@Suite("PlaceSearchQuery Tests")
-struct PlaceSearchQueryTests {
+@Suite("PlaceSearchQuery Tests") struct PlaceSearchQueryTests {
     // MARK: - Full Text Query
 
-    @Test("Full text query contains only name when no other fields")
-    func fullTextQueryContainsOnlyName() {
+    @Test("Full text query contains only name when no other fields") func fullTextQueryContainsOnlyName() {
         // Given
         let query = PlaceSearchQuery(name: "La Taverna")
 
@@ -21,8 +19,7 @@ struct PlaceSearchQueryTests {
         #expect(query.fullTextQuery == "La Taverna")
     }
 
-    @Test("Full text query combines name and address")
-    func fullTextQueryCombinesNameAndAddress() {
+    @Test("Full text query combines name and address") func fullTextQueryCombinesNameAndAddress() {
         // Given
         let query = PlaceSearchQuery(name: "La Taverna", address: "Calle Mayor 15")
 
@@ -30,21 +27,17 @@ struct PlaceSearchQueryTests {
         #expect(query.fullTextQuery == "La Taverna, Calle Mayor 15")
     }
 
-    @Test("Full text query combines all fields")
-    func fullTextQueryCombinesAllFields() {
+    @Test("Full text query combines all fields") func fullTextQueryCombinesAllFields() {
         // Given
-        let query = PlaceSearchQuery(
-            name: "La Taverna",
-            address: "Calle Mayor 15",
-            city: "Madrid"
-        )
+        let query = PlaceSearchQuery(name: "La Taverna",
+                                     address: "Calle Mayor 15",
+                                     city: "Madrid")
 
         // When/Then
         #expect(query.fullTextQuery == "La Taverna, Calle Mayor 15, Madrid")
     }
 
-    @Test("Full text query skips nil fields")
-    func fullTextQuerySkipsNilFields() {
+    @Test("Full text query skips nil fields") func fullTextQuerySkipsNilFields() {
         // Given
         let query = PlaceSearchQuery(name: "La Taverna", city: "Madrid")
 
@@ -54,8 +47,7 @@ struct PlaceSearchQueryTests {
 
     // MARK: - Equality
 
-    @Test("Queries with same values are equal")
-    func queriesWithSameValuesAreEqual() {
+    @Test("Queries with same values are equal") func queriesWithSameValuesAreEqual() {
         // Given
         let query1 = PlaceSearchQuery(name: "Test", address: "Address", city: "City")
         let query2 = PlaceSearchQuery(name: "Test", address: "Address", city: "City")
@@ -64,8 +56,7 @@ struct PlaceSearchQueryTests {
         #expect(query1 == query2)
     }
 
-    @Test("Queries with different names are not equal")
-    func queriesWithDifferentNamesAreNotEqual() {
+    @Test("Queries with different names are not equal") func queriesWithDifferentNamesAreNotEqual() {
         // Given
         let query1 = PlaceSearchQuery(name: "Test1")
         let query2 = PlaceSearchQuery(name: "Test2")
@@ -74,8 +65,7 @@ struct PlaceSearchQueryTests {
         #expect(query1 != query2)
     }
 
-    @Test("Queries with different coordinates are not equal")
-    func queriesWithDifferentCoordinatesAreNotEqual() {
+    @Test("Queries with different coordinates are not equal") func queriesWithDifferentCoordinatesAreNotEqual() {
         // Given
         let query1 = PlaceSearchQuery(name: "Test", coordinate: (40.0, -3.0))
         let query2 = PlaceSearchQuery(name: "Test", coordinate: (41.0, -4.0))
@@ -86,8 +76,7 @@ struct PlaceSearchQueryTests {
 
     // MARK: - Hashable
 
-    @Test("Equal queries have same hash")
-    func equalQueriesHaveSameHash() {
+    @Test("Equal queries have same hash") func equalQueriesHaveSameHash() {
         // Given
         let query1 = PlaceSearchQuery(name: "Test", address: "Address")
         let query2 = PlaceSearchQuery(name: "Test", address: "Address")
@@ -96,8 +85,7 @@ struct PlaceSearchQueryTests {
         #expect(query1.hashValue == query2.hashValue)
     }
 
-    @Test("Queries can be used as dictionary keys")
-    func queriesCanBeUsedAsDictionaryKeys() {
+    @Test("Queries can be used as dictionary keys") func queriesCanBeUsedAsDictionaryKeys() {
         // Given
         let query1 = PlaceSearchQuery(name: "Test1")
         let query2 = PlaceSearchQuery(name: "Test2")
@@ -114,14 +102,11 @@ struct PlaceSearchQueryTests {
 
     // MARK: - Coordinate and Radius
 
-    @Test("Query with coordinate includes latitude and longitude")
-    func queryWithCoordinateIncludesLatLong() {
+    @Test("Query with coordinate includes latitude and longitude") func queryWithCoordinateIncludesLatLong() {
         // Given
-        let query = PlaceSearchQuery(
-            name: "Test",
-            coordinate: (latitude: 40.4168, longitude: -3.7038),
-            radiusMeters: 1000
-        )
+        let query = PlaceSearchQuery(name: "Test",
+                                     coordinate: (latitude: 40.4168, longitude: -3.7038),
+                                     radiusMeters: 1000)
 
         // Then
         #expect(query.coordinate?.latitude == 40.4168)
@@ -129,8 +114,7 @@ struct PlaceSearchQueryTests {
         #expect(query.radiusMeters == 1000)
     }
 
-    @Test("Query without coordinate has nil values")
-    func queryWithoutCoordinateHasNilValues() {
+    @Test("Query without coordinate has nil values") func queryWithoutCoordinateHasNilValues() {
         // Given
         let query = PlaceSearchQuery(name: "Test")
 

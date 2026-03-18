@@ -33,17 +33,15 @@ public enum PlaceMapper {
     ///   - status: The initial status for the new map place (e.g., `.pending` when adding from Discover).
     /// - Returns: A `MapPlace` ready to be displayed on the map.
     public static func toMapPlace(_ result: PlaceSearchResult, status: PlaceStatus) -> MapPlace {
-        MapPlace(
-            id: result.id,
-            name: result.name,
-            coordinate: result.coordinate,
-            address: result.address,
-            category: result.types.first,
-            rating: result.rating,
-            status: status,
-            isFavorite: false,
-            visitDate: nil,
-            imageURL: nil
-        )
+        MapPlace(id: result.id,
+                 name: result.name,
+                 coordinate: result.coordinate,
+                 address: result.address,
+                 category: result.types.first,
+                 rating: result.rating,
+                 status: status,
+                 isFavorite: false,
+                 visitDate: nil,
+                 imageURL: nil)
     }
 }

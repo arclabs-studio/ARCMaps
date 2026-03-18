@@ -44,11 +44,9 @@ public actor AppleMapsServerService: PlaceEnrichmentService {
 
     private let baseURL = "https://maps-api.apple.com/v1"
 
-    public init(
-        tokenProvider: any AppleMapsTokenProviding,
-        networkClient: NetworkClientProtocol,
-        cache: PlaceSearchCache
-    ) {
+    public init(tokenProvider: any AppleMapsTokenProviding,
+                networkClient: NetworkClientProtocol,
+                cache: PlaceSearchCache) {
         self.tokenProvider = tokenProvider
         self.networkClient = networkClient
         self.cache = cache
@@ -68,15 +66,13 @@ public actor AppleMapsServerService: PlaceEnrichmentService {
             throw PlaceEnrichmentError.invalidQuery
         }
 
-        components.queryItems = [
-            URLQueryItem(name: "q", value: query.fullTextQuery),
-            URLQueryItem(name: "lang", value: Locale.current.language.languageCode?.identifier ?? "en")
-        ]
+        components.queryItems = [URLQueryItem(name: "q", value: query.fullTextQuery),
+                                 URLQueryItem(name: "lang",
+                                              value: Locale.current.language.languageCode?.identifier ?? "en")]
 
         if let coordinate = query.coordinate {
-            components.queryItems?.append(
-                URLQueryItem(name: "userLocation", value: "\(coordinate.latitude),\(coordinate.longitude)")
-            )
+            components.queryItems?.append(URLQueryItem(name: "userLocation",
+                                                       value: "\(coordinate.latitude),\(coordinate.longitude)"))
         }
 
         if let radius = query.radiusMeters {
@@ -90,12 +86,10 @@ public actor AppleMapsServerService: PlaceEnrichmentService {
         let authHeader = try await authorizationHeader()
 
         do {
-            let response: AppleMapsServerSearchResponse = try await networkClient.request(
-                url: url,
-                method: .get,
-                headers: authHeader,
-                body: nil
-            )
+            let response: AppleMapsServerSearchResponse = try await networkClient.request(url: url,
+                                                                                          method: .get,
+                                                                                          headers: authHeader,
+                                                                                          body: nil)
 
             let results = response.results.compactMap { searchResult -> PlaceSearchResult? in
                 guard let place = searchResult.place,
@@ -104,21 +98,17 @@ public actor AppleMapsServerService: PlaceEnrichmentService {
                       let coord = place.coordinate
                 else { return nil }
 
-                return PlaceSearchResult(
-                    id: placeId,
-                    provider: .appleServer,
-                    name: name,
-                    address: place.formattedAddressLines?.joined(separator: ", "),
-                    coordinate: CLLocationCoordinate2D(
-                        latitude: coord.latitude,
-                        longitude: coord.longitude
-                    ),
-                    types: place.pointOfInterestCategory.map { [$0] } ?? [],
-                    rating: nil,
-                    userRatingsTotal: nil,
-                    priceLevel: nil,
-                    photoReferences: []
-                )
+                return PlaceSearchResult(id: placeId,
+                                         provider: .appleServer,
+                                         name: name,
+                                         address: place.formattedAddressLines?.joined(separator: ", "),
+                                         coordinate: CLLocationCoordinate2D(latitude: coord.latitude,
+                                                                            longitude: coord.longitude),
+                                         types: place.pointOfInterestCategory.map { [$0] } ?? [],
+                                         rating: nil,
+                                         userRatingsTotal: nil,
+                                         priceLevel: nil,
+                                         photoReferences: [])
             }
 
             await cache.setResults(results, for: query)
@@ -144,12 +134,10 @@ public actor AppleMapsServerService: PlaceEnrichmentService {
         let authHeader = try await authorizationHeader()
 
         do {
-            let place: AppleMapsServerPlaceResponse = try await networkClient.request(
-                url: url,
-                method: .get,
-                headers: authHeader,
-                body: nil
-            )
+            let place: AppleMapsServerPlaceResponse = try await networkClient.request(url: url,
+                                                                                      method: .get,
+                                                                                      headers: authHeader,
+                                                                                      body: nil)
 
             guard let name = place.name,
                   let coord = place.coordinate
@@ -157,22 +145,21 @@ public actor AppleMapsServerService: PlaceEnrichmentService {
                 throw PlaceEnrichmentError.invalidResponse
             }
 
-            let enrichedData = EnrichedPlaceData(
-                placeId: place.id ?? placeId,
-                provider: .appleServer,
-                name: name,
-                formattedAddress: place.formattedAddressLines?.joined(separator: ", "),
-                coordinate: CLLocationCoordinate2D(latitude: coord.latitude, longitude: coord.longitude),
-                phoneNumber: place.telephone,
-                website: place.url.flatMap { URL(string: $0) },
-                rating: nil,
-                userRatingsTotal: nil,
-                priceLevel: nil,
-                openingHours: nil,
-                photos: [],
-                reviews: [],
-                types: place.pointOfInterestCategory.map { [$0] } ?? []
-            )
+            let enrichedData = EnrichedPlaceData(placeId: place.id ?? placeId,
+                                                 provider: .appleServer,
+                                                 name: name,
+                                                 formattedAddress: place.formattedAddressLines?.joined(separator: ", "),
+                                                 coordinate: CLLocationCoordinate2D(latitude: coord.latitude,
+                                                                                    longitude: coord.longitude),
+                                                 phoneNumber: place.telephone,
+                                                 website: place.url.flatMap { URL(string: $0) },
+                                                 rating: nil,
+                                                 userRatingsTotal: nil,
+                                                 priceLevel: nil,
+                                                 openingHours: nil,
+                                                 photos: [],
+                                                 reviews: [],
+                                                 types: place.pointOfInterestCategory.map { [$0] } ?? [])
 
             logger.info("Fetched details for: \(name)")
             return enrichedData

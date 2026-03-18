@@ -64,8 +64,7 @@ struct PlaceMapperDemoView: View {
         .background(.regularMaterial)
     }
 
-    @ViewBuilder
-    private func addButton(for result: PlaceSearchResult) -> some View {
+    @ViewBuilder private func addButton(for result: PlaceSearchResult) -> some View {
         let alreadyAdded = addedPlaceIDs.contains(result.id)
 
         Button {
@@ -96,7 +95,8 @@ struct PlaceMapperDemoView: View {
                     Label("Simulated search results appear as pills above the map", systemImage: "1.circle")
                     Label("Tap a pill to convert it via PlaceMapper and pin it on the map", systemImage: "2.circle")
                     Label("Each pinned place starts with .pending status (red clock marker)", systemImage: "3.circle")
-                    Label("PlaceMapper copies id, name, coordinate, address, category, and rating", systemImage: "4.circle")
+                    Label("PlaceMapper copies id, name, coordinate, address, category, and rating",
+                          systemImage: "4.circle")
                 }
 
                 Section("Code") {
@@ -126,48 +126,38 @@ struct PlaceMapperDemoView: View {
     /// Simulates the PlaceSearchResult values that PlaceEnrichmentViewModel would return.
     /// In a real app these come from GooglePlacesService or AppleMapsServerService.
     private var simulatedSearchResults: [PlaceSearchResult] {
-        [
-            PlaceSearchResult(
-                id: "sim-1",
-                provider: .google,
-                name: "DiverXO",
-                address: "Calle Padre Damián 23, Madrid",
-                coordinate: CLLocationCoordinate2D(latitude: 40.4610, longitude: -3.6884),
-                types: ["restaurant"],
-                rating: 4.9,
-                userRatingsTotal: 4_200
-            ),
-            PlaceSearchResult(
-                id: "sim-2",
-                provider: .google,
-                name: "Lateral Gran Vía",
-                address: "Gran Vía 5, Madrid",
-                coordinate: CLLocationCoordinate2D(latitude: 40.4199, longitude: -3.7049),
-                types: ["restaurant"],
-                rating: 4.3,
-                userRatingsTotal: 1_800
-            ),
-            PlaceSearchResult(
-                id: "sim-3",
-                provider: .google,
-                name: "Café Comercial",
-                address: "Glorieta de Bilbao 7, Madrid",
-                coordinate: CLLocationCoordinate2D(latitude: 40.4265, longitude: -3.7069),
-                types: ["cafe"],
-                rating: 4.5,
-                userRatingsTotal: 950
-            ),
-            PlaceSearchResult(
-                id: "sim-4",
-                provider: .google,
-                name: "La Pepita",
-                address: "Calle de la Ballesta 18, Madrid",
-                coordinate: CLLocationCoordinate2D(latitude: 40.4231, longitude: -3.7038),
-                types: ["cafe"],
-                rating: 4.4,
-                userRatingsTotal: 620
-            )
-        ]
+        [PlaceSearchResult(id: "sim-1",
+                           provider: .google,
+                           name: "DiverXO",
+                           address: "Calle Padre Damián 23, Madrid",
+                           coordinate: CLLocationCoordinate2D(latitude: 40.4610, longitude: -3.6884),
+                           types: ["restaurant"],
+                           rating: 4.9,
+                           userRatingsTotal: 4200),
+         PlaceSearchResult(id: "sim-2",
+                           provider: .google,
+                           name: "Lateral Gran Vía",
+                           address: "Gran Vía 5, Madrid",
+                           coordinate: CLLocationCoordinate2D(latitude: 40.4199, longitude: -3.7049),
+                           types: ["restaurant"],
+                           rating: 4.3,
+                           userRatingsTotal: 1800),
+         PlaceSearchResult(id: "sim-3",
+                           provider: .google,
+                           name: "Café Comercial",
+                           address: "Glorieta de Bilbao 7, Madrid",
+                           coordinate: CLLocationCoordinate2D(latitude: 40.4265, longitude: -3.7069),
+                           types: ["cafe"],
+                           rating: 4.5,
+                           userRatingsTotal: 950),
+         PlaceSearchResult(id: "sim-4",
+                           provider: .google,
+                           name: "La Pepita",
+                           address: "Calle de la Ballesta 18, Madrid",
+                           coordinate: CLLocationCoordinate2D(latitude: 40.4231, longitude: -3.7038),
+                           types: ["cafe"],
+                           rating: 4.4,
+                           userRatingsTotal: 620)]
     }
 }
 

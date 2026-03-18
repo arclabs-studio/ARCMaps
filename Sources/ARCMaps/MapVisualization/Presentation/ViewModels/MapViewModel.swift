@@ -23,8 +23,7 @@ private enum MapDefaults {
 
 /// ViewModel for map visualization
 @Observable
-@MainActor
-public final class MapViewModel {
+@MainActor public final class MapViewModel {
     // MARK: - State
 
     public var places: [MapPlace] = []
@@ -107,15 +106,11 @@ public final class MapViewModel {
 
     /// Center map on a place
     public func centerOnPlace(_ place: MapPlace, animated _: Bool = true) {
-        cameraPosition = .region(
-            MKCoordinateRegion(
-                center: place.coordinate,
-                span: MKCoordinateSpan(
-                    latitudeDelta: MapDefaults.defaultSpanLatitudeDelta,
-                    longitudeDelta: MapDefaults.defaultSpanLongitudeDelta
-                )
-            )
-        )
+        cameraPosition = .region(MKCoordinateRegion(center: place.coordinate,
+                                                    span: MKCoordinateSpan(latitudeDelta: MapDefaults
+                                                        .defaultSpanLatitudeDelta,
+                                                        longitudeDelta: MapDefaults
+                                                            .defaultSpanLongitudeDelta)))
     }
 
     /// Fit all filtered places in view
@@ -138,12 +133,10 @@ public final class MapViewModel {
         logger.info("Opening \(place.name) in \(app.rawValue)")
 
         do {
-            try await ExternalMapLauncher.open(
-                coordinate: place.coordinate,
-                name: place.name,
-                address: place.address,
-                app: app
-            )
+            try await ExternalMapLauncher.open(coordinate: place.coordinate,
+                                               name: place.name,
+                                               address: place.address,
+                                               app: app)
         } catch let mapError as MapError {
             error = mapError
             logger.error("Failed to open external map: \(mapError)")
