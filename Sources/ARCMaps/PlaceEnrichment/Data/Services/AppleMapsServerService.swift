@@ -86,35 +86,12 @@ public actor AppleMapsServerService: PlaceEnrichmentService {
         let authHeader = try await authorizationHeader()
 
         do {
-            let response: AppleMapsServerSearchResponse = try await networkClient.request(url: url,
-                                                                                          method: .get,
-                                                                                          headers: authHeader,
-                                                                                          body: nil)
-
-            let results = response.results.compactMap { searchResult -> PlaceSearchResult? in
-                guard let place = searchResult.place,
-                      let placeId = place.placeId,
-                      let name = place.name,
-                      let coord = place.coordinate
-                else { return nil }
-
-                return PlaceSearchResult(id: placeId,
-                                         provider: .appleServer,
-                                         name: name,
-                                         address: place.formattedAddressLines?.joined(separator: ", "),
-                                         coordinate: CLLocationCoordinate2D(latitude: coord.latitude,
-                                                                            longitude: coord.longitude),
-                                         types: place.pointOfInterestCategory.map { [$0] } ?? [],
-                                         rating: nil,
-                                         userRatingsTotal: nil,
-                                         priceLevel: nil,
-                                         photoReferences: [])
-            }
-
+            let response: AppleMapsServerSearchResponse = try await networkClient.request(
+                url: url, method: .get, headers: authHeader, body: nil
+            )
+            let results = response.results.compactMap { mapSearchResult($0) }
             await cache.setResults(results, for: query)
-
             logger.info("Found \(results.count) places via Apple Maps Server")
-
             return results
         } catch let error as PlaceEnrichmentError {
             throw error
@@ -122,6 +99,23 @@ public actor AppleMapsServerService: PlaceEnrichmentService {
             logger.error("Apple Maps Server search failed: \(error.localizedDescription)")
             throw PlaceEnrichmentError.networkError(error.localizedDescription)
         }
+    }
+
+    private func mapSearchResult(_ searchResult: AppleMapsServerSearchResult) -> PlaceSearchResult? {
+        guard let place = searchResult.place,
+              let placeId = place.placeId,
+              let name = place.name,
+              let coord = place.coordinate
+        else { return nil }
+
+        return PlaceSearchResult(
+            id: placeId,
+            provider: .appleServer,
+            name: name,
+            address: place.formattedAddressLines?.joined(separator: ", "),
+            coordinate: CLLocationCoordinate2D(latitude: coord.latitude, longitude: coord.longitude),
+            types: place.pointOfInterestCategory.map { [$0] } ?? []
+        )
     }
 
     public func getPlaceDetails(placeId: String) async throws -> EnrichedPlaceData {
