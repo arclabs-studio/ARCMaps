@@ -18,8 +18,8 @@ struct MapFilterTests {
     func matchesReturnsTrueWhenStatusInFilter() {
         // Given
         var filter = MapFilter()
-        filter.statuses = [.wishlist]
-        let place = MapPlaceFixtures.wishlistRestaurant
+        filter.statuses = [.pending]
+        let place = MapPlaceFixtures.pendingRestaurant
 
         // When/Then
         #expect(filter.matches(place))
@@ -30,7 +30,7 @@ struct MapFilterTests {
         // Given
         var filter = MapFilter()
         filter.statuses = [.visited]
-        let place = MapPlaceFixtures.wishlistRestaurant
+        let place = MapPlaceFixtures.pendingRestaurant
 
         // When/Then
         #expect(!filter.matches(place))
@@ -40,11 +40,11 @@ struct MapFilterTests {
     func defaultFilterMatchesAllStatuses() {
         // Given
         let filter = MapFilter.all
-        let wishlist = MapPlaceFixtures.wishlistRestaurant
+        let pending = MapPlaceFixtures.pendingRestaurant
         let visited = MapPlaceFixtures.visitedCafe
 
         // When/Then
-        #expect(filter.matches(wishlist))
+        #expect(filter.matches(pending))
         #expect(filter.matches(visited))
     }
 
@@ -55,7 +55,7 @@ struct MapFilterTests {
         // Given
         var filter = MapFilter()
         filter.categories = ["Restaurant"]
-        let place = MapPlaceFixtures.wishlistRestaurant
+        let place = MapPlaceFixtures.pendingRestaurant
 
         // When/Then
         #expect(filter.matches(place))
@@ -66,7 +66,7 @@ struct MapFilterTests {
         // Given
         var filter = MapFilter()
         filter.categories = ["Bar"]
-        let place = MapPlaceFixtures.wishlistRestaurant // Category is "Restaurant"
+        let place = MapPlaceFixtures.pendingRestaurant // Category is "Restaurant"
 
         // When/Then
         #expect(!filter.matches(place))
@@ -77,7 +77,7 @@ struct MapFilterTests {
         // Given
         var filter = MapFilter()
         filter.categories = []
-        let place = MapPlaceFixtures.wishlistRestaurant
+        let place = MapPlaceFixtures.pendingRestaurant
 
         // When/Then
         #expect(filter.matches(place))
@@ -90,7 +90,7 @@ struct MapFilterTests {
         // Given
         var filter = MapFilter()
         filter.minRating = 4.0
-        let place = MapPlaceFixtures.wishlistRestaurant // Rating is 4.5
+        let place = MapPlaceFixtures.pendingRestaurant // Rating is 4.5
 
         // When/Then
         #expect(filter.matches(place))
@@ -101,7 +101,7 @@ struct MapFilterTests {
         // Given
         var filter = MapFilter()
         filter.minRating = 5.0
-        let place = MapPlaceFixtures.wishlistRestaurant // Rating is 4.5
+        let place = MapPlaceFixtures.pendingRestaurant // Rating is 4.5
 
         // When/Then
         #expect(!filter.matches(place))
@@ -112,7 +112,7 @@ struct MapFilterTests {
         // Given
         var filter = MapFilter()
         filter.minRating = nil
-        let place = MapPlaceFixtures.wishlistRestaurant
+        let place = MapPlaceFixtures.pendingRestaurant
 
         // When/Then
         #expect(filter.matches(place))
@@ -149,10 +149,48 @@ struct MapFilterTests {
         let oneMonthAgo = now.addingTimeInterval(-30 * 24 * 3600)
         var filter = MapFilter()
         filter.dateRange = DateRange(start: oneMonthAgo, end: now)
-        let place = MapPlaceFixtures.wishlistRestaurant // No visit date
+        let place = MapPlaceFixtures.pendingRestaurant // No visit date
 
         // When/Then
         #expect(filter.matches(place))
+    }
+
+    // MARK: - Favorites Filter
+
+    @Test("filterByFavorites shows only favorite places")
+    func filterByFavoritesShowsOnlyFavorites() {
+        // Given
+        let filter = MapFilter(statuses: [.visited], filterByFavorites: true)
+        let favorite = MapPlaceFixtures.favoriteCafe
+        let nonFavorite = MapPlaceFixtures.visitedCafe
+
+        // When/Then
+        #expect(filter.matches(favorite))
+        #expect(!filter.matches(nonFavorite))
+    }
+
+    @Test("filterByFavorites false includes all visited places")
+    func filterByFavoritesFalseIncludesAllVisited() {
+        // Given
+        var filter = MapFilter()
+        filter.statuses = [.visited]
+        filter.filterByFavorites = false
+        let favorite = MapPlaceFixtures.favoriteCafe
+        let nonFavorite = MapPlaceFixtures.visitedCafe
+
+        // When/Then
+        #expect(filter.matches(favorite))
+        #expect(filter.matches(nonFavorite))
+    }
+
+    @Test("filterByFavorites excludes pending places")
+    func filterByFavoritesExcludesPendingPlaces() {
+        // Given - pending places can't be favorites
+        let filter = MapFilter(filterByFavorites: true)
+        let pending = MapPlaceFixtures.pendingRestaurant
+
+        // When/Then
+        #expect(!filter.matches(pending))
     }
 
     // MARK: - Combined Filters
@@ -166,7 +204,7 @@ struct MapFilterTests {
         filter.minRating = 4.0
 
         let matchingPlace = MapPlaceFixtures.visitedCafe // Visited, Cafe, 4.2 rating
-        let wrongStatus = MapPlaceFixtures.wishlistRestaurant // Wishlist, Restaurant, 4.5 rating
+        let wrongStatus = MapPlaceFixtures.pendingRestaurant // Pending, Restaurant, 4.5 rating
 
         // When/Then
         #expect(filter.matches(matchingPlace))

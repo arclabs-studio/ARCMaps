@@ -82,6 +82,29 @@ public enum MapFeatureSelectionMode: Sendable {
     case all
 }
 
+// MARK: - Marker Resolution Helper
+
+private extension MapPlace {
+    /// Resolves the appropriate marker view type for this place.
+    ///
+    /// - `.pending` → `PendingMarker`
+    /// - `.visited && isFavorite` → `FavoriteMarker`
+    /// - `.visited && !isFavorite` → `VisitedMarker`
+    @MainActor @ViewBuilder
+    var markerView: some View {
+        switch status {
+        case .pending:
+            PendingMarker(place: self)
+        case .visited:
+            if isFavorite {
+                FavoriteMarker(place: self)
+            } else {
+                VisitedMarker(place: self)
+            }
+        }
+    }
+}
+
 /// A SwiftUI view displaying an interactive map with place markers and controls.
 ///
 /// `ARCMapView` provides a full-featured map interface with:
@@ -226,20 +249,9 @@ public struct ARCMapView: View {
             UserAnnotation()
         }
 
-        // Wishlist places
-        ForEach(viewModel.filteredPlaces.filter { $0.status == .wishlist }) { place in
+        ForEach(viewModel.filteredPlaces) { place in
             Annotation(place.name, coordinate: place.coordinate) {
-                WishlistMarker(place: place)
-                    .onTapGesture {
-                        viewModel.selectPlace(place)
-                    }
-            }
-        }
-
-        // Visited places
-        ForEach(viewModel.filteredPlaces.filter { $0.status == .visited }) { place in
-            Annotation(place.name, coordinate: place.coordinate) {
-                VisitedMarker(place: place)
+                place.markerView
                     .onTapGesture {
                         viewModel.selectPlace(place)
                     }
@@ -361,20 +373,9 @@ private struct FeatureSelectionMapView: View {
             UserAnnotation()
         }
 
-        // Wishlist place markers
-        ForEach(viewModel.filteredPlaces.filter { $0.status == .wishlist }) { place in
+        ForEach(viewModel.filteredPlaces) { place in
             Annotation(place.name, coordinate: place.coordinate) {
-                WishlistMarker(place: place)
-                    .onTapGesture {
-                        viewModel.selectPlace(place)
-                    }
-            }
-        }
-
-        // Visited place markers
-        ForEach(viewModel.filteredPlaces.filter { $0.status == .visited }) { place in
-            Annotation(place.name, coordinate: place.coordinate) {
-                VisitedMarker(place: place)
+                place.markerView
                     .onTapGesture {
                         viewModel.selectPlace(place)
                     }

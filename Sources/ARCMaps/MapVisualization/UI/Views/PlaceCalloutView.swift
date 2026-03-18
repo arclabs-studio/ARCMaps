@@ -141,7 +141,7 @@ public struct PlaceCalloutView: View {
         .foregroundStyle(.white)
         .padding(.horizontal, 12)
         .padding(.vertical, 6)
-        .background(place.status == .wishlist ? Color.red : Color.green)
+        .background(place.status == .pending ? Color.red : Color.green)
         .cornerRadius(12)
     }
 

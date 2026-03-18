@@ -10,7 +10,7 @@ import Foundation
 @testable import ARCMaps
 
 public enum MapPlaceFixtures {
-    public static var wishlistRestaurant: MapPlace {
+    public static var pendingRestaurant: MapPlace {
         MapPlace(
             id: "map_place_1",
             name: "La Taverna",
@@ -18,11 +18,15 @@ public enum MapPlaceFixtures {
             address: "Calle Mayor 15, Madrid",
             category: "Restaurant",
             rating: 4.5,
-            status: .wishlist,
+            status: .pending,
+            isFavorite: false,
             visitDate: nil,
             imageURL: URL(string: "https://example.com/image1.jpg")
         )
     }
+
+    /// Backward-compatible alias for `pendingRestaurant`.
+    public static var wishlistRestaurant: MapPlace { pendingRestaurant }
 
     public static var visitedCafe: MapPlace {
         MapPlace(
@@ -33,6 +37,7 @@ public enum MapPlaceFixtures {
             category: "Cafe",
             rating: 4.2,
             status: .visited,
+            isFavorite: false,
             visitDate: Date(),
             imageURL: URL(string: "https://example.com/image2.jpg")
         )
@@ -47,20 +52,47 @@ public enum MapPlaceFixtures {
             category: "Bar",
             rating: 4.0,
             status: .visited,
+            isFavorite: false,
             visitDate: Date().addingTimeInterval(-86400 * 7), // 1 week ago
             imageURL: nil
         )
     }
 
-    public static var allSamples: [MapPlace] {
-        [wishlistRestaurant, visitedCafe, visitedBar]
+    public static var favoriteCafe: MapPlace {
+        MapPlace(
+            id: "map_place_4",
+            name: "Café Favorito",
+            coordinate: CLLocationCoordinate2D(latitude: 40.4210, longitude: -3.7060),
+            address: "Paseo de la Castellana 5, Madrid",
+            category: "Cafe",
+            rating: 4.8,
+            status: .visited,
+            isFavorite: true,
+            visitDate: Date().addingTimeInterval(-86400 * 3), // 3 days ago
+            imageURL: URL(string: "https://example.com/image4.jpg")
+        )
     }
 
-    public static var wishlistOnly: [MapPlace] {
-        [wishlistRestaurant]
+    public static var allSamples: [MapPlace] {
+        [pendingRestaurant, visitedCafe, visitedBar]
     }
+
+    public static var allSamplesWithFavorite: [MapPlace] {
+        [pendingRestaurant, visitedCafe, visitedBar, favoriteCafe]
+    }
+
+    public static var pendingOnly: [MapPlace] {
+        [pendingRestaurant]
+    }
+
+    /// Backward-compatible alias for `pendingOnly`.
+    public static var wishlistOnly: [MapPlace] { pendingOnly }
 
     public static var visitedOnly: [MapPlace] {
         [visitedCafe, visitedBar]
+    }
+
+    public static var favoritesOnly: [MapPlace] {
+        [favoriteCafe]
     }
 }

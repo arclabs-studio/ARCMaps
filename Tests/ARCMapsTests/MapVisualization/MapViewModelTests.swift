@@ -57,14 +57,14 @@ struct MapViewModelTests {
         sut.setPlaces(places)
 
         var filter = MapFilter()
-        filter.statuses = [.wishlist]
+        filter.statuses = [.pending]
 
         // When
         sut.updateFilter(filter)
 
         // Then
         #expect(sut.filteredPlaces.count == 1)
-        #expect(sut.filteredPlaces.allSatisfy { $0.status == .wishlist })
+        #expect(sut.filteredPlaces.allSatisfy { $0.status == .pending })
     }
 
     @Test("Apply visited status filter shows only visited places")
@@ -91,7 +91,7 @@ struct MapViewModelTests {
         sut.setPlaces(places)
 
         var filter = MapFilter()
-        filter.statuses = [.wishlist]
+        filter.statuses = [.pending]
         sut.updateFilter(filter)
 
         // When
@@ -101,12 +101,28 @@ struct MapViewModelTests {
         #expect(sut.filteredPlaces.count == places.count)
     }
 
+    @Test("Apply favorites filter shows only favorite places")
+    func applyFavoritesFilterShowsOnlyFavorites() {
+        // Given
+        let places = MapPlaceFixtures.allSamplesWithFavorite
+        sut.setPlaces(places)
+
+        let filter = MapFilter(statuses: [.visited], filterByFavorites: true)
+
+        // When
+        sut.updateFilter(filter)
+
+        // Then
+        #expect(sut.filteredPlaces.count == 1)
+        #expect(sut.filteredPlaces.allSatisfy { $0.isFavorite })
+    }
+
     // MARK: - Selection
 
     @Test("Select place updates selected place")
     func selectPlaceUpdatesSelectedPlace() {
         // Given
-        let place = MapPlaceFixtures.wishlistRestaurant
+        let place = MapPlaceFixtures.pendingRestaurant
 
         // When
         sut.selectPlace(place)
@@ -118,7 +134,7 @@ struct MapViewModelTests {
     @Test("Clear selection sets selected place to nil")
     func clearSelectionSetsSelectedPlaceToNil() {
         // Given
-        let place = MapPlaceFixtures.wishlistRestaurant
+        let place = MapPlaceFixtures.pendingRestaurant
         sut.selectPlace(place)
 
         // When
@@ -144,7 +160,7 @@ struct MapViewModelTests {
     @Test("Selecting place updates camera position")
     func selectingPlaceUpdatesCameraPosition() {
         // Given
-        let place = MapPlaceFixtures.wishlistRestaurant
+        let place = MapPlaceFixtures.pendingRestaurant
 
         // When
         sut.selectPlace(place)

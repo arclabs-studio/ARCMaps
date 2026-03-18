@@ -24,6 +24,7 @@ import Foundation
 ///     category: "restaurant",
 ///     rating: 4.5,
 ///     status: .visited,
+///     isFavorite: true,
 ///     visitDate: Date()
 /// )
 /// ```
@@ -46,8 +47,15 @@ public struct MapPlace: Sendable, Identifiable, Equatable {
     /// User or aggregate rating, typically on a 1-5 scale.
     public let rating: Double?
 
-    /// Current status indicating whether the place is on the wishlist or has been visited.
+    /// Current status indicating whether the place is pending a visit or has been visited.
     public let status: PlaceStatus
+
+    /// Whether this visited place has been marked as a favorite.
+    ///
+    /// Favorites are always a subset of visited places. This flag is only meaningful
+    /// when `status == .visited`. A `FavoriteMarker` is shown on the map for places
+    /// where `status == .visited && isFavorite == true`.
+    public let isFavorite: Bool
 
     /// Date when the place was visited, if applicable.
     public let visitDate: Date?
@@ -64,7 +72,8 @@ public struct MapPlace: Sendable, Identifiable, Equatable {
     ///   - address: Street address or location description.
     ///   - category: Category or type of place.
     ///   - rating: User or aggregate rating.
-    ///   - status: Wishlist or visited status.
+    ///   - status: Pending or visited status.
+    ///   - isFavorite: Whether the place is a favorite (only meaningful for `.visited` places).
     ///   - visitDate: Date when visited, if applicable.
     ///   - imageURL: URL to a place image.
     public init(
@@ -75,6 +84,7 @@ public struct MapPlace: Sendable, Identifiable, Equatable {
         category: String? = nil,
         rating: Double? = nil,
         status: PlaceStatus,
+        isFavorite: Bool = false,
         visitDate: Date? = nil,
         imageURL: URL? = nil
     ) {
@@ -85,6 +95,7 @@ public struct MapPlace: Sendable, Identifiable, Equatable {
         self.category = category
         self.rating = rating
         self.status = status
+        self.isFavorite = isFavorite
         self.visitDate = visitDate
         self.imageURL = imageURL
     }
@@ -100,10 +111,11 @@ public struct MapPlace: Sendable, Identifiable, Equatable {
     }
 }
 
-/// The visit status of a place, indicating whether it's on the wishlist or has been visited.
+/// The visit status of a place, indicating whether it's pending a visit or has been visited.
 ///
 /// `PlaceStatus` is used to categorize places and determine their visual representation
-/// on the map, including icon and color styling.
+/// on the map, including icon and color styling. For favorites, check `MapPlace.isFavorite`
+/// in combination with `.visited` status.
 ///
 /// ## Example
 /// ```swift
@@ -113,27 +125,27 @@ public struct MapPlace: Sendable, Identifiable, Equatable {
 /// ```
 public enum PlaceStatus: String, Sendable, CaseIterable, Equatable, Codable {
     /// A place the user wants to visit in the future.
-    case wishlist = "Wishlist"
+    case pending = "Pending"
 
     /// A place the user has already visited.
     case visited = "Visited"
 
     /// The SF Symbol name representing this status.
     ///
-    /// - Returns: `"heart.fill"` for wishlist, `"checkmark.circle.fill"` for visited.
+    /// - Returns: `"clock.fill"` for pending, `"checkmark.circle.fill"` for visited.
     public var iconName: String {
         switch self {
-        case .wishlist: "heart.fill"
+        case .pending: "clock.fill"
         case .visited: "checkmark.circle.fill"
         }
     }
 
     /// The color name associated with this status for visual styling.
     ///
-    /// - Returns: `"red"` for wishlist, `"green"` for visited.
+    /// - Returns: `"red"` for pending, `"green"` for visited.
     public var colorName: String {
         switch self {
-        case .wishlist: "red"
+        case .pending: "red"
         case .visited: "green"
         }
     }
