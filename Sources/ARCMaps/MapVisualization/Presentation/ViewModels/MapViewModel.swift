@@ -22,7 +22,7 @@ private enum MapDefaults {
 }
 
 /// ViewModel for map visualization
-@Observable
+@Observable // swiftlint:disable:next observable_viewmodel
 @MainActor public final class MapViewModel {
     // MARK: - State
 

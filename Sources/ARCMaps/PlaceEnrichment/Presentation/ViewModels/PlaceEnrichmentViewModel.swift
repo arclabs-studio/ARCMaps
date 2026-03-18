@@ -11,7 +11,7 @@ import Observation
 import SwiftUI
 
 /// ViewModel for place enrichment flow
-@Observable
+@Observable // swiftlint:disable:next observable_viewmodel
 @MainActor public final class PlaceEnrichmentViewModel {
     // MARK: - State
 
