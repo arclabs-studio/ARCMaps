@@ -9,7 +9,7 @@ import CoreLocation
 import Testing
 @testable import ARCMaps
 
-@Suite("ExternalMapLauncher Tests") struct ExternalMapLauncherTests {
+struct ExternalMapLauncherTests {
     // MARK: - ExternalMapApp Tests
 
     @Test("Apple Maps has correct URL scheme") func appleMapsHasCorrectURLScheme() {
@@ -89,7 +89,7 @@ import Testing
 
 // MARK: - MapError Tests
 
-@Suite("MapError Tests") struct MapErrorTests {
+struct MapErrorTests {
     @Test("Invalid coordinate error has description") func invalidCoordinateErrorHasDescription() {
         // Given
         let error = MapError.invalidCoordinate

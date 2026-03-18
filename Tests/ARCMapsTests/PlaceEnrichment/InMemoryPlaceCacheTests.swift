@@ -9,7 +9,7 @@ import Testing
 @testable import ARCMaps
 @testable import ARCMapsTestHelpers
 
-@Suite("InMemoryPlaceCache Tests") struct InMemoryPlaceCacheTests {
+struct InMemoryPlaceCacheTests {
     // MARK: - Basic Cache Operations
 
     @Test("Get results returns nil for empty cache") func getResultsReturnsNilForEmptyCache() async {

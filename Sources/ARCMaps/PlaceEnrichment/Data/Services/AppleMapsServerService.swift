@@ -86,9 +86,9 @@ public actor AppleMapsServerService: PlaceEnrichmentService {
         let authHeader = try await authorizationHeader()
 
         do {
-            let response: AppleMapsServerSearchResponse = try await networkClient.request(
-                url: url, method: .get, headers: authHeader, body: nil
-            )
+            let response: AppleMapsServerSearchResponse = try await networkClient.request(url: url, method: .get,
+                                                                                          headers: authHeader,
+                                                                                          body: nil)
             let results = response.results.compactMap { mapSearchResult($0) }
             await cache.setResults(results, for: query)
             logger.info("Found \(results.count) places via Apple Maps Server")
@@ -108,14 +108,13 @@ public actor AppleMapsServerService: PlaceEnrichmentService {
               let coord = place.coordinate
         else { return nil }
 
-        return PlaceSearchResult(
-            id: placeId,
-            provider: .appleServer,
-            name: name,
-            address: place.formattedAddressLines?.joined(separator: ", "),
-            coordinate: CLLocationCoordinate2D(latitude: coord.latitude, longitude: coord.longitude),
-            types: place.pointOfInterestCategory.map { [$0] } ?? []
-        )
+        return PlaceSearchResult(id: placeId,
+                                 provider: .appleServer,
+                                 name: name,
+                                 address: place.formattedAddressLines?.joined(separator: ", "),
+                                 coordinate: CLLocationCoordinate2D(latitude: coord.latitude,
+                                                                    longitude: coord.longitude),
+                                 types: place.pointOfInterestCategory.map { [$0] } ?? [])
     }
 
     public func getPlaceDetails(placeId: String) async throws -> EnrichedPlaceData {

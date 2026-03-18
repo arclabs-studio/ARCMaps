@@ -9,7 +9,7 @@ import CoreLocation
 import Testing
 @testable import ARCMaps
 
-@Suite("DistanceCalculator Tests") struct DistanceCalculatorTests {
+struct DistanceCalculatorTests {
     // MARK: - Distance Calculation
 
     @Test("Distance between two coordinates is calculated correctly") func distanceBetweenCoordinates() {

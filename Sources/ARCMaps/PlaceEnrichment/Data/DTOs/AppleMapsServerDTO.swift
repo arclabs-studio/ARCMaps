@@ -10,19 +10,19 @@ import Foundation
 // MARK: - Search Response
 
 /// Top-level search response from the Apple Maps Server API (`GET /v1/search`).
-struct AppleMapsServerSearchResponse: Decodable, Sendable {
+struct AppleMapsServerSearchResponse: Decodable {
     let results: [AppleMapsServerSearchResult]
 }
 
 /// A single search result entry returned by the Apple Maps Server API.
-struct AppleMapsServerSearchResult: Decodable, Sendable {
+struct AppleMapsServerSearchResult: Decodable {
     let place: AppleMapsServerPlace?
 }
 
 // MARK: - Place Detail Response
 
 /// Top-level place detail response from the Apple Maps Server API (`GET /v1/place/:id`).
-struct AppleMapsServerPlaceResponse: Decodable, Sendable {
+struct AppleMapsServerPlaceResponse: Decodable {
     let id: String?
     let name: String?
     let formattedAddressLines: [String]?
@@ -41,7 +41,7 @@ struct AppleMapsServerPlaceResponse: Decodable, Sendable {
 // MARK: - Shared Models
 
 /// A place returned by the Apple Maps Server API.
-struct AppleMapsServerPlace: Decodable, Sendable {
+struct AppleMapsServerPlace: Decodable {
     let placeId: String?
     let name: String?
     let formattedAddressLines: [String]?
@@ -57,7 +57,7 @@ struct AppleMapsServerPlace: Decodable, Sendable {
 }
 
 /// Geographic coordinates in the Apple Maps Server API format.
-struct AppleMapsServerCoordinate: Decodable, Sendable {
+struct AppleMapsServerCoordinate: Decodable {
     let latitude: Double
     let longitude: Double
 }

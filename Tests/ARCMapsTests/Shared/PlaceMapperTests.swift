@@ -10,7 +10,7 @@ import Testing
 @testable import ARCMaps
 @testable import ARCMapsTestHelpers
 
-@Suite("PlaceMapper Tests") struct PlaceMapperTests {
+struct PlaceMapperTests {
     // MARK: - toMapPlace
 
     @Test("toMapPlace preserves id from search result") func toMapPlacePreservesID() {

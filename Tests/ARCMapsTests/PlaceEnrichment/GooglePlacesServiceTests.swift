@@ -9,7 +9,7 @@ import Testing
 @testable import ARCMaps
 @testable import ARCMapsTestHelpers
 
-@Suite("GooglePlacesService Tests") struct GooglePlacesServiceTests {
+struct GooglePlacesServiceTests {
     let mockNetworkClient: MockNetworkClient
     let mockCache: MockPlaceSearchCache
     let sut: GooglePlacesService

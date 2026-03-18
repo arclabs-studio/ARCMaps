@@ -10,7 +10,7 @@ import Testing
 @testable import ARCMaps
 @testable import ARCMapsTestHelpers
 
-@Suite("PlaceSearchResult Tests") struct PlaceSearchResultTests {
+struct PlaceSearchResultTests {
     // MARK: - Match Score Calculation
 
     @Test("Match score is 1.0 for complete result") func matchScoreIsOneForCompleteResult() {

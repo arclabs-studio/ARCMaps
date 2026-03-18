@@ -9,7 +9,7 @@ import CoreLocation
 import Testing
 @testable import ARCMaps
 
-@Suite("GooglePlacesMapper Tests") struct GooglePlacesMapperTests {
+struct GooglePlacesMapperTests {
     // MARK: - Map to Search Result
 
     @Test("Maps basic place result correctly") func mapsBasicPlaceResultCorrectly() {

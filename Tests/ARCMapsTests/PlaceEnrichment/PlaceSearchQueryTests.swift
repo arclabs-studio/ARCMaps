@@ -8,7 +8,7 @@
 import Testing
 @testable import ARCMaps
 
-@Suite("PlaceSearchQuery Tests") struct PlaceSearchQueryTests {
+struct PlaceSearchQueryTests {
     // MARK: - Full Text Query
 
     @Test("Full text query contains only name when no other fields") func fullTextQueryContainsOnlyName() {

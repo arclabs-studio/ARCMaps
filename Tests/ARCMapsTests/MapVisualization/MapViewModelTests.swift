@@ -9,7 +9,7 @@ import Testing
 @testable import ARCMaps
 @testable import ARCMapsTestHelpers
 
-@Suite("MapViewModel Tests", .serialized)
+@Suite(.serialized)
 @MainActor struct MapViewModelTests {
     let mockLocationService: MockLocationService
     let sut: MapViewModel
@@ -107,6 +107,7 @@ import Testing
 
         // Then
         #expect(sut.filteredPlaces.count == 1)
+        // swiftformat:disable:next preferKeyPath — keyPath triggers a throw error inside #expect macro
         #expect(sut.filteredPlaces.allSatisfy { $0.isFavorite })
     }
 

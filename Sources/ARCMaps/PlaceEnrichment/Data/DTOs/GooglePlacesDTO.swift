@@ -9,7 +9,7 @@ import Foundation
 
 // MARK: - Response DTOs
 
-struct GooglePlacesSearchResponse: Codable, Sendable {
+struct GooglePlacesSearchResponse: Codable {
     let results: [GooglePlaceResult]
     let status: String
     let errorMessage: String?
@@ -21,7 +21,7 @@ struct GooglePlacesSearchResponse: Codable, Sendable {
     }
 }
 
-struct GooglePlaceDetailsResponse: Codable, Sendable {
+struct GooglePlaceDetailsResponse: Codable {
     let result: GooglePlaceResult
     let status: String
     let errorMessage: String?
@@ -33,7 +33,7 @@ struct GooglePlaceDetailsResponse: Codable, Sendable {
     }
 }
 
-struct GooglePlaceResult: Codable, Sendable {
+struct GooglePlaceResult: Codable {
     let placeId: String
     let name: String
     let formattedAddress: String?
@@ -65,16 +65,16 @@ struct GooglePlaceResult: Codable, Sendable {
     }
 }
 
-struct GoogleGeometry: Codable, Sendable {
+struct GoogleGeometry: Codable {
     let location: GoogleLocation
 }
 
-struct GoogleLocation: Codable, Sendable {
+struct GoogleLocation: Codable {
     let lat: Double
     let lng: Double
 }
 
-struct GooglePhoto: Codable, Sendable {
+struct GooglePhoto: Codable {
     let photoReference: String
     let width: Int
     let height: Int
@@ -88,7 +88,7 @@ struct GooglePhoto: Codable, Sendable {
     }
 }
 
-struct GoogleOpeningHours: Codable, Sendable {
+struct GoogleOpeningHours: Codable {
     let openNow: Bool?
     let weekdayText: [String]?
     let periods: [GooglePeriod]?
@@ -100,17 +100,17 @@ struct GoogleOpeningHours: Codable, Sendable {
     }
 }
 
-struct GooglePeriod: Codable, Sendable {
+struct GooglePeriod: Codable {
     let open: GoogleDayTime
     let close: GoogleDayTime?
 }
 
-struct GoogleDayTime: Codable, Sendable {
+struct GoogleDayTime: Codable {
     let day: Int
     let time: String
 }
 
-struct GoogleReview: Codable, Sendable {
+struct GoogleReview: Codable {
     let authorName: String
     let rating: Int
     let text: String

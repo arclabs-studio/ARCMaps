@@ -10,7 +10,7 @@ import Testing
 @testable import ARCMaps
 @testable import ARCMapsTestHelpers
 
-@Suite("MapFilter Tests") struct MapFilterTests {
+struct MapFilterTests {
     // MARK: - Status Filter
 
     @Test("Matches returns true when status is in filter") func matchesReturnsTrueWhenStatusInFilter() {
@@ -196,7 +196,7 @@ import Testing
 
 // MARK: - DateRange Tests
 
-@Suite("DateRange Tests") struct DateRangeTests {
+struct DateRangeTests {
     @Test("Contains returns true for date in range") func containsReturnsTrueForDateInRange() {
         // Given
         let start = Date().addingTimeInterval(-86400) // Yesterday

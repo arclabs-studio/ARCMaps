@@ -9,7 +9,7 @@ import Testing
 @testable import ARCMaps
 @testable import ARCMapsTestHelpers
 
-@Suite("PlaceEnrichmentViewModel Tests", .serialized)
+@Suite(.serialized)
 @MainActor struct PlaceEnrichmentViewModelTests {
     let mockGoogleService: MockPlaceEnrichmentService
     let mockAppleService: MockPlaceEnrichmentService

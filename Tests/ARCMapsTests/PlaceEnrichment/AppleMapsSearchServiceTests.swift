@@ -9,7 +9,7 @@ import Testing
 @testable import ARCMaps
 @testable import ARCMapsTestHelpers
 
-@Suite("AppleMapsSearchService Tests") struct AppleMapsSearchServiceTests {
+struct AppleMapsSearchServiceTests {
     let mockCache: MockPlaceSearchCache
     let sut: AppleMapsSearchService
 
