@@ -12,11 +12,16 @@ import Foundation
 /// Sample places for demonstrating ARCMaps features.
 ///
 /// Contains a collection of fictional restaurants and cafes in Madrid, Spain,
-/// with various statuses (wishlist/visited), ratings, and categories.
+/// with various statuses (pending/visited/favorite), ratings, and categories.
 enum SampleData {
     /// Sample places representing restaurants and cafes in Madrid.
+    ///
+    /// Demonstrates all three marker states:
+    /// - `.pending` — red clock (wants to visit)
+    /// - `.visited` — green checkmark (visited)
+    /// - `.visited + isFavorite: true` — gold star (visited and loved)
     static let places: [MapPlace] = [
-        // Wishlist places
+        // Pending places — red clock marker
         MapPlace(
             id: "1",
             name: "La Barraca",
@@ -24,7 +29,7 @@ enum SampleData {
             address: "Calle de la Reina 29, Madrid",
             category: "restaurant",
             rating: 4.7,
-            status: .wishlist
+            status: .pending
         ),
         MapPlace(
             id: "2",
@@ -33,7 +38,7 @@ enum SampleData {
             address: "Calle Cuchilleros 17, Madrid",
             category: "restaurant",
             rating: 4.5,
-            status: .wishlist
+            status: .pending
         ),
         MapPlace(
             id: "3",
@@ -42,7 +47,7 @@ enum SampleData {
             address: "Calle de la Palma 49, Madrid",
             category: "cafe",
             rating: 4.8,
-            status: .wishlist
+            status: .pending
         ),
         MapPlace(
             id: "4",
@@ -51,10 +56,10 @@ enum SampleData {
             address: "Calle Ferraz 2, Madrid",
             category: "restaurant",
             rating: 4.9,
-            status: .wishlist
+            status: .pending
         ),
 
-        // Visited places
+        // Visited places — green checkmark marker
         MapPlace(
             id: "5",
             name: "Mercado de San Miguel",
@@ -64,16 +69,6 @@ enum SampleData {
             rating: 4.3,
             status: .visited,
             visitDate: Calendar.current.date(byAdding: .day, value: -7, to: Date())
-        ),
-        MapPlace(
-            id: "6",
-            name: "Cafe de Oriente",
-            coordinate: CLLocationCoordinate2D(latitude: 40.4180, longitude: -3.7140),
-            address: "Plaza de Oriente 2, Madrid",
-            category: "cafe",
-            rating: 4.4,
-            status: .visited,
-            visitDate: Calendar.current.date(byAdding: .day, value: -14, to: Date())
         ),
         MapPlace(
             id: "7",
@@ -86,16 +81,6 @@ enum SampleData {
             visitDate: Calendar.current.date(byAdding: .day, value: -30, to: Date())
         ),
         MapPlace(
-            id: "8",
-            name: "Federal Cafe",
-            coordinate: CLLocationCoordinate2D(latitude: 40.4260, longitude: -3.7000),
-            address: "Plaza de las Comendadoras 9, Madrid",
-            category: "cafe",
-            rating: 4.6,
-            status: .visited,
-            visitDate: Calendar.current.date(byAdding: .day, value: -3, to: Date())
-        ),
-        MapPlace(
             id: "9",
             name: "Casa Lucio",
             coordinate: CLLocationCoordinate2D(latitude: 40.4125, longitude: -3.7095),
@@ -105,6 +90,30 @@ enum SampleData {
             status: .visited,
             visitDate: Calendar.current.date(byAdding: .month, value: -2, to: Date())
         ),
+
+        // Favorite places — gold star marker (visited + isFavorite: true)
+        MapPlace(
+            id: "6",
+            name: "Cafe de Oriente",
+            coordinate: CLLocationCoordinate2D(latitude: 40.4180, longitude: -3.7140),
+            address: "Plaza de Oriente 2, Madrid",
+            category: "cafe",
+            rating: 4.4,
+            status: .visited,
+            isFavorite: true,
+            visitDate: Calendar.current.date(byAdding: .day, value: -14, to: Date())
+        ),
+        MapPlace(
+            id: "8",
+            name: "Federal Cafe",
+            coordinate: CLLocationCoordinate2D(latitude: 40.4260, longitude: -3.7000),
+            address: "Plaza de las Comendadoras 9, Madrid",
+            category: "cafe",
+            rating: 4.6,
+            status: .visited,
+            isFavorite: true,
+            visitDate: Calendar.current.date(byAdding: .day, value: -3, to: Date())
+        ),
         MapPlace(
             id: "10",
             name: "Chocolateria San Gines",
@@ -113,6 +122,7 @@ enum SampleData {
             category: "cafe",
             rating: 4.0,
             status: .visited,
+            isFavorite: true,
             visitDate: Calendar.current.date(byAdding: .day, value: -1, to: Date())
         )
     ]
