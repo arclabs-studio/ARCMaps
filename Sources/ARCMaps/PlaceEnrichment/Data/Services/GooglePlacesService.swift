@@ -78,11 +78,11 @@ public actor GooglePlacesService: PlaceEnrichmentService {
 
             logger.info("Found \(results.count) places")
             return results
-        } catch let error as PlaceEnrichmentError {
-            throw error
         } catch {
-            logger.error("Failed to search places: \(error.localizedDescription)")
-            throw PlaceEnrichmentError.networkError(error.localizedDescription)
+            if !(error is PlaceEnrichmentError) {
+                logger.error("Failed to search places: \(error.localizedDescription)")
+            }
+            throw PlaceEnrichmentError.wrap(error)
         }
     }
 
@@ -122,11 +122,11 @@ public actor GooglePlacesService: PlaceEnrichmentService {
 
             logger.info("Fetched details for: \(enrichedData.name)")
             return enrichedData
-        } catch let error as PlaceEnrichmentError {
-            throw error
         } catch {
-            logger.error("Failed to fetch place details: \(error.localizedDescription)")
-            throw PlaceEnrichmentError.networkError(error.localizedDescription)
+            if !(error is PlaceEnrichmentError) {
+                logger.error("Failed to fetch place details: \(error.localizedDescription)")
+            }
+            throw PlaceEnrichmentError.wrap(error)
         }
     }
 

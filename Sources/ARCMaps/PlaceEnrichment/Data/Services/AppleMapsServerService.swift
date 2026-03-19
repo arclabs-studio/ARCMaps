@@ -93,11 +93,11 @@ public actor AppleMapsServerService: PlaceEnrichmentService {
             await cache.setResults(results, for: query)
             logger.info("Found \(results.count) places via Apple Maps Server")
             return results
-        } catch let error as PlaceEnrichmentError {
-            throw error
         } catch {
-            logger.error("Apple Maps Server search failed: \(error.localizedDescription)")
-            throw PlaceEnrichmentError.networkError(error.localizedDescription)
+            if !(error is PlaceEnrichmentError) {
+                logger.error("Apple Maps Server search failed: \(error.localizedDescription)")
+            }
+            throw PlaceEnrichmentError.wrap(error)
         }
     }
 
@@ -156,11 +156,11 @@ public actor AppleMapsServerService: PlaceEnrichmentService {
 
             logger.info("Fetched details for: \(name)")
             return enrichedData
-        } catch let error as PlaceEnrichmentError {
-            throw error
         } catch {
-            logger.error("Apple Maps Server place details failed: \(error.localizedDescription)")
-            throw PlaceEnrichmentError.networkError(error.localizedDescription)
+            if !(error is PlaceEnrichmentError) {
+                logger.error("Apple Maps Server place details failed: \(error.localizedDescription)")
+            }
+            throw PlaceEnrichmentError.wrap(error)
         }
     }
 
