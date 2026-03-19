@@ -52,12 +52,10 @@ public protocol NetworkClientProtocol: Sendable {
     ///   - body: Optional request body data.
     /// - Returns: The decoded response of type `T`.
     /// - Throws: ``NetworkError`` if the request fails or the response cannot be decoded.
-    func request<T: Decodable & Sendable>(
-        url: URL,
-        method: HTTPMethod,
-        headers: [String: String]?,
-        body: Data?
-    ) async throws -> T
+    func request<T: Decodable & Sendable>(url: URL,
+                                          method: HTTPMethod,
+                                          headers: [String: String]?,
+                                          body: Data?) async throws -> T
 }
 
 /// A thread-safe HTTP client implementation using `URLSession`.
@@ -100,12 +98,10 @@ public actor DefaultNetworkClient: NetworkClientProtocol {
     /// - Throws: ``NetworkError/invalidResponse`` if the response is not an HTTP response,
     ///   ``NetworkError/httpError(statusCode:)`` for non-2xx status codes, or
     ///   a decoding error if JSON parsing fails.
-    public func request<T: Decodable & Sendable>(
-        url: URL,
-        method: HTTPMethod = .get,
-        headers: [String: String]? = nil,
-        body: Data? = nil
-    ) async throws -> T {
+    public func request<T: Decodable & Sendable>(url: URL,
+                                                 method: HTTPMethod = .get,
+                                                 headers: [String: String]? = nil,
+                                                 body: Data? = nil) async throws -> T {
         var request = URLRequest(url: url)
         request.httpMethod = method.rawValue
         request.httpBody = body

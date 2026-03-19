@@ -66,18 +66,16 @@ public struct PlaceSearchResult: Sendable, Identifiable, Equatable {
     ///   - userRatingsTotal: Total number of user ratings.
     ///   - priceLevel: Price level indicator (0-4).
     ///   - photoReferences: References to available photos.
-    public init(
-        id: String,
-        provider: PlaceProvider,
-        name: String,
-        address: String? = nil,
-        coordinate: CLLocationCoordinate2D,
-        types: [String] = [],
-        rating: Double? = nil,
-        userRatingsTotal: Int? = nil,
-        priceLevel: Int? = nil,
-        photoReferences: [String] = []
-    ) {
+    public init(id: String,
+                provider: PlaceProvider,
+                name: String,
+                address: String? = nil,
+                coordinate: CLLocationCoordinate2D,
+                types: [String] = [],
+                rating: Double? = nil,
+                userRatingsTotal: Int? = nil,
+                priceLevel: Int? = nil,
+                photoReferences: [String] = []) {
         self.id = id
         self.provider = provider
         self.name = name

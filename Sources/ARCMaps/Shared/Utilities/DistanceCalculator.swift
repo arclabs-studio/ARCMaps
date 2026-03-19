@@ -35,10 +35,8 @@ public enum DistanceCalculator {
     ///   - from: The starting coordinate.
     ///   - to: The destination coordinate.
     /// - Returns: The distance in meters.
-    public static func distance(
-        from: CLLocationCoordinate2D,
-        to: CLLocationCoordinate2D
-    ) -> Double {
+    public static func distance(from: CLLocationCoordinate2D,
+                                to: CLLocationCoordinate2D) -> Double {
         from.distance(to: to)
     }
 
@@ -70,11 +68,9 @@ public enum DistanceCalculator {
     ///   - center: The center point of the radius.
     ///   - radiusMeters: The radius in meters.
     /// - Returns: `true` if the coordinate is within the radius, `false` otherwise.
-    public static func isWithinRadius(
-        coordinate: CLLocationCoordinate2D,
-        center: CLLocationCoordinate2D,
-        radiusMeters: Double
-    ) -> Bool {
+    public static func isWithinRadius(coordinate: CLLocationCoordinate2D,
+                                      center: CLLocationCoordinate2D,
+                                      radiusMeters: Double) -> Bool {
         distance(from: coordinate, to: center) <= radiusMeters
     }
 }

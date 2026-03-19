@@ -1,4 +1,4 @@
-# ExampleApp
+# ARCMapsDemoApp
 
 Demo application for ARCMaps.
 
@@ -10,7 +10,7 @@ Demo application for ARCMaps.
 
 ## Running the Example
 
-1. Open `ExampleApp.xcodeproj` in Xcode
+1. Open `ARCMapsDemoApp.xcodeproj` in Xcode
 2. The ARCMaps package is referenced locally (no additional setup needed)
 3. Select an iOS simulator and press Run (Cmd+R)
 
@@ -48,10 +48,10 @@ The app uses fictional places in Madrid, Spain to demonstrate ARCMaps features. 
 ## Project Structure
 
 ```
-ExampleApp/
-├── ExampleApp.xcodeproj    # Xcode project (references ARCMaps locally)
-├── ExampleApp/
-│   ├── ExampleAppApp.swift # App entry point with configuration
+ARCMapsDemoApp/
+├── ARCMapsDemoApp.xcodeproj    # Xcode project (references ARCMaps locally)
+├── ARCMapsDemoApp/
+│   ├── ARCMapsDemoAppApp.swift # App entry point with configuration
 │   ├── ContentView.swift   # Tab navigation
 │   ├── MapDemoView.swift   # Basic map demonstration
 │   ├── FilterDemoView.swift# Filter functionality demo
@@ -66,7 +66,7 @@ ExampleApp/
 
 ### Using Google Places API
 
-To enable Google Places search, update `ExampleAppApp.swift`:
+To enable Google Places search, update `ARCMapsDemoAppApp.swift`:
 
 ```swift
 ARCMapsConfiguration.shared = ARCMapsConfiguration(

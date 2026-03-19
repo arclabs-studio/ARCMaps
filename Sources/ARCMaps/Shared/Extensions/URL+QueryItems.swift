@@ -9,11 +9,9 @@ import Foundation
 
 extension URL {
     /// Create URL with query items
-    public static func build(
-        baseURL: String,
-        path: String? = nil,
-        queryItems: [URLQueryItem]
-    ) -> URL? {
+    public static func build(baseURL: String,
+                             path: String? = nil,
+                             queryItems: [URLQueryItem]) -> URL? {
         var components = URLComponents(string: baseURL)
 
         if let path {

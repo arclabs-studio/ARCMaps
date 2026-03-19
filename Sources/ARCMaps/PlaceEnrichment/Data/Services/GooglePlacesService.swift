@@ -18,11 +18,9 @@ public actor GooglePlacesService: PlaceEnrichmentService {
 
     private let baseURL = "https://maps.googleapis.com/maps/api/place"
 
-    public init(
-        apiKey: String,
-        networkClient: NetworkClientProtocol,
-        cache: PlaceSearchCache
-    ) {
+    public init(apiKey: String,
+                networkClient: NetworkClientProtocol,
+                cache: PlaceSearchCache) {
         self.apiKey = apiKey
         self.networkClient = networkClient
         self.cache = cache
@@ -43,11 +41,10 @@ public actor GooglePlacesService: PlaceEnrichmentService {
         guard var components = URLComponents(string: "\(baseURL)/textsearch/json") else {
             throw PlaceEnrichmentError.invalidQuery
         }
-        components.queryItems = [
-            URLQueryItem(name: "query", value: query.fullTextQuery),
-            URLQueryItem(name: "key", value: apiKey),
-            URLQueryItem(name: "language", value: Locale.current.language.languageCode?.identifier ?? "en")
-        ]
+        components.queryItems = [URLQueryItem(name: "query", value: query.fullTextQuery),
+                                 URLQueryItem(name: "key", value: apiKey),
+                                 URLQueryItem(name: "language",
+                                              value: Locale.current.language.languageCode?.identifier ?? "en")]
 
         if let coordinate = query.coordinate {
             let location = "\(coordinate.latitude),\(coordinate.longitude)"
@@ -64,12 +61,10 @@ public actor GooglePlacesService: PlaceEnrichmentService {
 
         // Execute request
         do {
-            let response: GooglePlacesSearchResponse = try await networkClient.request(
-                url: url,
-                method: .get,
-                headers: nil,
-                body: nil
-            )
+            let response: GooglePlacesSearchResponse = try await networkClient.request(url: url,
+                                                                                       method: .get,
+                                                                                       headers: nil,
+                                                                                       body: nil)
 
             guard response.status == "OK" || response.status == "ZERO_RESULTS" else {
                 logger.error("Google Places API error: \(response.status)")
@@ -83,11 +78,11 @@ public actor GooglePlacesService: PlaceEnrichmentService {
 
             logger.info("Found \(results.count) places")
             return results
-        } catch let error as PlaceEnrichmentError {
-            throw error
         } catch {
-            logger.error("Failed to search places: \(error.localizedDescription)")
-            throw PlaceEnrichmentError.networkError(error.localizedDescription)
+            if !(error is PlaceEnrichmentError) {
+                logger.error("Failed to search places: \(error.localizedDescription)")
+            }
+            throw PlaceEnrichmentError.wrap(error)
         }
     }
 
@@ -98,30 +93,25 @@ public actor GooglePlacesService: PlaceEnrichmentService {
             throw PlaceEnrichmentError.invalidQuery
         }
 
-        let detailFields = [
-            "name", "formatted_address", "geometry", "photos", "rating",
-            "user_ratings_total", "price_level", "opening_hours", "website",
-            "formatted_phone_number", "reviews", "types"
-        ].joined(separator: ",")
+        let detailFields = ["name", "formatted_address", "geometry", "photos", "rating",
+                            "user_ratings_total", "price_level", "opening_hours", "website",
+                            "formatted_phone_number", "reviews", "types"].joined(separator: ",")
 
-        components.queryItems = [
-            URLQueryItem(name: "place_id", value: placeId),
-            URLQueryItem(name: "key", value: apiKey),
-            URLQueryItem(name: "fields", value: detailFields),
-            URLQueryItem(name: "language", value: Locale.current.language.languageCode?.identifier ?? "en")
-        ]
+        components.queryItems = [URLQueryItem(name: "place_id", value: placeId),
+                                 URLQueryItem(name: "key", value: apiKey),
+                                 URLQueryItem(name: "fields", value: detailFields),
+                                 URLQueryItem(name: "language",
+                                              value: Locale.current.language.languageCode?.identifier ?? "en")]
 
         guard let url = components.url else {
             throw PlaceEnrichmentError.invalidQuery
         }
 
         do {
-            let response: GooglePlaceDetailsResponse = try await networkClient.request(
-                url: url,
-                method: .get,
-                headers: nil,
-                body: nil
-            )
+            let response: GooglePlaceDetailsResponse = try await networkClient.request(url: url,
+                                                                                       method: .get,
+                                                                                       headers: nil,
+                                                                                       body: nil)
 
             guard response.status == "OK" else {
                 logger.error("Google Places API error: \(response.status)")
@@ -132,11 +122,11 @@ public actor GooglePlacesService: PlaceEnrichmentService {
 
             logger.info("Fetched details for: \(enrichedData.name)")
             return enrichedData
-        } catch let error as PlaceEnrichmentError {
-            throw error
         } catch {
-            logger.error("Failed to fetch place details: \(error.localizedDescription)")
-            throw PlaceEnrichmentError.networkError(error.localizedDescription)
+            if !(error is PlaceEnrichmentError) {
+                logger.error("Failed to fetch place details: \(error.localizedDescription)")
+            }
+            throw PlaceEnrichmentError.wrap(error)
         }
     }
 
@@ -144,11 +134,9 @@ public actor GooglePlacesService: PlaceEnrichmentService {
         guard var components = URLComponents(string: "\(baseURL)/photo") else {
             throw PlaceEnrichmentError.photoDownloadFailed(photoReference)
         }
-        components.queryItems = [
-            URLQueryItem(name: "photoreference", value: photoReference),
-            URLQueryItem(name: "maxwidth", value: "\(maxWidth)"),
-            URLQueryItem(name: "key", value: apiKey)
-        ]
+        components.queryItems = [URLQueryItem(name: "photoreference", value: photoReference),
+                                 URLQueryItem(name: "maxwidth", value: "\(maxWidth)"),
+                                 URLQueryItem(name: "key", value: apiKey)]
 
         guard let url = components.url else {
             throw PlaceEnrichmentError.photoDownloadFailed(photoReference)

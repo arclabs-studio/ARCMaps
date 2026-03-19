@@ -11,7 +11,8 @@ import SwiftUI
 /// Demonstrates the MapFilter functionality.
 ///
 /// Shows how to:
-/// - Filter places by status (wishlist/visited)
+/// - Filter places by status (pending/visited)
+/// - Filter to favorites only (visited + isFavorite)
 /// - Filter by category
 /// - Set minimum rating threshold
 /// - Apply filters to the map view
@@ -20,6 +21,7 @@ struct FilterDemoView: View {
     @State private var selectedStatuses: Set<PlaceStatus> = Set(PlaceStatus.allCases)
     @State private var selectedCategories: Set<String> = []
     @State private var minRating: Double = 0
+    @State private var favoritesOnly = false
     @State private var showFilterSheet = false
 
     init() {
@@ -87,7 +89,9 @@ struct FilterDemoView: View {
     private var filterDescription: String {
         var parts: [String] = []
 
-        if selectedStatuses.count == 1 {
+        if favoritesOnly {
+            parts.append("Favorites only")
+        } else if selectedStatuses.count == 1 {
             parts.append(selectedStatuses.first?.rawValue ?? "")
         }
 
@@ -104,7 +108,8 @@ struct FilterDemoView: View {
     }
 
     private var hasActiveFilters: Bool {
-        selectedStatuses.count < PlaceStatus.allCases.count ||
+        favoritesOnly ||
+            selectedStatuses.count < PlaceStatus.allCases.count ||
             !selectedCategories.isEmpty ||
             minRating > 0
     }
@@ -114,22 +119,38 @@ struct FilterDemoView: View {
     private var filterSheet: some View {
         NavigationStack {
             Form {
+                // Favorites shortcut
+                Section("Favorites") {
+                    Toggle(isOn: Binding(get: { favoritesOnly },
+                                         set: { newValue in
+                                             favoritesOnly = newValue
+                                             // Favorites are always a subset of visited places
+                                             if newValue {
+                                                 selectedStatuses = [.visited]
+                                             }
+                                             applyFilters()
+                                         })) {
+                        Label("Favorites only", systemImage: "star.fill")
+                            .foregroundStyle(.yellow)
+                    }
+                }
+
                 // Status filter
                 Section("Status") {
                     ForEach(PlaceStatus.allCases, id: \.self) { status in
-                        Toggle(isOn: Binding(
-                            get: { selectedStatuses.contains(status) },
-                            set: { isSelected in
-                                if isSelected {
-                                    selectedStatuses.insert(status)
-                                } else {
-                                    selectedStatuses.remove(status)
-                                }
-                                applyFilters()
-                            }
-                        )) {
+                        Toggle(isOn: Binding(get: { selectedStatuses.contains(status) },
+                                             set: { isSelected in
+                                                 if isSelected {
+                                                     selectedStatuses.insert(status)
+                                                 } else {
+                                                     selectedStatuses.remove(status)
+                                                     // Favorites require .visited — clear if deselected
+                                                     if status == .visited { favoritesOnly = false }
+                                                 }
+                                                 applyFilters()
+                                             })) {
                             Label(status.rawValue, systemImage: status.iconName)
-                                .foregroundStyle(status == .wishlist ? .red : .green)
+                                .foregroundStyle(status == .pending ? .red : .green)
                         }
                     }
                 }
@@ -137,17 +158,15 @@ struct FilterDemoView: View {
                 // Category filter
                 Section("Category") {
                     ForEach(SampleData.categories, id: \.self) { category in
-                        Toggle(isOn: Binding(
-                            get: { selectedCategories.contains(category) },
-                            set: { isSelected in
-                                if isSelected {
-                                    selectedCategories.insert(category)
-                                } else {
-                                    selectedCategories.remove(category)
-                                }
-                                applyFilters()
-                            }
-                        )) {
+                        Toggle(isOn: Binding(get: { selectedCategories.contains(category) },
+                                             set: { isSelected in
+                                                 if isSelected {
+                                                     selectedCategories.insert(category)
+                                                 } else {
+                                                     selectedCategories.remove(category)
+                                                 }
+                                                 applyFilters()
+                                             })) {
                             Text(category.capitalized)
                         }
                     }
@@ -196,11 +215,10 @@ struct FilterDemoView: View {
     // MARK: - Filter Logic
 
     private func applyFilters() {
-        let filter = MapFilter(
-            statuses: selectedStatuses.isEmpty ? Set(PlaceStatus.allCases) : selectedStatuses,
-            categories: selectedCategories,
-            minRating: minRating > 0 ? minRating : nil
-        )
+        let filter = MapFilter(statuses: selectedStatuses.isEmpty ? Set(PlaceStatus.allCases) : selectedStatuses,
+                               categories: selectedCategories,
+                               minRating: minRating > 0 ? minRating : nil,
+                               filterByFavorites: favoritesOnly)
         viewModel.updateFilter(filter)
     }
 
@@ -208,6 +226,7 @@ struct FilterDemoView: View {
         selectedStatuses = Set(PlaceStatus.allCases)
         selectedCategories = []
         minRating = 0
+        favoritesOnly = false
         viewModel.updateFilter(.all)
     }
 }

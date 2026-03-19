@@ -26,10 +26,16 @@ import Foundation
 /// Label(provider.displayName, systemImage: provider.iconName)
 /// ```
 public enum PlaceProvider: String, Sendable, CaseIterable, Equatable, Codable {
-    /// Google Places API - requires API key, provides detailed place data.
+    /// Google Places API - requires API key, provides detailed place data including
+    /// photos, ratings, opening hours, phone numbers, and reviews.
     case google = "Google Places"
 
-    /// Apple Maps / MapKit - uses device's Apple ID, no additional API key required.
+    /// Apple Maps Server API - requires Apple Developer account and JWT authentication.
+    /// Provides structured address, category, place ID, and coordinates. No photos/ratings.
+    case appleServer = "Apple Maps Server"
+
+    /// Apple MapKit (on-device) - no API key required, always available as offline fallback.
+    /// Returns basic name, coordinate, and address only.
     case apple = "Apple Maps"
 
     /// Human-readable display name for the provider.
@@ -39,10 +45,11 @@ public enum PlaceProvider: String, Sendable, CaseIterable, Equatable, Codable {
 
     /// SF Symbol name for visual representation.
     ///
-    /// - Returns: `"globe"` for Google, `"map"` for Apple.
+    /// - Returns: `"globe"` for Google, `"server.rack"` for Apple Server, `"map"` for Apple.
     public var iconName: String {
         switch self {
         case .google: "globe"
+        case .appleServer: "server.rack"
         case .apple: "map"
         }
     }

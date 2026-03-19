@@ -10,74 +10,67 @@ import Testing
 @testable import ARCMaps
 @testable import ARCMapsTestHelpers
 
-@Suite("MapFilter Tests")
 struct MapFilterTests {
     // MARK: - Status Filter
 
-    @Test("Matches returns true when status is in filter")
-    func matchesReturnsTrueWhenStatusInFilter() {
+    @Test("Matches returns true when status is in filter") func matchesReturnsTrueWhenStatusInFilter() {
         // Given
         var filter = MapFilter()
-        filter.statuses = [.wishlist]
-        let place = MapPlaceFixtures.wishlistRestaurant
+        filter.statuses = [.pending]
+        let place = MapPlaceFixtures.pendingRestaurant
 
         // When/Then
         #expect(filter.matches(place))
     }
 
-    @Test("Matches returns false when status not in filter")
-    func matchesReturnsFalseWhenStatusNotInFilter() {
+    @Test("Matches returns false when status not in filter") func matchesReturnsFalseWhenStatusNotInFilter() {
         // Given
         var filter = MapFilter()
         filter.statuses = [.visited]
-        let place = MapPlaceFixtures.wishlistRestaurant
+        let place = MapPlaceFixtures.pendingRestaurant
 
         // When/Then
         #expect(!filter.matches(place))
     }
 
-    @Test("Default filter matches all statuses")
-    func defaultFilterMatchesAllStatuses() {
+    @Test("Default filter matches all statuses") func defaultFilterMatchesAllStatuses() {
         // Given
         let filter = MapFilter.all
-        let wishlist = MapPlaceFixtures.wishlistRestaurant
+        let pending = MapPlaceFixtures.pendingRestaurant
         let visited = MapPlaceFixtures.visitedCafe
 
         // When/Then
-        #expect(filter.matches(wishlist))
+        #expect(filter.matches(pending))
         #expect(filter.matches(visited))
     }
 
     // MARK: - Category Filter
 
-    @Test("Matches returns true when category is in filter")
-    func matchesReturnsTrueWhenCategoryInFilter() {
+    @Test("Matches returns true when category is in filter") func matchesReturnsTrueWhenCategoryInFilter() {
         // Given
         var filter = MapFilter()
         filter.categories = ["Restaurant"]
-        let place = MapPlaceFixtures.wishlistRestaurant
+        let place = MapPlaceFixtures.pendingRestaurant
 
         // When/Then
         #expect(filter.matches(place))
     }
 
-    @Test("Matches returns false when category not in filter")
-    func matchesReturnsFalseWhenCategoryNotInFilter() {
+    @Test("Matches returns false when category not in filter") func matchesReturnsFalseWhenCategoryNotInFilter() {
         // Given
         var filter = MapFilter()
         filter.categories = ["Bar"]
-        let place = MapPlaceFixtures.wishlistRestaurant // Category is "Restaurant"
+        let place = MapPlaceFixtures.pendingRestaurant // Category is "Restaurant"
 
         // When/Then
         #expect(!filter.matches(place))
     }
 
-    @Test("Empty category filter matches any category")
-    func emptyCategoryFilterMatchesAnyCategory() {
+    @Test("Empty category filter matches any category") func emptyCategoryFilterMatchesAnyCategory() {
         // Given
         var filter = MapFilter()
         filter.categories = []
-        let place = MapPlaceFixtures.wishlistRestaurant
+        let place = MapPlaceFixtures.pendingRestaurant
 
         // When/Then
         #expect(filter.matches(place))
@@ -85,34 +78,31 @@ struct MapFilterTests {
 
     // MARK: - Rating Filter
 
-    @Test("Matches returns true when rating meets minimum")
-    func matchesReturnsTrueWhenRatingMeetsMinimum() {
+    @Test("Matches returns true when rating meets minimum") func matchesReturnsTrueWhenRatingMeetsMinimum() {
         // Given
         var filter = MapFilter()
         filter.minRating = 4.0
-        let place = MapPlaceFixtures.wishlistRestaurant // Rating is 4.5
+        let place = MapPlaceFixtures.pendingRestaurant // Rating is 4.5
 
         // When/Then
         #expect(filter.matches(place))
     }
 
-    @Test("Matches returns false when rating below minimum")
-    func matchesReturnsFalseWhenRatingBelowMinimum() {
+    @Test("Matches returns false when rating below minimum") func matchesReturnsFalseWhenRatingBelowMinimum() {
         // Given
         var filter = MapFilter()
         filter.minRating = 5.0
-        let place = MapPlaceFixtures.wishlistRestaurant // Rating is 4.5
+        let place = MapPlaceFixtures.pendingRestaurant // Rating is 4.5
 
         // When/Then
         #expect(!filter.matches(place))
     }
 
-    @Test("Nil rating filter matches any rating")
-    func nilRatingFilterMatchesAnyRating() {
+    @Test("Nil rating filter matches any rating") func nilRatingFilterMatchesAnyRating() {
         // Given
         var filter = MapFilter()
         filter.minRating = nil
-        let place = MapPlaceFixtures.wishlistRestaurant
+        let place = MapPlaceFixtures.pendingRestaurant
 
         // When/Then
         #expect(filter.matches(place))
@@ -120,8 +110,7 @@ struct MapFilterTests {
 
     // MARK: - Date Range Filter
 
-    @Test("Matches returns true when visit date is in range")
-    func matchesReturnsTrueWhenVisitDateInRange() {
+    @Test("Matches returns true when visit date is in range") func matchesReturnsTrueWhenVisitDateInRange() {
         // Given - create a place with a known visit date
         let now = Date()
         let oneMonthAgo = now.addingTimeInterval(-30 * 24 * 3600)
@@ -130,35 +119,66 @@ struct MapFilterTests {
         filter.dateRange = DateRange(start: oneMonthAgo, end: oneDayFromNow)
 
         // Create a place with visit date = now (which is in range)
-        let place = MapPlace(
-            id: "test",
-            name: "Test Place",
-            coordinate: MapPlaceFixtures.visitedCafe.coordinate,
-            status: .visited,
-            visitDate: now
-        )
+        let place = MapPlace(id: "test",
+                             name: "Test Place",
+                             coordinate: MapPlaceFixtures.visitedCafe.coordinate,
+                             status: .visited,
+                             visitDate: now)
 
         // When/Then
         #expect(filter.matches(place))
     }
 
-    @Test("Date filter is ignored when place has no visit date")
-    func dateFilterIgnoredWhenNoVisitDate() {
+    @Test("Date filter is ignored when place has no visit date") func dateFilterIgnoredWhenNoVisitDate() {
         // Given
         let now = Date()
         let oneMonthAgo = now.addingTimeInterval(-30 * 24 * 3600)
         var filter = MapFilter()
         filter.dateRange = DateRange(start: oneMonthAgo, end: now)
-        let place = MapPlaceFixtures.wishlistRestaurant // No visit date
+        let place = MapPlaceFixtures.pendingRestaurant // No visit date
 
         // When/Then
         #expect(filter.matches(place))
     }
 
+    // MARK: - Favorites Filter
+
+    @Test("filterByFavorites shows only favorite places") func filterByFavoritesShowsOnlyFavorites() {
+        // Given
+        let filter = MapFilter(statuses: [.visited], filterByFavorites: true)
+        let favorite = MapPlaceFixtures.favoriteCafe
+        let nonFavorite = MapPlaceFixtures.visitedCafe
+
+        // When/Then
+        #expect(filter.matches(favorite))
+        #expect(!filter.matches(nonFavorite))
+    }
+
+    @Test("filterByFavorites false includes all visited places") func filterByFavoritesFalseIncludesAllVisited() {
+        // Given
+        var filter = MapFilter()
+        filter.statuses = [.visited]
+        filter.filterByFavorites = false
+        let favorite = MapPlaceFixtures.favoriteCafe
+        let nonFavorite = MapPlaceFixtures.visitedCafe
+
+        // When/Then
+        #expect(filter.matches(favorite))
+        #expect(filter.matches(nonFavorite))
+    }
+
+    @Test("filterByFavorites excludes pending places") func filterByFavoritesExcludesPendingPlaces() {
+        // Given - pending places can't be favorites
+        let filter = MapFilter(filterByFavorites: true)
+        let pending = MapPlaceFixtures.pendingRestaurant
+
+        // When/Then
+        #expect(!filter.matches(pending))
+    }
+
     // MARK: - Combined Filters
 
-    @Test("All filter conditions must be met")
-    func allFilterConditionsMustBeMet() {
+    @Test("All filter conditions must be met") func allFilterConditionsMustBeMet() {
         // Given
         var filter = MapFilter()
         filter.statuses = [.visited]
@@ -166,7 +186,7 @@ struct MapFilterTests {
         filter.minRating = 4.0
 
         let matchingPlace = MapPlaceFixtures.visitedCafe // Visited, Cafe, 4.2 rating
-        let wrongStatus = MapPlaceFixtures.wishlistRestaurant // Wishlist, Restaurant, 4.5 rating
+        let wrongStatus = MapPlaceFixtures.pendingRestaurant // Pending, Restaurant, 4.5 rating
 
         // When/Then
         #expect(filter.matches(matchingPlace))
@@ -176,10 +196,8 @@ struct MapFilterTests {
 
 // MARK: - DateRange Tests
 
-@Suite("DateRange Tests")
 struct DateRangeTests {
-    @Test("Contains returns true for date in range")
-    func containsReturnsTrueForDateInRange() {
+    @Test("Contains returns true for date in range") func containsReturnsTrueForDateInRange() {
         // Given
         let start = Date().addingTimeInterval(-86400) // Yesterday
         let end = Date().addingTimeInterval(86400) // Tomorrow
@@ -189,8 +207,7 @@ struct DateRangeTests {
         #expect(range.contains(Date()))
     }
 
-    @Test("Contains returns false for date before range")
-    func containsReturnsFalseForDateBeforeRange() {
+    @Test("Contains returns false for date before range") func containsReturnsFalseForDateBeforeRange() {
         // Given
         let start = Date()
         let end = Date().addingTimeInterval(86400)
@@ -201,8 +218,7 @@ struct DateRangeTests {
         #expect(!range.contains(beforeStart))
     }
 
-    @Test("Contains returns false for date after range")
-    func containsReturnsFalseForDateAfterRange() {
+    @Test("Contains returns false for date after range") func containsReturnsFalseForDateAfterRange() {
         // Given
         let start = Date().addingTimeInterval(-86400)
         let end = Date()
@@ -213,8 +229,7 @@ struct DateRangeTests {
         #expect(!range.contains(afterEnd))
     }
 
-    @Test("Contains returns true for date at start boundary")
-    func containsReturnsTrueForDateAtStartBoundary() {
+    @Test("Contains returns true for date at start boundary") func containsReturnsTrueForDateAtStartBoundary() {
         // Given
         let start = Date()
         let end = Date().addingTimeInterval(86400)
@@ -224,8 +239,7 @@ struct DateRangeTests {
         #expect(range.contains(start))
     }
 
-    @Test("Contains returns true for date at end boundary")
-    func containsReturnsTrueForDateAtEndBoundary() {
+    @Test("Contains returns true for date at end boundary") func containsReturnsTrueForDateAtEndBoundary() {
         // Given
         let start = Date().addingTimeInterval(-86400)
         let end = Date()

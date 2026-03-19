@@ -9,7 +9,6 @@ import Testing
 @testable import ARCMaps
 @testable import ARCMapsTestHelpers
 
-@Suite("AppleMapsSearchService Tests")
 struct AppleMapsSearchServiceTests {
     let mockCache: MockPlaceSearchCache
     let sut: AppleMapsSearchService
@@ -21,8 +20,7 @@ struct AppleMapsSearchServiceTests {
 
     // MARK: - Cache Tests
 
-    @Test("Search places returns cached results when available")
-    func searchPlacesReturnsCachedResults() async throws {
+    @Test("Search places returns cached results when available") func searchPlacesReturnsCachedResults() async throws {
         // Given
         let query = PlaceSearchQuery(name: "Test Restaurant")
         let cachedResults = PlaceSearchResultFixtures.allSamples
@@ -52,16 +50,14 @@ struct AppleMapsSearchServiceTests {
 
     // MARK: - Get Place Details
 
-    @Test("Get place details throws service unavailable")
-    func getPlaceDetailsThrowsServiceUnavailable() async {
+    @Test("Get place details throws service unavailable") func getPlaceDetailsThrowsServiceUnavailable() async {
         // Apple Maps doesn't support detailed place information
         await #expect(throws: PlaceEnrichmentError.self) {
             _ = try await sut.getPlaceDetails(placeId: "test-id")
         }
     }
 
-    @Test("Get place details throws correct error type")
-    func getPlaceDetailsThrowsCorrectErrorType() async {
+    @Test("Get place details throws correct error type") func getPlaceDetailsThrowsCorrectErrorType() async {
         // When/Then
         do {
             _ = try await sut.getPlaceDetails(placeId: "test-id")
@@ -79,16 +75,14 @@ struct AppleMapsSearchServiceTests {
 
     // MARK: - Get Photo URL
 
-    @Test("Get photo URL throws photo download failed")
-    func getPhotoURLThrowsPhotoDownloadFailed() async {
+    @Test("Get photo URL throws photo download failed") func getPhotoURLThrowsPhotoDownloadFailed() async {
         // Apple Maps doesn't support photo URLs
         await #expect(throws: PlaceEnrichmentError.self) {
             _ = try await sut.getPhotoURL(photoReference: "photo_ref", maxWidth: 400)
         }
     }
 
-    @Test("Get photo URL throws correct error type")
-    func getPhotoURLThrowsCorrectErrorType() async {
+    @Test("Get photo URL throws correct error type") func getPhotoURLThrowsCorrectErrorType() async {
         // When/Then
         do {
             _ = try await sut.getPhotoURL(photoReference: "test_photo", maxWidth: 400)
@@ -107,26 +101,22 @@ struct AppleMapsSearchServiceTests {
     // MARK: - Query Handling
 
     @Test("Search uses full text query for natural language search")
-    func searchUsesFullTextQueryForNaturalLanguageSearch() async throws {
+    func searchUsesFullTextQueryForNaturalLanguageSearch() {
         // Given
-        let query = PlaceSearchQuery(
-            name: "Coffee Shop",
-            address: "Main Street",
-            city: "Madrid"
-        )
+        let query = PlaceSearchQuery(name: "Coffee Shop",
+                                     address: "Main Street",
+                                     city: "Madrid")
 
         // Verify the full text query is constructed correctly
         #expect(query.fullTextQuery == "Coffee Shop, Main Street, Madrid")
     }
 
     @Test("Search with coordinate uses region for proximity search")
-    func searchWithCoordinateUsesRegionForProximitySearch() async throws {
+    func searchWithCoordinateUsesRegionForProximitySearch() {
         // Given
-        let query = PlaceSearchQuery(
-            name: "Restaurant",
-            coordinate: (latitude: 40.4168, longitude: -3.7038),
-            radiusMeters: 5000
-        )
+        let query = PlaceSearchQuery(name: "Restaurant",
+                                     coordinate: (latitude: 40.4168, longitude: -3.7038),
+                                     radiusMeters: 5000)
 
         // Verify query has coordinate
         #expect(query.coordinate?.latitude == 40.4168)

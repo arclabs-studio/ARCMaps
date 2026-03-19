@@ -54,14 +54,12 @@ public struct PlaceSearchQuery: Sendable, Equatable, Hashable {
     ///   - countryCode: ISO 3166-1 alpha-2 country code (optional).
     ///   - coordinate: Geographic coordinates for proximity search (optional).
     ///   - radiusMeters: Search radius in meters (optional, used with coordinate).
-    public init(
-        name: String,
-        address: String? = nil,
-        city: String? = nil,
-        countryCode: String? = nil,
-        coordinate: (latitude: Double, longitude: Double)? = nil,
-        radiusMeters: Int? = nil
-    ) {
+    public init(name: String,
+                address: String? = nil,
+                city: String? = nil,
+                countryCode: String? = nil,
+                coordinate: (latitude: Double, longitude: Double)? = nil,
+                radiusMeters: Int? = nil) {
         self.name = name
         self.address = address
         self.city = city
@@ -83,7 +81,7 @@ public struct PlaceSearchQuery: Sendable, Equatable, Hashable {
         return components.joined(separator: ", ")
     }
 
-    // Hashable conformance
+    /// Hashable conformance
     public func hash(into hasher: inout Hasher) {
         hasher.combine(name)
         hasher.combine(address)
@@ -96,7 +94,7 @@ public struct PlaceSearchQuery: Sendable, Equatable, Hashable {
         }
     }
 
-    // Equatable conformance
+    /// Equatable conformance
     public static func == (lhs: PlaceSearchQuery, rhs: PlaceSearchQuery) -> Bool {
         lhs.name == rhs.name &&
             lhs.address == rhs.address &&

@@ -28,14 +28,14 @@ dependencies: [
 
 ## Configuration
 
-### Basic Setup
+### Basic Setup — Google Places only
 
 Before using ARCMaps, configure it with your API keys and preferences:
 
 ```swift
 import ARCMaps
 
-// Configure in your AppDelegate or App struct
+// Configure in your App struct initializer
 ARCMapsConfiguration.shared = ARCMapsConfiguration(
     googlePlacesAPIKey: "YOUR_GOOGLE_PLACES_API_KEY",
     defaultProvider: .google,
@@ -43,6 +43,27 @@ ARCMapsConfiguration.shared = ARCMapsConfiguration(
     cacheExpirationSeconds: 3600
 )
 ```
+
+### Full Setup — Google + Apple Maps Server
+
+To also enable the Apple Maps Server API fallback, supply your Apple Developer credentials:
+
+```swift
+ARCMapsConfiguration.shared = ARCMapsConfiguration(
+    googlePlacesAPIKey: "YOUR_GOOGLE_PLACES_API_KEY",
+    appleMapsKeyID: "XXXXXXXXXX",          // 10-char Key ID from Apple Developer Portal
+    appleMapsTeamID: "XXXXXXXXXX",         // 10-char Team ID from Membership details
+    appleMapsPrivateKey: """
+        -----BEGIN PRIVATE KEY-----
+        MIGHAgEAMBMGByq...
+        -----END PRIVATE KEY-----
+        """,
+    defaultProvider: .google
+)
+```
+
+When all three credentials are present the search fallback chain becomes:
+**Google Places → Apple Maps Server → Apple MapKit (on-device)**
 
 ### Google Places API Key
 
@@ -53,6 +74,15 @@ To use the Google Places enrichment features:
 3. Enable the **Places API**
 4. Create an API key under "Credentials"
 5. (Optional) Restrict the API key to iOS apps for security
+
+### Apple Maps Server API Credentials
+
+To use the Apple Maps Server API:
+
+1. Sign in to the [Apple Developer Portal](https://developer.apple.com/account/)
+2. Under **Certificates, Identifiers & Profiles → Keys**, create a new key with **Maps** capability
+3. Download the `.p8` private key file (keep it safe — it can only be downloaded once)
+4. Note the **Key ID** and your **Team ID** (found under Membership details)
 
 ### Privacy Permissions
 
@@ -74,7 +104,6 @@ import ARCMaps
 @main
 struct MyApp: App {
     init() {
-        // Configure ARCMaps
         ARCMapsConfiguration.shared = ARCMapsConfiguration(
             googlePlacesAPIKey: "YOUR_API_KEY",
             defaultProvider: .google
@@ -89,22 +118,14 @@ struct MyApp: App {
 }
 
 struct ContentView: View {
-    @StateObject private var mapViewModel: MapViewModel
-
-    init() {
-        let logger = DefaultLogger()
-        let locationService = CoreLocationService(logger: logger)
-
-        _mapViewModel = StateObject(wrappedValue: MapViewModel(
-            locationService: locationService,
-            logger: logger
-        ))
-    }
+    @State private var viewModel = MapViewModel(
+        locationService: CoreLocationService()
+    )
 
     var body: some View {
-        ARCMapView(viewModel: mapViewModel)
+        ARCMapView(viewModel: viewModel)
             .onAppear {
-                mapViewModel.setPlaces(samplePlaces)
+                viewModel.setPlaces(samplePlaces)
             }
     }
 
@@ -115,21 +136,44 @@ struct ContentView: View {
                 name: "La Taverna",
                 coordinate: CLLocationCoordinate2D(latitude: 40.4168, longitude: -3.7038),
                 address: "Calle Mayor 15, Madrid",
-                status: .wishlist
+                status: .pending           // wants to visit — shows red clock marker
+            ),
+            MapPlace(
+                id: "2",
+                name: "Sobrino de Botin",
+                coordinate: CLLocationCoordinate2D(latitude: 40.4133, longitude: -3.7080),
+                address: "Calle Cuchilleros 17, Madrid",
+                status: .visited,
+                isFavorite: true,          // visited and loved it — shows gold star marker
+                visitDate: Date()
             )
         ]
     }
 }
 ```
 
+## Bridging Search Results to the Map
+
+Use ``PlaceMapper`` to convert a ``PlaceSearchResult`` (from enrichment) directly into a ``MapPlace`` (for the map):
+
+```swift
+// After a place search...
+let results = try await enrichmentViewModel.searchPlaces(query: query)
+
+// Convert the selected result and add it to the map
+let mapPlace = PlaceMapper.toMapPlace(results[0], status: .pending)
+mapViewModel.addPlace(mapPlace)
+```
+
 ## Next Steps
 
 - Read the <doc:PlaceEnrichmentGuide> to learn about searching and enriching places
-- Explore the <doc:MapVisualizationGuide> for advanced map features
+- Explore the <doc:MapVisualizationGuide> for advanced map features including favorites filtering
 - Check out the example project in the repository
 
 ## See Also
 
 - ``ARCMapsConfiguration``
 - ``PlaceEnrichmentService``
+- ``PlaceMapper``
 - ``ARCMapView``

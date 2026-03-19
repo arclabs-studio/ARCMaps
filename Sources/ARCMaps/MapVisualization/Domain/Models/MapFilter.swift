@@ -9,9 +9,9 @@ import Foundation
 
 /// A configurable filter for narrowing down map places based on various criteria.
 ///
-/// `MapFilter` allows filtering places by status, category, minimum rating, and date range.
-/// All filter conditions are combined with AND logic - a place must satisfy all active
-/// filters to match.
+/// `MapFilter` allows filtering places by status, category, minimum rating, date range,
+/// and favorites. All filter conditions are combined with AND logic — a place must
+/// satisfy all active filters to match.
 ///
 /// ## Example
 /// ```swift
@@ -20,6 +20,12 @@ import Foundation
 ///     statuses: [.visited],
 ///     categories: ["restaurant"],
 ///     minRating: 4.0
+/// )
+///
+/// // Filter to show only favorites
+/// let favoritesFilter = MapFilter(
+///     statuses: [.visited],
+///     filterByFavorites: true
 /// )
 ///
 /// let matchingPlaces = allPlaces.filter { filter.matches($0) }
@@ -37,6 +43,12 @@ public struct MapFilter: Sendable, Equatable {
     /// The date range for filtering by visit date. Places visited outside this range are excluded.
     public var dateRange: DateRange?
 
+    /// When `true`, only visited places marked as favorites are included.
+    ///
+    /// This filter applies in addition to the `statuses` filter. Setting this to `true`
+    /// while `statuses` includes only `.visited` shows exclusively favorite places.
+    public var filterByFavorites: Bool
+
     /// Creates a new map filter with the specified criteria.
     ///
     /// - Parameters:
@@ -44,16 +56,17 @@ public struct MapFilter: Sendable, Equatable {
     ///   - categories: The categories to include. Empty means all categories.
     ///   - minRating: The minimum rating threshold, or `nil` to disable rating filtering.
     ///   - dateRange: The date range for visit dates, or `nil` to disable date filtering.
-    public init(
-        statuses: Set<PlaceStatus> = Set(PlaceStatus.allCases),
-        categories: Set<String> = [],
-        minRating: Double? = nil,
-        dateRange: DateRange? = nil
-    ) {
+    ///   - filterByFavorites: When `true`, only favorites are included. Defaults to `false`.
+    public init(statuses: Set<PlaceStatus> = Set(PlaceStatus.allCases),
+                categories: Set<String> = [],
+                minRating: Double? = nil,
+                dateRange: DateRange? = nil,
+                filterByFavorites: Bool = false) {
         self.statuses = statuses
         self.categories = categories
         self.minRating = minRating
         self.dateRange = dateRange
+        self.filterByFavorites = filterByFavorites
     }
 
     /// Determines whether a place matches all active filter criteria.
@@ -63,12 +76,18 @@ public struct MapFilter: Sendable, Equatable {
     /// - Its category is in the `categories` set (or categories is empty)
     /// - Its rating meets or exceeds `minRating` (if set)
     /// - Its visit date falls within `dateRange` (if both are set)
+    /// - It is a favorite (if `filterByFavorites` is `true`)
     ///
     /// - Parameter place: The place to evaluate against the filter criteria.
     /// - Returns: `true` if the place matches all active filters, `false` otherwise.
     public func matches(_ place: MapPlace) -> Bool {
         // Status filter
         guard statuses.contains(place.status) else { return false }
+
+        // Favorites filter
+        if filterByFavorites {
+            guard place.isFavorite else { return false }
+        }
 
         // Category filter
         if !categories.isEmpty {

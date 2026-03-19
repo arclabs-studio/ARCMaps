@@ -82,6 +82,28 @@ public enum MapFeatureSelectionMode: Sendable {
     case all
 }
 
+// MARK: - Marker Resolution Helper
+
+extension MapPlace {
+    /// Resolves the appropriate marker view type for this place.
+    ///
+    /// - `.pending` → `PendingMarker`
+    /// - `.visited && isFavorite` → `FavoriteMarker`
+    /// - `.visited && !isFavorite` → `VisitedMarker`
+    @MainActor @ViewBuilder fileprivate var markerView: some View {
+        switch status {
+        case .pending:
+            PendingMarker(place: self)
+        case .visited:
+            if isFavorite {
+                FavoriteMarker(place: self)
+            } else {
+                VisitedMarker(place: self)
+            }
+        }
+    }
+}
+
 /// A SwiftUI view displaying an interactive map with place markers and controls.
 ///
 /// `ARCMapView` provides a full-featured map interface with:
@@ -134,10 +156,8 @@ public struct ARCMapView: View {
     ///   - viewModel: The view model managing map state, places, and user location.
     ///   - featureSelectionMode: Controls native POI selection behavior on iOS 18+.
     ///     Default is `.disabled`, which provides a cleaner experience focused on your custom markers.
-    public init(
-        viewModel: MapViewModel,
-        featureSelectionMode: MapFeatureSelectionMode = .disabled
-    ) {
+    public init(viewModel: MapViewModel,
+                featureSelectionMode: MapFeatureSelectionMode = .disabled) {
         self.viewModel = viewModel
         self.featureSelectionMode = featureSelectionMode
     }
@@ -149,15 +169,13 @@ public struct ARCMapView: View {
             VStack {
                 HStack {
                     Spacer()
-                    MapControlsView(
-                        onFitAll: {
-                            viewModel.fitAllPlaces()
-                        },
-                        onChangeStyle: { style in
-                            viewModel.changeMapStyle(style)
-                        },
-                        currentStyle: viewModel.mapStyle
-                    )
+                    MapControlsView(onFitAll: {
+                                        viewModel.fitAllPlaces()
+                                    },
+                                    onChangeStyle: { style in
+                                        viewModel.changeMapStyle(style)
+                                    },
+                                    currentStyle: viewModel.mapStyle)
                 }
                 .padding()
 
@@ -174,10 +192,8 @@ public struct ARCMapView: View {
         .task {
             await viewModel.requestLocationPermission()
         }
-        .alert(
-            "Map Error",
-            isPresented: .constant(viewModel.error != nil)
-        ) {
+        .alert("Map Error",
+               isPresented: .constant(viewModel.error != nil)) {
             Button("OK") {
                 viewModel.error = nil
             }
@@ -188,34 +204,41 @@ public struct ARCMapView: View {
         }
     }
 
-    @ViewBuilder private var mapView: some View {
+    // MARK: - Private
+
+    /// Map view with shared controls and place detail sheet applied once for both iOS variants.
+    private var mapView: some View {
+        coreMap
+            .mapControls {
+                MapUserLocationButton()
+                MapCompass()
+                MapScaleView()
+            }
+            .sheet(item: $viewModel.selectedPlace) { place in
+                placeCalloutSheet(for: place)
+            }
+    }
+
+    /// Platform-appropriate core map, without shared modifiers.
+    @ViewBuilder private var coreMap: some View {
         #if os(iOS)
         if #available(iOS 18.0, *) {
-            FeatureSelectionMapView(
-                viewModel: viewModel,
-                featureSelectionMode: featureSelectionMode
-            )
+            FeatureSelectionMapView(viewModel: viewModel,
+                                    featureSelectionMode: featureSelectionMode,
+                                    content: mapContent)
         } else {
-            legacyMapView
+            legacyMap
         }
         #else
         // macOS always uses the legacy view (feature selection APIs are iOS-only)
-        legacyMapView
+        legacyMap
         #endif
     }
 
     /// Map view for iOS 17 / macOS 14 (no native feature selection support).
-    private var legacyMapView: some View {
+    private var legacyMap: some View {
         Map(position: $viewModel.cameraPosition) {
             mapContent
-        }
-        .mapControls {
-            MapUserLocationButton()
-            MapCompass()
-            MapScaleView()
-        }
-        .sheet(item: $viewModel.selectedPlace) { place in
-            placeCalloutSheet(for: place)
         }
     }
 
@@ -226,20 +249,9 @@ public struct ARCMapView: View {
             UserAnnotation()
         }
 
-        // Wishlist places
-        ForEach(viewModel.filteredPlaces.filter { $0.status == .wishlist }) { place in
+        ForEach(viewModel.filteredPlaces) { place in
             Annotation(place.name, coordinate: place.coordinate) {
-                WishlistMarker(place: place)
-                    .onTapGesture {
-                        viewModel.selectPlace(place)
-                    }
-            }
-        }
-
-        // Visited places
-        ForEach(viewModel.filteredPlaces.filter { $0.status == .visited }) { place in
-            Annotation(place.name, coordinate: place.coordinate) {
-                VisitedMarker(place: place)
+                place.markerView
                     .onTapGesture {
                         viewModel.selectPlace(place)
                     }
@@ -249,14 +261,12 @@ public struct ARCMapView: View {
 
     /// Shared place callout sheet.
     private func placeCalloutSheet(for place: MapPlace) -> some View {
-        PlaceCalloutView(
-            place: place,
-            userLocation: viewModel.userLocation,
-            onOpenInMaps: { app in
-                await viewModel.openInExternalMaps(place, app: app)
-            }
-        )
-        .presentationDetents([.height(ViewDefaults.sheetInitialHeight), .medium])
+        PlaceCalloutView(place: place,
+                         userLocation: viewModel.userLocation,
+                         onOpenInMaps: { app in
+                             await viewModel.openInExternalMaps(place, app: app)
+                         })
+                         .presentationDetents([.height(ViewDefaults.sheetInitialHeight), .medium])
     }
 }
 
@@ -278,13 +288,15 @@ public struct ARCMapView: View {
 ///
 /// - Note: This view is only compiled for iOS. macOS uses the legacy view
 ///   because feature selection APIs are not available on that platform.
-@available(iOS 18.0, *)
-private struct FeatureSelectionMapView: View {
+@available(iOS 18.0, *) private struct FeatureSelectionMapView<Content: MapContent>: View {
     /// The view model managing map state and place data.
     @Bindable var viewModel: MapViewModel
 
     /// The configured feature selection mode.
     let featureSelectionMode: MapFeatureSelectionMode
+
+    /// The map annotations content passed in from the parent view.
+    let content: Content
 
     /// Tracks the currently selected native map feature (POI).
     ///
@@ -303,21 +315,6 @@ private struct FeatureSelectionMapView: View {
                 mapWithAllSelection
             }
         }
-        .mapControls {
-            MapUserLocationButton()
-            MapCompass()
-            MapScaleView()
-        }
-        .sheet(item: $viewModel.selectedPlace) { place in
-            PlaceCalloutView(
-                place: place,
-                userLocation: viewModel.userLocation,
-                onOpenInMaps: { app in
-                    await viewModel.openInExternalMaps(place, app: app)
-                }
-            )
-            .presentationDetents([.height(ViewDefaults.sheetInitialHeight), .medium])
-        }
     }
 
     // MARK: - Map Configurations
@@ -325,7 +322,7 @@ private struct FeatureSelectionMapView: View {
     /// Map with all native feature selection disabled.
     private var mapWithSelectionDisabled: some View {
         Map(position: $viewModel.cameraPosition) {
-            mapContent
+            content
         }
         .mapFeatureSelectionDisabled { _ in true }
     }
@@ -336,7 +333,7 @@ private struct FeatureSelectionMapView: View {
     /// Disables selection of city labels, street names, and other non-POI features.
     private var mapWithPOISelection: some View {
         Map(position: $viewModel.cameraPosition, selection: $nativeSelection) {
-            mapContent
+            content
         }
         .mapFeatureSelectionDisabled { feature in
             feature.kind != .pointOfInterest
@@ -347,39 +344,9 @@ private struct FeatureSelectionMapView: View {
     /// Map with all native feature selection enabled.
     private var mapWithAllSelection: some View {
         Map(position: $viewModel.cameraPosition, selection: $nativeSelection) {
-            mapContent
+            content
         }
         .mapFeatureSelectionAccessory(.callout)
-    }
-
-    // MARK: - Map Content
-
-    /// Shared map content including user location and place annotations.
-    @MapContentBuilder private var mapContent: some MapContent {
-        // User location indicator
-        if viewModel.userLocation != nil {
-            UserAnnotation()
-        }
-
-        // Wishlist place markers
-        ForEach(viewModel.filteredPlaces.filter { $0.status == .wishlist }) { place in
-            Annotation(place.name, coordinate: place.coordinate) {
-                WishlistMarker(place: place)
-                    .onTapGesture {
-                        viewModel.selectPlace(place)
-                    }
-            }
-        }
-
-        // Visited place markers
-        ForEach(viewModel.filteredPlaces.filter { $0.status == .visited }) { place in
-            Annotation(place.name, coordinate: place.coordinate) {
-                VisitedMarker(place: place)
-                    .onTapGesture {
-                        viewModel.selectPlace(place)
-                    }
-            }
-        }
     }
 }
 #endif
