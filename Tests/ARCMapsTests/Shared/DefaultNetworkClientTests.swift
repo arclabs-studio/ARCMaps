@@ -15,8 +15,8 @@ import Testing
 final class MockURLProtocol: URLProtocol, @unchecked Sendable {
     nonisolated(unsafe) static var requestHandler: ((URLRequest) throws -> (HTTPURLResponse, Data))?
 
-    override class func canInit(with _: URLRequest) -> Bool { true }
-    override class func canonicalRequest(for request: URLRequest) -> URLRequest { request }
+    override static func canInit(with _: URLRequest) -> Bool { true }
+    override static func canonicalRequest(for request: URLRequest) -> URLRequest { request }
 
     override func startLoading() {
         guard let handler = MockURLProtocol.requestHandler else {
@@ -48,6 +48,7 @@ private struct TestPayload: Codable, Sendable, Equatable {
 /// Tests must run serially because MockURLProtocol uses shared static state for the request handler.
 @Suite(.serialized)
 struct DefaultNetworkClientTests {
+    // swiftlint:disable:next force_unwrapping
     static let testURL = URL(string: "https://test.example.com/api")!
 
     init() {
@@ -61,8 +62,8 @@ struct DefaultNetworkClientTests {
         return DefaultNetworkClient(session: URLSession(configuration: config))
     }
 
-    func makeResponse(statusCode: Int) -> HTTPURLResponse {
-        HTTPURLResponse(url: Self.testURL, statusCode: statusCode, httpVersion: nil, headerFields: nil)!
+    func makeResponse(statusCode: Int) throws -> HTTPURLResponse {
+        try #require(HTTPURLResponse(url: Self.testURL, statusCode: statusCode, httpVersion: nil, headerFields: nil))
     }
 
     // MARK: - Success
@@ -72,7 +73,7 @@ struct DefaultNetworkClientTests {
         // Given
         let expected = TestPayload(id: 42, name: "Café de la Paix")
         MockURLProtocol.requestHandler = { [expected] _ in
-            (HTTPURLResponse(url: Self.testURL, statusCode: 200, httpVersion: nil, headerFields: nil)!,
+            (try makeResponse(statusCode: 200),
              try JSONEncoder().encode(expected))
         }
         let sut = makeSUT()
@@ -89,11 +90,11 @@ struct DefaultNetworkClientTests {
 
     // MARK: - HTTP Error Codes
 
-    @Test("404 response throws httpError with status 404")
-    func notFoundResponseThrowsHTTPError() async throws {
+    @Test("HTTP error response throws httpError with the correct status code", arguments: [404, 500])
+    func httpErrorResponseThrowsCorrectError(statusCode: Int) async throws {
         // Given
         MockURLProtocol.requestHandler = { _ in
-            (HTTPURLResponse(url: Self.testURL, statusCode: 404, httpVersion: nil, headerFields: nil)!, Data())
+            (try makeResponse(statusCode: statusCode), Data())
         }
         let sut = makeSUT()
 
@@ -101,24 +102,7 @@ struct DefaultNetworkClientTests {
         await #expect {
             let _: TestPayload = try await sut.request(url: Self.testURL, method: .get, headers: nil, body: nil)
         } throws: { error in
-            guard case NetworkError.httpError(statusCode: 404) = error else { return false }
-            return true
-        }
-    }
-
-    @Test("500 response throws httpError with status 500")
-    func serverErrorResponseThrowsHTTPError() async throws {
-        // Given
-        MockURLProtocol.requestHandler = { _ in
-            (HTTPURLResponse(url: Self.testURL, statusCode: 500, httpVersion: nil, headerFields: nil)!, Data())
-        }
-        let sut = makeSUT()
-
-        // When / Then
-        await #expect {
-            let _: TestPayload = try await sut.request(url: Self.testURL, method: .get, headers: nil, body: nil)
-        } throws: { error in
-            guard case NetworkError.httpError(statusCode: 500) = error else { return false }
+            guard case NetworkError.httpError(statusCode: statusCode) = error else { return false }
             return true
         }
     }
@@ -129,7 +113,7 @@ struct DefaultNetworkClientTests {
     func malformedJSONThrowsDecodingError() async throws {
         // Given
         MockURLProtocol.requestHandler = { _ in
-            (HTTPURLResponse(url: Self.testURL, statusCode: 200, httpVersion: nil, headerFields: nil)!,
+            (try makeResponse(statusCode: 200),
              Data("not-json".utf8))
         }
         let sut = makeSUT()
@@ -151,7 +135,7 @@ struct DefaultNetworkClientTests {
         let responseData = try JSONEncoder().encode(TestPayload(id: 1, name: "x"))
         MockURLProtocol.requestHandler = { request in
             capturedRequest = request
-            return (HTTPURLResponse(url: Self.testURL, statusCode: 200, httpVersion: nil, headerFields: nil)!,
+            return (try makeResponse(statusCode: 200),
                     responseData)
         }
         let sut = makeSUT()
@@ -173,7 +157,7 @@ struct DefaultNetworkClientTests {
         let responseData = try JSONEncoder().encode(TestPayload(id: 1, name: "x"))
         MockURLProtocol.requestHandler = { request in
             capturedRequest = request
-            return (HTTPURLResponse(url: Self.testURL, statusCode: 200, httpVersion: nil, headerFields: nil)!,
+            return (try makeResponse(statusCode: 200),
                     responseData)
         }
         let sut = makeSUT()
@@ -187,5 +171,4 @@ struct DefaultNetworkClientTests {
         // Then
         #expect(capturedRequest?.httpMethod == "POST")
     }
-
 }

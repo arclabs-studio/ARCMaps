@@ -15,25 +15,25 @@ struct CLLocationCoordinate2DExtensionTests {
     @Test("Equal coordinates compare as equal")
     func equalCoordinatesAreEqual() {
         // Given
-        let a = CLLocationCoordinate2D(latitude: 40.4168, longitude: -3.7038)
-        let b = CLLocationCoordinate2D(latitude: 40.4168, longitude: -3.7038)
+        let coordA = CLLocationCoordinate2D(latitude: 40.4168, longitude: -3.7038)
+        let coordB = CLLocationCoordinate2D(latitude: 40.4168, longitude: -3.7038)
 
         // Then
-        #expect(a == b)
+        #expect(coordA == coordB)
     }
 
     @Test("Coordinates with different latitude compare as not equal")
     func differentLatitudeNotEqual() {
-        let a = CLLocationCoordinate2D(latitude: 40.4168, longitude: -3.7038)
-        let b = CLLocationCoordinate2D(latitude: 41.3874, longitude: -3.7038)
-        #expect(a != b)
+        let coordA = CLLocationCoordinate2D(latitude: 40.4168, longitude: -3.7038)
+        let coordB = CLLocationCoordinate2D(latitude: 41.3874, longitude: -3.7038)
+        #expect(coordA != coordB)
     }
 
     @Test("Coordinates with different longitude compare as not equal")
     func differentLongitudeNotEqual() {
-        let a = CLLocationCoordinate2D(latitude: 40.4168, longitude: -3.7038)
-        let b = CLLocationCoordinate2D(latitude: 40.4168, longitude: 2.1686)
-        #expect(a != b)
+        let coordA = CLLocationCoordinate2D(latitude: 40.4168, longitude: -3.7038)
+        let coordB = CLLocationCoordinate2D(latitude: 40.4168, longitude: 2.1686)
+        #expect(coordA != coordB)
     }
 
     // MARK: - Hashable
@@ -41,11 +41,11 @@ struct CLLocationCoordinate2DExtensionTests {
     @Test("Equal coordinates produce the same hash value")
     func equalCoordinatesHaveSameHash() {
         // Given
-        let a = CLLocationCoordinate2D(latitude: 40.4168, longitude: -3.7038)
-        let b = CLLocationCoordinate2D(latitude: 40.4168, longitude: -3.7038)
+        let coordA = CLLocationCoordinate2D(latitude: 40.4168, longitude: -3.7038)
+        let coordB = CLLocationCoordinate2D(latitude: 40.4168, longitude: -3.7038)
 
         // Then
-        #expect(a.hashValue == b.hashValue)
+        #expect(coordA.hashValue == coordB.hashValue)
     }
 
     @Test("Coordinates can be used as dictionary keys")
