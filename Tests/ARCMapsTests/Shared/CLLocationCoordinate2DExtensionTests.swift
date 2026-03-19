@@ -12,8 +12,7 @@ import Testing
 struct CLLocationCoordinate2DExtensionTests {
     // MARK: - Equatable
 
-    @Test("Equal coordinates compare as equal")
-    func equalCoordinatesAreEqual() {
+    @Test("Equal coordinates compare as equal") func equalCoordinatesAreEqual() {
         // Given
         let coordA = CLLocationCoordinate2D(latitude: 40.4168, longitude: -3.7038)
         let coordB = CLLocationCoordinate2D(latitude: 40.4168, longitude: -3.7038)
@@ -22,15 +21,13 @@ struct CLLocationCoordinate2DExtensionTests {
         #expect(coordA == coordB)
     }
 
-    @Test("Coordinates with different latitude compare as not equal")
-    func differentLatitudeNotEqual() {
+    @Test("Coordinates with different latitude compare as not equal") func differentLatitudeNotEqual() {
         let coordA = CLLocationCoordinate2D(latitude: 40.4168, longitude: -3.7038)
         let coordB = CLLocationCoordinate2D(latitude: 41.3874, longitude: -3.7038)
         #expect(coordA != coordB)
     }
 
-    @Test("Coordinates with different longitude compare as not equal")
-    func differentLongitudeNotEqual() {
+    @Test("Coordinates with different longitude compare as not equal") func differentLongitudeNotEqual() {
         let coordA = CLLocationCoordinate2D(latitude: 40.4168, longitude: -3.7038)
         let coordB = CLLocationCoordinate2D(latitude: 40.4168, longitude: 2.1686)
         #expect(coordA != coordB)
@@ -38,8 +35,7 @@ struct CLLocationCoordinate2DExtensionTests {
 
     // MARK: - Hashable
 
-    @Test("Equal coordinates produce the same hash value")
-    func equalCoordinatesHaveSameHash() {
+    @Test("Equal coordinates produce the same hash value") func equalCoordinatesHaveSameHash() {
         // Given
         let coordA = CLLocationCoordinate2D(latitude: 40.4168, longitude: -3.7038)
         let coordB = CLLocationCoordinate2D(latitude: 40.4168, longitude: -3.7038)
@@ -48,8 +44,7 @@ struct CLLocationCoordinate2DExtensionTests {
         #expect(coordA.hashValue == coordB.hashValue)
     }
 
-    @Test("Coordinates can be used as dictionary keys")
-    func coordinateCanBeUsedAsDictionaryKey() {
+    @Test("Coordinates can be used as dictionary keys") func coordinateCanBeUsedAsDictionaryKey() {
         // Given
         let coord = CLLocationCoordinate2D(latitude: 40.4168, longitude: -3.7038)
         var dict = [CLLocationCoordinate2D: String]()
@@ -63,28 +58,24 @@ struct CLLocationCoordinate2DExtensionTests {
 
     // MARK: - isValid
 
-    @Test("Valid coordinate within bounds is marked valid")
-    func validCoordinateIsValid() {
+    @Test("Valid coordinate within bounds is marked valid") func validCoordinateIsValid() {
         let coord = CLLocationCoordinate2D(latitude: 40.4168, longitude: -3.7038)
         #expect(coord.isValid)
     }
 
-    @Test("Coordinate with out-of-range latitude is marked invalid")
-    func outOfRangeLatitudeIsInvalid() {
+    @Test("Coordinate with out-of-range latitude is marked invalid") func outOfRangeLatitudeIsInvalid() {
         let coord = CLLocationCoordinate2D(latitude: 200.0, longitude: 0.0)
         #expect(!coord.isValid)
     }
 
-    @Test("Coordinate with out-of-range longitude is marked invalid")
-    func outOfRangeLongitudeIsInvalid() {
+    @Test("Coordinate with out-of-range longitude is marked invalid") func outOfRangeLongitudeIsInvalid() {
         let coord = CLLocationCoordinate2D(latitude: 0.0, longitude: 400.0)
         #expect(!coord.isValid)
     }
 
     // MARK: - distance(to:)
 
-    @Test("Distance between Madrid and Barcelona is approximately 505 km")
-    func distanceBetweenMadridAndBarcelona() {
+    @Test("Distance between Madrid and Barcelona is approximately 505 km") func distanceBetweenMadridAndBarcelona() {
         // Given
         let madrid = CLLocationCoordinate2D(latitude: 40.4168, longitude: -3.7038)
         let barcelona = CLLocationCoordinate2D(latitude: 41.3874, longitude: 2.1686)
@@ -97,8 +88,7 @@ struct CLLocationCoordinate2DExtensionTests {
         #expect(distance < 510_000)
     }
 
-    @Test("Distance from a coordinate to itself is zero")
-    func distanceToSelfIsZero() {
+    @Test("Distance from a coordinate to itself is zero") func distanceToSelfIsZero() {
         let coord = CLLocationCoordinate2D(latitude: 40.4168, longitude: -3.7038)
         #expect(coord.distance(to: coord) == 0)
     }

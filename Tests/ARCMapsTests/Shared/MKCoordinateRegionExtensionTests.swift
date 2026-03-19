@@ -13,8 +13,7 @@ import Testing
 struct MKCoordinateRegionExtensionTests {
     // MARK: - Edge Cases
 
-    @Test("Fitting an empty coordinate array returns nil")
-    func fittingEmptyArrayReturnsNil() {
+    @Test("Fitting an empty coordinate array returns nil") func fittingEmptyArrayReturnsNil() {
         #expect(MKCoordinateRegion.fitting([]) == nil)
     }
 
@@ -57,10 +56,8 @@ struct MKCoordinateRegionExtensionTests {
     @Test("Fitting multiple coordinates spans their full extent with padding")
     func fittingMultipleCoordinatesSpansFullExtent() throws {
         // Given
-        let coords = [
-            CLLocationCoordinate2D(latitude: 40.0, longitude: -4.0),
-            CLLocationCoordinate2D(latitude: 42.0, longitude: -2.0)
-        ]
+        let coords = [CLLocationCoordinate2D(latitude: 40.0, longitude: -4.0),
+                      CLLocationCoordinate2D(latitude: 42.0, longitude: -2.0)]
 
         // When
         let region = MKCoordinateRegion.fitting(coords)
@@ -72,13 +69,10 @@ struct MKCoordinateRegionExtensionTests {
         #expect(result.span.longitudeDelta >= 2.0)
     }
 
-    @Test("Custom padding factor expands span proportionally")
-    func customPaddingExpandsSpan() throws {
+    @Test("Custom padding factor expands span proportionally") func customPaddingExpandsSpan() throws {
         // Given
-        let coords = [
-            CLLocationCoordinate2D(latitude: 40.0, longitude: 0.0),
-            CLLocationCoordinate2D(latitude: 42.0, longitude: 0.0)
-        ]
+        let coords = [CLLocationCoordinate2D(latitude: 40.0, longitude: 0.0),
+                      CLLocationCoordinate2D(latitude: 42.0, longitude: 0.0)]
 
         // When
         let regionNoPadding = MKCoordinateRegion.fitting(coords, padding: 0.0)

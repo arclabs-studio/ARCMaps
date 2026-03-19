@@ -12,9 +12,9 @@ import Testing
 
 // MARK: - Base64URL Decode Helper
 
-private extension Data {
+extension Data {
     /// Decodes a base64url-encoded string (no padding required).
-    init?(base64URLEncoded string: String) {
+    fileprivate init?(base64URLEncoded string: String) {
         var base64 = string
             .replacingOccurrences(of: "-", with: "+")
             .replacingOccurrences(of: "_", with: "/")
@@ -44,13 +44,11 @@ struct AppleMapsTokenProviderTests {
 
     // MARK: - Initialisation
 
-    @Test("Init succeeds with valid P256 PEM key")
-    func initSucceedsWithValidKey() {
+    @Test("Init succeeds with valid P256 PEM key") func initSucceedsWithValidKey() {
         #expect(throws: Never.self) { try makeSUT() }
     }
 
-    @Test("Init throws invalidPrivateKey for bad PEM input")
-    func initThrowsForInvalidPEM() {
+    @Test("Init throws invalidPrivateKey for bad PEM input") func initThrowsForInvalidPEM() {
         #expect {
             try AppleMapsTokenProvider(keyID: "k", teamID: "t", privateKeyPEM: "not-a-valid-key")
         } throws: { error in
@@ -61,8 +59,7 @@ struct AppleMapsTokenProviderTests {
 
     // MARK: - Token Structure
 
-    @Test("Token consists of three dot-separated parts")
-    func tokenHasThreeParts() async throws {
+    @Test("Token consists of three dot-separated parts") func tokenHasThreeParts() async throws {
         let sut = try makeSUT()
         let token = try await sut.token()
         #expect(token.split(separator: ".").count == 3)
@@ -80,8 +77,7 @@ struct AppleMapsTokenProviderTests {
         #expect(header["kid"] as? String == Self.testKeyID)
     }
 
-    @Test("Token payload contains correct issuer and 30-minute lifetime")
-    func tokenPayloadIsCorrect() async throws {
+    @Test("Token payload contains correct issuer and 30-minute lifetime") func tokenPayloadIsCorrect() async throws {
         let before = Int(Date().timeIntervalSince1970)
         let sut = try makeSUT()
         let token = try await sut.token()
@@ -100,8 +96,7 @@ struct AppleMapsTokenProviderTests {
         #expect(exp - iat == 1800) // 30-minute token lifetime
     }
 
-    @Test("Token signature part is valid base64url-encoded data")
-    func tokenSignatureIsValidBase64URL() async throws {
+    @Test("Token signature part is valid base64url-encoded data") func tokenSignatureIsValidBase64URL() async throws {
         let sut = try makeSUT()
         let token = try await sut.token()
         let parts = token.split(separator: ".")

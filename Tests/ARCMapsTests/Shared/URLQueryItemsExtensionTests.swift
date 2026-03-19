@@ -12,8 +12,7 @@ import Testing
 struct URLQueryItemsExtensionTests {
     // MARK: - URL.build
 
-    @Test("build creates URL with query items appended")
-    func buildCreatesURLWithQueryItems() throws {
+    @Test("build creates URL with query items appended") func buildCreatesURLWithQueryItems() throws {
         // Given
         let items = [URLQueryItem(name: "q", value: "pizza"), URLQueryItem(name: "lang", value: "en")]
 
@@ -28,8 +27,7 @@ struct URLQueryItemsExtensionTests {
         #expect(components?.queryItems?.contains(URLQueryItem(name: "lang", value: "en")) == true)
     }
 
-    @Test("build with path overrides the base URL path")
-    func buildWithPathSetsCorrectPath() throws {
+    @Test("build with path overrides the base URL path") func buildWithPathSetsCorrectPath() throws {
         // Given / When
         let url = URL.build(baseURL: "https://api.example.com",
                             path: "/v1/search",
@@ -40,8 +38,7 @@ struct URLQueryItemsExtensionTests {
         #expect(result.path() == "/v1/search")
     }
 
-    @Test("build returns nil for an invalid base URL string")
-    func buildReturnsNilForInvalidBaseURL() {
+    @Test("build returns nil for an invalid base URL string") func buildReturnsNilForInvalidBaseURL() {
         let url = URL.build(baseURL: "not a valid url ://", queryItems: [])
         #expect(url == nil)
     }
