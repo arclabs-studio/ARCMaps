@@ -204,32 +204,41 @@ public struct ARCMapView: View {
         }
     }
 
-    @ViewBuilder private var mapView: some View {
+    // MARK: - Private
+
+    /// Map view with shared controls and place detail sheet applied once for both iOS variants.
+    private var mapView: some View {
+        coreMap
+            .mapControls {
+                MapUserLocationButton()
+                MapCompass()
+                MapScaleView()
+            }
+            .sheet(item: $viewModel.selectedPlace) { place in
+                placeCalloutSheet(for: place)
+            }
+    }
+
+    /// Platform-appropriate core map, without shared modifiers.
+    @ViewBuilder private var coreMap: some View {
         #if os(iOS)
         if #available(iOS 18.0, *) {
             FeatureSelectionMapView(viewModel: viewModel,
-                                    featureSelectionMode: featureSelectionMode)
+                                    featureSelectionMode: featureSelectionMode,
+                                    content: mapContent)
         } else {
-            legacyMapView
+            legacyMap
         }
         #else
         // macOS always uses the legacy view (feature selection APIs are iOS-only)
-        legacyMapView
+        legacyMap
         #endif
     }
 
     /// Map view for iOS 17 / macOS 14 (no native feature selection support).
-    private var legacyMapView: some View {
+    private var legacyMap: some View {
         Map(position: $viewModel.cameraPosition) {
             mapContent
-        }
-        .mapControls {
-            MapUserLocationButton()
-            MapCompass()
-            MapScaleView()
-        }
-        .sheet(item: $viewModel.selectedPlace) { place in
-            placeCalloutSheet(for: place)
         }
     }
 
@@ -279,12 +288,15 @@ public struct ARCMapView: View {
 ///
 /// - Note: This view is only compiled for iOS. macOS uses the legacy view
 ///   because feature selection APIs are not available on that platform.
-@available(iOS 18.0, *) private struct FeatureSelectionMapView: View {
+@available(iOS 18.0, *) private struct FeatureSelectionMapView<Content: MapContent>: View {
     /// The view model managing map state and place data.
     @Bindable var viewModel: MapViewModel
 
     /// The configured feature selection mode.
     let featureSelectionMode: MapFeatureSelectionMode
+
+    /// The map annotations content passed in from the parent view.
+    let content: Content
 
     /// Tracks the currently selected native map feature (POI).
     ///
@@ -303,19 +315,6 @@ public struct ARCMapView: View {
                 mapWithAllSelection
             }
         }
-        .mapControls {
-            MapUserLocationButton()
-            MapCompass()
-            MapScaleView()
-        }
-        .sheet(item: $viewModel.selectedPlace) { place in
-            PlaceCalloutView(place: place,
-                             userLocation: viewModel.userLocation,
-                             onOpenInMaps: { app in
-                                 await viewModel.openInExternalMaps(place, app: app)
-                             })
-                             .presentationDetents([.height(ViewDefaults.sheetInitialHeight), .medium])
-        }
     }
 
     // MARK: - Map Configurations
@@ -323,7 +322,7 @@ public struct ARCMapView: View {
     /// Map with all native feature selection disabled.
     private var mapWithSelectionDisabled: some View {
         Map(position: $viewModel.cameraPosition) {
-            mapContent
+            content
         }
         .mapFeatureSelectionDisabled { _ in true }
     }
@@ -334,7 +333,7 @@ public struct ARCMapView: View {
     /// Disables selection of city labels, street names, and other non-POI features.
     private var mapWithPOISelection: some View {
         Map(position: $viewModel.cameraPosition, selection: $nativeSelection) {
-            mapContent
+            content
         }
         .mapFeatureSelectionDisabled { feature in
             feature.kind != .pointOfInterest
@@ -345,28 +344,9 @@ public struct ARCMapView: View {
     /// Map with all native feature selection enabled.
     private var mapWithAllSelection: some View {
         Map(position: $viewModel.cameraPosition, selection: $nativeSelection) {
-            mapContent
+            content
         }
         .mapFeatureSelectionAccessory(.callout)
-    }
-
-    // MARK: - Map Content
-
-    /// Shared map content including user location and place annotations.
-    @MapContentBuilder private var mapContent: some MapContent {
-        // User location indicator
-        if viewModel.userLocation != nil {
-            UserAnnotation()
-        }
-
-        ForEach(viewModel.filteredPlaces) { place in
-            Annotation(place.name, coordinate: place.coordinate) {
-                place.markerView
-                    .onTapGesture {
-                        viewModel.selectPlace(place)
-                    }
-            }
-        }
     }
 }
 #endif
