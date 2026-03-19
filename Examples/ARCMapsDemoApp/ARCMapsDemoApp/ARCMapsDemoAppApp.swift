@@ -1,6 +1,6 @@
 //
-//  ExampleAppApp.swift
-//  ExampleApp
+//  ARCMapsDemoAppApp.swift
+//  ARCMapsDemoApp
 //
 //  Created by ARC Labs Studio on 13/01/2026.
 //
@@ -14,7 +14,7 @@ import SwiftUI
 /// - Map visualization with custom markers
 /// - Place filtering by status, category, and rating
 /// - Native Apple Maps POI selection (iOS 18+)
-@main struct ExampleAppApp: App {
+@main struct ARCMapsDemoAppApp: App {
     init() {
         // Configure ARCMaps with default settings
         // Note: For Google Places API, provide your API key here
