@@ -8,7 +8,6 @@
 import ARCLogger
 import Foundation
 import Observation
-import SwiftUI
 
 /// ViewModel for place enrichment flow
 @Observable // swiftlint:disable:next observable_viewmodel

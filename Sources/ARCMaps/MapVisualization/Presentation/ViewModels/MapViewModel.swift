@@ -10,7 +10,7 @@ import CoreLocation
 import Foundation
 import MapKit
 import Observation
-import SwiftUI
+import SwiftUI // Required: MapCameraPosition is a MapKit+SwiftUI bridge type
 
 // MARK: - Constants
 
