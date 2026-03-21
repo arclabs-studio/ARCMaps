@@ -196,6 +196,25 @@ if let selected = viewModel.selectedPlace {
 viewModel.selectPlace(myPlace)
 ```
 
+### Place Callout Sheet
+
+Tapping a marker presents `PlaceCalloutView` as a sheet. It displays:
+
+- **Status badge** — `ARCTag` with filled style: green for `.visited`, red for `.wishlist`
+- **Rating** — `ARCRatingView` with `.compactInline` style on a 1–10 scale
+- Address, distance from user, visit date, and "Open in" navigation options
+
+The rating is read from `MapPlace.rating`. Pass `nil` to hide it, or a value in the
+range `0–10` for the semantic color scale (red → orange → green).
+
+```swift
+// High rating — shown in green
+MapPlace(id: "1", name: "El Café", ..., rating: 8.5, status: .visited)
+
+// No rating — rating view is hidden
+MapPlace(id: "2", name: "La Tapería", ..., rating: nil, status: .wishlist)
+```
+
 ### Camera Control
 
 ```swift

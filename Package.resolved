@@ -1,6 +1,15 @@
 {
-  "originHash" : "750d90441fffb171ae4696887907dc56b966aafd6ee61ee792ce3d662d15c5c4",
+  "originHash" : "1733722ff90eb8ba7da3ad78aed9cfbf3737b20b727008d7e83bd874b015ca0e",
   "pins" : [
+    {
+      "identity" : "arcdesignsystem",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/arclabs-studio/ARCDesignSystem",
+      "state" : {
+        "revision" : "f395bc222eafc17fbed8d7f90e45c9753661aa8e",
+        "version" : "2.3.1"
+      }
+    },
     {
       "identity" : "arclogger",
       "kind" : "remoteSourceControl",
@@ -8,6 +17,15 @@
       "state" : {
         "revision" : "c6fcb3571628d315e9fc7c00f28c12ac99fe42ca",
         "version" : "1.0.0"
+      }
+    },
+    {
+      "identity" : "arcuicomponents",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/arclabs-studio/ARCUIComponents",
+      "state" : {
+        "branch" : "develop",
+        "revision" : "3088147318d79319a48660aca1c6c51de4adc4a4"
       }
     }
   ],

@@ -5,6 +5,7 @@
 //  Created by ARC Labs Studio on 13/01/2026.
 //
 
+import ARCUIComponents
 import CoreLocation
 import SwiftUI
 
@@ -31,10 +32,13 @@ public struct PlaceCalloutView: View {
                     // Header
                     VStack(alignment: .leading, spacing: 8) {
                         HStack {
-                            statusBadge
+                            ARCTag(place.status.rawValue,
+                                   icon: place.status.iconName,
+                                   configuration: ARCTagConfiguration(style: .filled,
+                                                                      color: place.status == .pending ? .red : .green))
                             Spacer()
                             if let rating = place.rating {
-                                ratingView(rating)
+                                ARCRatingView(rating: rating, style: .circularGauge)
                             }
                         }
 
@@ -127,30 +131,6 @@ public struct PlaceCalloutView: View {
                 }
             }
         }
-    }
-
-    private var statusBadge: some View {
-        HStack(spacing: 4) {
-            Image(systemName: place.status.iconName)
-            Text(place.status.rawValue)
-        }
-        .font(.caption)
-        .fontWeight(.semibold)
-        .foregroundStyle(.white)
-        .padding(.horizontal, 12)
-        .padding(.vertical, 6)
-        .background(place.status == .pending ? Color.red : Color.green)
-        .cornerRadius(12)
-    }
-
-    private func ratingView(_ rating: Double) -> some View {
-        HStack(spacing: 4) {
-            Image(systemName: "star.fill")
-                .foregroundStyle(.yellow)
-            Text(String(format: "%.1f", rating))
-                .fontWeight(.semibold)
-        }
-        .font(.subheadline)
     }
 
     private var distanceText: String? {

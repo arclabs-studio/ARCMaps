@@ -5,6 +5,7 @@
 
 help:
 	@echo "ARCDevTools - Available commands:"
+	@echo "  make test      - Run Swift package tests"
 	@echo "  make lint      - Run SwiftLint"
 	@echo "  make format    - Run SwiftFormat (dry-run)"
 	@echo "  make fix       - Apply SwiftFormat"
@@ -13,6 +14,9 @@ help:
 	@echo "  make setup     - Re-install hooks and configs"
 	@echo "  make hooks     - Re-install git hooks only"
 	@echo "  make clean     - Clean build artifacts"
+
+test:
+	@swift test --parallel
 
 lint:
 	@if command -v swiftlint >/dev/null 2>&1; then \
