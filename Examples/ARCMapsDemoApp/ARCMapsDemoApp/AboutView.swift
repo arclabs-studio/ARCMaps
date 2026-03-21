@@ -25,11 +25,15 @@ struct AboutView: View {
                 Section("Features Demonstrated") {
                     FeatureRow(icon: "map",
                                title: "Map Visualization",
-                               description: "Interactive map with custom markers for wishlist and visited places")
+                               description: "Interactive map with default or fully custom markers and detail sheet")
+
+                    FeatureRow(icon: "mappin.and.ellipse",
+                               title: "Custom Markers & Sheet",
+                               description: "Inject custom marker and sheet views via ViewBuilder")
 
                     FeatureRow(icon: "line.3.horizontal.decrease.circle",
                                title: "Place Filtering",
-                               description: "Filter by status, category, and minimum rating")
+                               description: "Filter by category and minimum rating")
 
                     FeatureRow(icon: "mappin.and.ellipse",
                                title: "Native POI Selection",
