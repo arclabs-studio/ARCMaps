@@ -32,14 +32,10 @@ public struct PlaceCalloutView: View {
                     // Header
                     VStack(alignment: .leading, spacing: 8) {
                         HStack {
-                            ARCTag(
-                                place.status.rawValue,
-                                icon: place.status.iconName,
-                                configuration: ARCTagConfiguration(
-                                    style: .filled,
-                                    color: place.status == .wishlist ? .red : .green
-                                )
-                            )
+                            ARCTag(place.status.rawValue,
+                                   icon: place.status.iconName,
+                                   configuration: ARCTagConfiguration(style: .filled,
+                                                                      color: place.status == .pending ? .red : .green))
                             Spacer()
                             if let rating = place.rating {
                                 ARCRatingView(rating: rating, style: .compactInline)
@@ -136,7 +132,6 @@ public struct PlaceCalloutView: View {
             }
         }
     }
-
 
     private var distanceText: String? {
         guard let userLocation else { return nil }
