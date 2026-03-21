@@ -9,10 +9,9 @@ import SwiftUI
 
 /// Main content view with tab navigation.
 ///
-/// Provides navigation between the demo screens:
-/// - Map Demo: Interactive map with default markers and sheet
-/// - Custom Markers: Custom marker and sheet via ViewBuilder injection
-/// - Filter Demo: Category and rating filters
+/// Provides navigation between the four demo screens:
+/// - Map Demo: Interactive map with sample places (pending, visited, favorite markers)
+/// - Filter Demo: Demonstrates filtering including favorites-only filter
 /// - PlaceMapper Demo: Bridges PlaceSearchResult to MapPlace using PlaceMapper
 /// - About: Information about the demo app
 struct ContentView: View {
@@ -26,29 +25,23 @@ struct ContentView: View {
                 }
                 .tag(0)
 
-            CustomMarkerDemoView()
-                .tabItem {
-                    Label("Custom", systemImage: "mappin.and.ellipse")
-                }
-                .tag(1)
-
             FilterDemoView()
                 .tabItem {
                     Label("Filter", systemImage: "line.3.horizontal.decrease.circle")
                 }
-                .tag(2)
+                .tag(1)
 
             PlaceMapperDemoView()
                 .tabItem {
                     Label("Mapper", systemImage: "arrow.triangle.2.circlepath.circle")
                 }
-                .tag(3)
+                .tag(2)
 
             AboutView()
                 .tabItem {
                     Label("About", systemImage: "info.circle")
                 }
-                .tag(4)
+                .tag(3)
         }
     }
 }
