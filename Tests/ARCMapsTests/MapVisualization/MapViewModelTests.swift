@@ -36,7 +36,7 @@ import Testing
     @Test("Set places replaces existing places") func setPlacesReplacesExisting() {
         // Given
         sut.setPlaces(MapPlaceFixtures.allSamples)
-        let newPlaces = MapPlaceFixtures.wishlistOnly
+        let newPlaces = [MapPlaceFixtures.restaurant]
 
         // When
         sut.setPlaces(newPlaces)
@@ -47,36 +47,19 @@ import Testing
 
     // MARK: - Filtering
 
-    @Test("Apply status filter shows only matching places") func applyStatusFilterShowsOnlyMatching() {
+    @Test("Apply category filter shows only matching places") func applyCategoryFilterShowsOnlyMatching() {
         // Given
         let places = MapPlaceFixtures.allSamples
         sut.setPlaces(places)
 
-        var filter = MapFilter()
-        filter.statuses = [.pending]
+        let filter = MapFilter(categories: ["Cafe"])
 
         // When
         sut.updateFilter(filter)
 
         // Then
         #expect(sut.filteredPlaces.count == 1)
-        #expect(sut.filteredPlaces.allSatisfy { $0.status == .pending })
-    }
-
-    @Test("Apply visited status filter shows only visited places") func applyVisitedStatusFilter() {
-        // Given
-        let places = MapPlaceFixtures.allSamples
-        sut.setPlaces(places)
-
-        var filter = MapFilter()
-        filter.statuses = [.visited]
-
-        // When
-        sut.updateFilter(filter)
-
-        // Then
-        #expect(sut.filteredPlaces.count == 2)
-        #expect(sut.filteredPlaces.allSatisfy { $0.status == .visited })
+        #expect(sut.filteredPlaces.allSatisfy { $0.category == "Cafe" })
     }
 
     @Test("Clear filter shows all places") func clearFilterShowsAllPlaces() {
@@ -84,9 +67,7 @@ import Testing
         let places = MapPlaceFixtures.allSamples
         sut.setPlaces(places)
 
-        var filter = MapFilter()
-        filter.statuses = [.pending]
-        sut.updateFilter(filter)
+        sut.updateFilter(MapFilter(categories: ["Cafe"]))
 
         // When
         sut.updateFilter(.all)
@@ -95,27 +76,11 @@ import Testing
         #expect(sut.filteredPlaces.count == places.count)
     }
 
-    @Test("Apply favorites filter shows only favorite places") func applyFavoritesFilterShowsOnlyFavorites() {
-        // Given
-        let places = MapPlaceFixtures.allSamplesWithFavorite
-        sut.setPlaces(places)
-
-        let filter = MapFilter(statuses: [.visited], filterByFavorites: true)
-
-        // When
-        sut.updateFilter(filter)
-
-        // Then
-        #expect(sut.filteredPlaces.count == 1)
-        // swiftformat:disable:next preferKeyPath — keyPath triggers a throw error inside #expect macro
-        #expect(sut.filteredPlaces.allSatisfy { $0.isFavorite })
-    }
-
     // MARK: - Selection
 
     @Test("Select place updates selected place") func selectPlaceUpdatesSelectedPlace() {
         // Given
-        let place = MapPlaceFixtures.pendingRestaurant
+        let place = MapPlaceFixtures.restaurant
 
         // When
         sut.selectPlace(place)
@@ -126,7 +91,7 @@ import Testing
 
     @Test("Clear selection sets selected place to nil") func clearSelectionSetsSelectedPlaceToNil() {
         // Given
-        let place = MapPlaceFixtures.pendingRestaurant
+        let place = MapPlaceFixtures.restaurant
         sut.selectPlace(place)
 
         // When
@@ -150,13 +115,12 @@ import Testing
 
     @Test("Selecting place updates camera position") func selectingPlaceUpdatesCameraPosition() {
         // Given
-        let place = MapPlaceFixtures.pendingRestaurant
+        let place = MapPlaceFixtures.restaurant
 
         // When
         sut.selectPlace(place)
 
         // Then - camera should be region-based after selection
-        // MapCameraPosition.region returns an MKCoordinateRegion?, so we check if it's not nil
         #expect(sut.cameraPosition.region != nil)
     }
 }

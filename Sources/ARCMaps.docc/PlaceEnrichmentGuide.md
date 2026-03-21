@@ -229,15 +229,14 @@ viewModel.enrichmentVM.changeProvider(.appleServer)
 Use ``PlaceMapper`` to convert a ``PlaceSearchResult`` into a ``MapPlace`` for display on the map. This bridges the PlaceEnrichment and MapVisualization modules without coupling them.
 
 ```swift
-// Convert a search result to a pending map place
-let mapPlace = PlaceMapper.toMapPlace(searchResult, status: .pending)
-mapViewModel.addPlace(mapPlace)
+// Convert a search result to a map place
+let mapPlace = PlaceMapper.toMapPlace(searchResult)
+mapViewModel.setPlaces([mapPlace])
 
 // The resulting MapPlace uses:
 // - result.id, result.name, result.coordinate, result.address
 // - result.types.first as the category
 // - result.rating (if available)
-// - isFavorite: false (default for new places)
 ```
 
 ## Caching

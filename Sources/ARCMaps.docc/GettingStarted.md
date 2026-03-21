@@ -136,16 +136,16 @@ struct ContentView: View {
                 name: "La Taverna",
                 coordinate: CLLocationCoordinate2D(latitude: 40.4168, longitude: -3.7038),
                 address: "Calle Mayor 15, Madrid",
-                status: .pending           // wants to visit — shows red clock marker
+                category: "restaurant",
+                rating: 4.5
             ),
             MapPlace(
                 id: "2",
-                name: "Sobrino de Botin",
-                coordinate: CLLocationCoordinate2D(latitude: 40.4133, longitude: -3.7080),
-                address: "Calle Cuchilleros 17, Madrid",
-                status: .visited,
-                isFavorite: true,          // visited and loved it — shows gold star marker
-                visitDate: Date()
+                name: "Museo del Prado",
+                coordinate: CLLocationCoordinate2D(latitude: 40.4138, longitude: -3.6922),
+                address: "Paseo del Prado, Madrid",
+                category: "museum",
+                rating: 4.9
             )
         ]
     }
@@ -161,14 +161,14 @@ Use ``PlaceMapper`` to convert a ``PlaceSearchResult`` (from enrichment) directl
 let results = try await enrichmentViewModel.searchPlaces(query: query)
 
 // Convert the selected result and add it to the map
-let mapPlace = PlaceMapper.toMapPlace(results[0], status: .pending)
-mapViewModel.addPlace(mapPlace)
+let mapPlace = PlaceMapper.toMapPlace(results[0])
+mapViewModel.setPlaces([mapPlace])
 ```
 
 ## Next Steps
 
 - Read the <doc:PlaceEnrichmentGuide> to learn about searching and enriching places
-- Explore the <doc:MapVisualizationGuide> for advanced map features including favorites filtering
+- Explore the <doc:MapVisualizationGuide> for advanced map features including custom markers and filtering
 - Check out the example project in the repository
 
 ## See Also

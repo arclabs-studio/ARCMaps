@@ -1,10 +1,10 @@
 # Map Visualization Guide
 
-Display places on an interactive map with custom markers, favorites, and filters.
+Display places on an interactive map with customizable markers, filters, and navigation.
 
 ## Overview
 
-The Map Visualization module provides SwiftUI components to display places on a map with distinctive markers for pending vs. visited vs. favorite places, along with filtering and navigation capabilities.
+The Map Visualization module provides SwiftUI components to display places on a map. Markers and the detail sheet are fully customizable via `@ViewBuilder` — the package ships with sensible defaults and you can override either or both.
 
 ## Basic Map Display
 
@@ -15,7 +15,7 @@ import SwiftUI
 import MapKit
 import ARCMaps
 
-struct RestaurantMapView: View {
+struct PlaceMapView: View {
     @State private var viewModel = MapViewModel(
         locationService: CoreLocationService()
     )
@@ -32,144 +32,83 @@ struct RestaurantMapView: View {
         [
             MapPlace(
                 id: "1",
-                name: "La Taverna",
+                name: "Café Luna",
                 coordinate: CLLocationCoordinate2D(latitude: 40.4168, longitude: -3.7038),
                 address: "Calle Mayor 15, Madrid",
-                category: "Restaurant",
-                rating: 4.5,
-                status: .pending           // red clock marker — wants to visit
+                category: "cafe",
+                rating: 4.5
             ),
             MapPlace(
                 id: "2",
-                name: "El Café",
-                coordinate: CLLocationCoordinate2D(latitude: 40.4200, longitude: -3.7050),
-                address: "Gran Vía 20, Madrid",
-                category: "Cafe",
-                rating: 4.2,
-                status: .visited,
-                visitDate: Date()           // green checkmark marker — visited
-            ),
-            MapPlace(
-                id: "3",
-                name: "Sobrino de Botin",
-                coordinate: CLLocationCoordinate2D(latitude: 40.4133, longitude: -3.7080),
-                address: "Calle Cuchilleros 17, Madrid",
-                category: "Restaurant",
-                rating: 4.9,
-                status: .visited,
-                isFavorite: true,          // gold star marker — visited and favorited
-                visitDate: Date()
+                name: "Museo del Prado",
+                coordinate: CLLocationCoordinate2D(latitude: 40.4138, longitude: -3.6922),
+                address: "Paseo del Prado, Madrid",
+                category: "museum",
+                rating: 4.9
             )
         ]
     }
 }
 ```
 
-## Place Status and Favorites
-
-### PlaceStatus
-
-`PlaceStatus` has two cases:
-
-- `.pending` — the user wants to visit this place in the future
-- `.visited` — the user has already been there
-
-### isFavorite
-
-`MapPlace.isFavorite` is a `Bool` flag that is only meaningful when `status == .visited`. It lets you distinguish between places you visited and places you truly loved.
-
-```swift
-let favoriteCafe = MapPlace(
-    id: "cafe-1",
-    name: "Toma Cafe",
-    coordinate: CLLocationCoordinate2D(latitude: 40.4280, longitude: -3.7050),
-    status: .visited,
-    isFavorite: true,
-    visitDate: Date()
-)
-```
-
 ## Custom Markers
 
-ARCMaps provides three built-in marker styles that are resolved automatically from `MapPlace.status` and `MapPlace.isFavorite`:
+By default, `ARCMapView` uses ``PlaceMarker`` — a simple red circle pin. Inject a `@ViewBuilder` to render your own marker per place:
 
-| Marker | Condition | Icon | Color |
-|--------|-----------|------|-------|
-| ``PendingMarker`` | `status == .pending` | clock | Red |
-| ``VisitedMarker`` | `status == .visited && !isFavorite` | checkmark | Green |
-| ``FavoriteMarker`` | `status == .visited && isFavorite` | star | Gold |
+```swift
+ARCMapView(viewModel: viewModel) { place in
+    MyMarker(place: place)
+}
+```
 
-The `ARCMapView` resolves the correct marker automatically — no manual configuration required.
+Your `MyMarker` view receives the `MapPlace` and can render any SwiftUI view — different colors per category, icons, badges, etc.
+
+## Custom Detail Sheet
+
+By default, tapping a marker presents ``PlaceCalloutView`` with name, category, rating, address, distance, and "Open in" options. Inject a `@ViewBuilder` to replace it entirely:
+
+```swift
+ARCMapView(viewModel: viewModel) { place in
+    MyMarker(place: place)
+} sheet: { place, userLocation in
+    MyPlaceDetailView(place: place, userLocation: userLocation)
+}
+```
+
+The `sheet` closure receives the selected `MapPlace` and the user's current `CLLocationCoordinate2D?` (if location permission is granted).
 
 ## Filtering Places
-
-### Status Filter
-
-```swift
-// Show only pending places
-var filter = MapFilter(statuses: [.pending])
-viewModel.updateFilter(filter)
-
-// Show only visited places
-var filter = MapFilter(statuses: [.visited])
-viewModel.updateFilter(filter)
-
-// Show all
-viewModel.updateFilter(.all)
-```
-
-### Favorites Filter
-
-Use `filterByFavorites` to show only places marked as a favorite:
-
-```swift
-// Show only favorites (must also include .visited in statuses)
-let favoritesFilter = MapFilter(
-    statuses: [.visited],
-    filterByFavorites: true
-)
-viewModel.updateFilter(favoritesFilter)
-```
 
 ### Category Filter
 
 ```swift
-var filter = MapFilter()
-filter.categories = ["Restaurant", "Cafe"]
+var filter = MapFilter(categories: ["cafe", "restaurant"])
 viewModel.updateFilter(filter)
 ```
 
 ### Rating Filter
 
 ```swift
-var filter = MapFilter()
-filter.minRating = 4.0
-viewModel.updateFilter(filter)
-```
-
-### Date Range Filter
-
-```swift
-let lastMonth = Calendar.current.date(byAdding: .month, value: -1, to: Date())!
-let filter = MapFilter(dateRange: DateRange(start: lastMonth, end: Date()))
+var filter = MapFilter(minRating: 4.0)
 viewModel.updateFilter(filter)
 ```
 
 ### Combining Filters
 
-All filter conditions are combined with AND logic:
+All conditions are combined with AND logic:
 
 ```swift
-// Highly-rated favorite restaurants visited in the last 30 days
-let thirtyDaysAgo = Calendar.current.date(byAdding: .day, value: -30, to: Date())!
 let filter = MapFilter(
-    statuses: [.visited],
-    categories: ["Restaurant"],
-    minRating: 4.0,
-    dateRange: DateRange(start: thirtyDaysAgo, end: Date()),
-    filterByFavorites: true
+    categories: ["cafe"],
+    minRating: 4.0
 )
 viewModel.updateFilter(filter)
+```
+
+### Resetting Filters
+
+```swift
+viewModel.updateFilter(.all)
 ```
 
 ## Adding Places from Search Results
@@ -178,8 +117,8 @@ Use ``PlaceMapper`` to bridge a ``PlaceSearchResult`` from the enrichment module
 
 ```swift
 // User picks a search result → convert and pin it on the map
-let mapPlace = PlaceMapper.toMapPlace(searchResult, status: .pending)
-mapViewModel.addPlace(mapPlace)
+let mapPlace = PlaceMapper.toMapPlace(searchResult)
+mapViewModel.setPlaces([mapPlace])
 ```
 
 ## Map Interaction
@@ -194,25 +133,6 @@ if let selected = viewModel.selectedPlace {
 
 // Programmatic selection
 viewModel.selectPlace(myPlace)
-```
-
-### Place Callout Sheet
-
-Tapping a marker presents `PlaceCalloutView` as a sheet. It displays:
-
-- **Status badge** — `ARCTag` with filled style: green for `.visited`, red for `.wishlist`
-- **Rating** — `ARCRatingView` with `.compactInline` style on a 1–10 scale
-- Address, distance from user, visit date, and "Open in" navigation options
-
-The rating is read from `MapPlace.rating`. Pass `nil` to hide it, or a value in the
-range `0–10` for the semantic color scale (red → orange → green).
-
-```swift
-// High rating — shown in green
-MapPlace(id: "1", name: "El Café", ..., rating: 8.5, status: .visited)
-
-// No rating — rating view is hidden
-MapPlace(id: "2", name: "La Tapería", ..., rating: nil, status: .wishlist)
 ```
 
 ### Camera Control
@@ -245,6 +165,17 @@ for place in viewModel.filteredPlaces {
 }
 ```
 
+## iOS 18+ Native POI Selection
+
+Enable native Apple Maps point-of-interest selection:
+
+```swift
+ARCMapView(
+    viewModel: viewModel,
+    featureSelectionMode: .pointsOfInterestOnly
+)
+```
+
 ## External Navigation
 
 ```swift
@@ -262,13 +193,10 @@ Button("Navigate") {
 if let error = viewModel.error {
     switch error {
     case .locationPermissionDenied:
-        // Show settings alert
         break
     case .locationUnavailable:
-        // Show error message
         break
     case .externalAppNotInstalled(let app):
-        // Suggest alternative
         break
     default:
         break
@@ -283,19 +211,16 @@ For best performance with many places:
 
 1. Use filtering to reduce visible markers
 2. Clear places when no longer needed: `viewModel.setPlaces([])`
-3. Limit photo sizes when loading images
 
 ## See Also
 
 - ``ARCMapView``
 - ``MapViewModel``
 - ``MapPlace``
-- ``PlaceStatus``
 - ``MapFilter``
+- ``PlaceMarker``
+- ``PlaceCalloutView``
 - ``PlaceMapper``
-- ``PendingMarker``
-- ``VisitedMarker``
-- ``FavoriteMarker``
 - ``LocationService``
 - ``ExternalMapLauncher``
 - ``MapError``

@@ -18,7 +18,7 @@ struct PlaceMapperTests {
         let result = PlaceSearchResultFixtures.sampleRestaurant
 
         // When
-        let place = PlaceMapper.toMapPlace(result, status: .pending)
+        let place = PlaceMapper.toMapPlace(result)
 
         // Then
         #expect(place.id == result.id)
@@ -29,7 +29,7 @@ struct PlaceMapperTests {
         let result = PlaceSearchResultFixtures.sampleRestaurant
 
         // When
-        let place = PlaceMapper.toMapPlace(result, status: .pending)
+        let place = PlaceMapper.toMapPlace(result)
 
         // Then
         #expect(place.name == result.name)
@@ -40,7 +40,7 @@ struct PlaceMapperTests {
         let result = PlaceSearchResultFixtures.sampleRestaurant
 
         // When
-        let place = PlaceMapper.toMapPlace(result, status: .pending)
+        let place = PlaceMapper.toMapPlace(result)
 
         // Then
         #expect(place.coordinate.latitude == result.coordinate.latitude)
@@ -52,7 +52,7 @@ struct PlaceMapperTests {
         let result = PlaceSearchResultFixtures.sampleRestaurant
 
         // When
-        let place = PlaceMapper.toMapPlace(result, status: .pending)
+        let place = PlaceMapper.toMapPlace(result)
 
         // Then
         #expect(place.address == result.address)
@@ -63,7 +63,7 @@ struct PlaceMapperTests {
         let result = PlaceSearchResultFixtures.sampleRestaurant // types: ["restaurant", "food"]
 
         // When
-        let place = PlaceMapper.toMapPlace(result, status: .pending)
+        let place = PlaceMapper.toMapPlace(result)
 
         // Then
         #expect(place.category == "restaurant")
@@ -71,13 +71,13 @@ struct PlaceMapperTests {
 
     @Test("toMapPlace sets nil category when types is empty") func toMapPlaceSetNilCategoryWhenTypesEmpty() {
         // Given
-        let result = PlaceSearchResultFixtures.sampleBar // photoReferences: []
+        let result = PlaceSearchResultFixtures.sampleBar
 
         // When
-        let place = PlaceMapper.toMapPlace(result, status: .pending)
+        let place = PlaceMapper.toMapPlace(result)
 
         // Then
-        #expect(place.category == result.types.first) // "bar"
+        #expect(place.category == result.types.first)
     }
 
     @Test("toMapPlace preserves rating from search result") func toMapPlacePreservesRating() {
@@ -85,46 +85,10 @@ struct PlaceMapperTests {
         let result = PlaceSearchResultFixtures.sampleRestaurant // rating: 4.5
 
         // When
-        let place = PlaceMapper.toMapPlace(result, status: .pending)
+        let place = PlaceMapper.toMapPlace(result)
 
         // Then
         #expect(place.rating == result.rating)
-    }
-
-    @Test("toMapPlace applies specified status") func toMapPlaceAppliesSpecifiedStatus() {
-        // Given
-        let result = PlaceSearchResultFixtures.sampleRestaurant
-
-        // When - pending
-        let pendingPlace = PlaceMapper.toMapPlace(result, status: .pending)
-        // When - visited
-        let visitedPlace = PlaceMapper.toMapPlace(result, status: .visited)
-
-        // Then
-        #expect(pendingPlace.status == .pending)
-        #expect(visitedPlace.status == .visited)
-    }
-
-    @Test("toMapPlace always sets isFavorite to false") func toMapPlaceAlwaysSetsIsFavoriteFalse() {
-        // Given
-        let result = PlaceSearchResultFixtures.sampleRestaurant
-
-        // When
-        let place = PlaceMapper.toMapPlace(result, status: .visited)
-
-        // Then
-        #expect(place.isFavorite == false)
-    }
-
-    @Test("toMapPlace sets visitDate to nil") func toMapPlaceSetsVisitDateNil() {
-        // Given
-        let result = PlaceSearchResultFixtures.sampleRestaurant
-
-        // When
-        let place = PlaceMapper.toMapPlace(result, status: .visited)
-
-        // Then
-        #expect(place.visitDate == nil)
     }
 
     @Test("toMapPlace sets imageURL to nil") func toMapPlaceSetsImageURLNil() {
@@ -132,18 +96,18 @@ struct PlaceMapperTests {
         let result = PlaceSearchResultFixtures.sampleRestaurant
 
         // When
-        let place = PlaceMapper.toMapPlace(result, status: .pending)
+        let place = PlaceMapper.toMapPlace(result)
 
         // Then
         #expect(place.imageURL == nil)
     }
 
     @Test("toMapPlace handles result with no rating") func toMapPlaceHandlesResultWithNoRating() {
-        // Given - Apple Maps results have no rating
-        let appleResult = PlaceSearchResultFixtures.sampleBar // provider: .apple, rating: 4.0
+        // Given
+        let appleResult = PlaceSearchResultFixtures.sampleBar
 
         // When
-        let place = PlaceMapper.toMapPlace(appleResult, status: .pending)
+        let place = PlaceMapper.toMapPlace(appleResult)
 
         // Then
         #expect(place.rating == appleResult.rating)

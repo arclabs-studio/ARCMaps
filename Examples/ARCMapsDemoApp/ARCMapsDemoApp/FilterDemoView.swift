@@ -11,17 +11,13 @@ import SwiftUI
 /// Demonstrates the MapFilter functionality.
 ///
 /// Shows how to:
-/// - Filter places by status (pending/visited)
-/// - Filter to favorites only (visited + isFavorite)
-/// - Filter by category
+/// - Filter places by category
 /// - Set minimum rating threshold
 /// - Apply filters to the map view
 struct FilterDemoView: View {
     @State private var viewModel: MapViewModel
-    @State private var selectedStatuses: Set<PlaceStatus> = Set(PlaceStatus.allCases)
     @State private var selectedCategories: Set<String> = []
     @State private var minRating: Double = 0
-    @State private var favoritesOnly = false
     @State private var showFilterSheet = false
 
     init() {
@@ -89,12 +85,6 @@ struct FilterDemoView: View {
     private var filterDescription: String {
         var parts: [String] = []
 
-        if favoritesOnly {
-            parts.append("Favorites only")
-        } else if selectedStatuses.count == 1 {
-            parts.append(selectedStatuses.first?.rawValue ?? "")
-        }
-
         if !selectedCategories.isEmpty {
             let categoryList = selectedCategories.sorted().joined(separator: ", ")
             parts.append(categoryList)
@@ -108,10 +98,7 @@ struct FilterDemoView: View {
     }
 
     private var hasActiveFilters: Bool {
-        favoritesOnly ||
-            selectedStatuses.count < PlaceStatus.allCases.count ||
-            !selectedCategories.isEmpty ||
-            minRating > 0
+        !selectedCategories.isEmpty || minRating > 0
     }
 
     // MARK: - Filter Sheet
@@ -119,42 +106,6 @@ struct FilterDemoView: View {
     private var filterSheet: some View {
         NavigationStack {
             Form {
-                // Favorites shortcut
-                Section("Favorites") {
-                    Toggle(isOn: Binding(get: { favoritesOnly },
-                                         set: { newValue in
-                                             favoritesOnly = newValue
-                                             // Favorites are always a subset of visited places
-                                             if newValue {
-                                                 selectedStatuses = [.visited]
-                                             }
-                                             applyFilters()
-                                         })) {
-                        Label("Favorites only", systemImage: "star.fill")
-                            .foregroundStyle(.yellow)
-                    }
-                }
-
-                // Status filter
-                Section("Status") {
-                    ForEach(PlaceStatus.allCases, id: \.self) { status in
-                        Toggle(isOn: Binding(get: { selectedStatuses.contains(status) },
-                                             set: { isSelected in
-                                                 if isSelected {
-                                                     selectedStatuses.insert(status)
-                                                 } else {
-                                                     selectedStatuses.remove(status)
-                                                     // Favorites require .visited — clear if deselected
-                                                     if status == .visited { favoritesOnly = false }
-                                                 }
-                                                 applyFilters()
-                                             })) {
-                            Label(status.rawValue, systemImage: status.iconName)
-                                .foregroundStyle(status == .pending ? .red : .green)
-                        }
-                    }
-                }
-
                 // Category filter
                 Section("Category") {
                     ForEach(SampleData.categories, id: \.self) { category in
@@ -215,18 +166,14 @@ struct FilterDemoView: View {
     // MARK: - Filter Logic
 
     private func applyFilters() {
-        let filter = MapFilter(statuses: selectedStatuses.isEmpty ? Set(PlaceStatus.allCases) : selectedStatuses,
-                               categories: selectedCategories,
-                               minRating: minRating > 0 ? minRating : nil,
-                               filterByFavorites: favoritesOnly)
+        let filter = MapFilter(categories: selectedCategories,
+                               minRating: minRating > 0 ? minRating : nil)
         viewModel.updateFilter(filter)
     }
 
     private func resetFilters() {
-        selectedStatuses = Set(PlaceStatus.allCases)
         selectedCategories = []
         minRating = 0
-        favoritesOnly = false
         viewModel.updateFilter(.all)
     }
 }

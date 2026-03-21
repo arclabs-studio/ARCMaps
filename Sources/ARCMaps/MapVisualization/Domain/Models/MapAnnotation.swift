@@ -33,8 +33,6 @@ public struct MapAnnotation: Sendable, Identifiable, Equatable {
 }
 
 public enum MarkerType: Sendable, Equatable {
-    case wishlist
-    case visited
     case standard
     case custom(iconName: String)
 }
