@@ -13,9 +13,8 @@ import SwiftUI
 ///
 /// Shows how to:
 /// - Simulate search results (as would come from PlaceEnrichmentViewModel)
-/// - Convert them to MapPlace using PlaceMapper.toMapPlace(_:status:)
-/// - Add the converted place to the map with .pending status
-/// - Mark a place as visited + favorite directly on the map
+/// - Convert them to MapPlace using PlaceMapper.toMapPlace(_:)
+/// - Add the converted place to the map
 struct PlaceMapperDemoView: View {
     @State private var mapViewModel: MapViewModel
     @State private var addedPlaceIDs: Set<String> = []
@@ -70,7 +69,7 @@ struct PlaceMapperDemoView: View {
         Button {
             guard !alreadyAdded else { return }
             // PlaceMapper bridges PlaceSearchResult → MapPlace
-            let mapPlace = PlaceMapper.toMapPlace(result, status: .pending)
+            let mapPlace = PlaceMapper.toMapPlace(result)
             mapViewModel.setPlaces(mapViewModel.places + [mapPlace])
             addedPlaceIDs.insert(result.id)
             mapViewModel.centerOnPlace(mapPlace, animated: true)
@@ -94,17 +93,14 @@ struct PlaceMapperDemoView: View {
                 Section("What this demo shows") {
                     Label("Simulated search results appear as pills above the map", systemImage: "1.circle")
                     Label("Tap a pill to convert it via PlaceMapper and pin it on the map", systemImage: "2.circle")
-                    Label("Each pinned place starts with .pending status (red clock marker)", systemImage: "3.circle")
+                    Label("Each pinned place appears with the default PlaceMarker", systemImage: "3.circle")
                     Label("PlaceMapper copies id, name, coordinate, address, category, and rating",
                           systemImage: "4.circle")
                 }
 
                 Section("Code") {
                     Text("""
-                    let mapPlace = PlaceMapper.toMapPlace(
-                        searchResult,
-                        status: .pending
-                    )
+                    let mapPlace = PlaceMapper.toMapPlace(searchResult)
                     mapViewModel.setPlaces(mapViewModel.places + [mapPlace])
                     """)
                     .font(.system(.caption, design: .monospaced))
