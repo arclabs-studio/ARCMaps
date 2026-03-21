@@ -133,12 +133,12 @@ public struct ARCMapView<MarkerContent: View, SheetContent: View>: View {
     ///   - featureSelectionMode: Controls native POI selection behavior on iOS 18+.
     public init(viewModel: MapViewModel,
                 featureSelectionMode: MapFeatureSelectionMode = .disabled)
-    where MarkerContent == PlaceMarker, SheetContent == PlaceCalloutView {
+        where MarkerContent == PlaceMarker, SheetContent == PlaceCalloutView {
         self.viewModel = viewModel
         self.featureSelectionMode = featureSelectionMode
-        self.markerContent = { PlaceMarker(place: $0) }
+        markerContent = { PlaceMarker(place: $0) }
         let vm = viewModel
-        self.sheetContent = { place, userLocation in
+        sheetContent = { place, userLocation in
             PlaceCalloutView(place: place,
                              userLocation: userLocation,
                              onOpenInMaps: { app in
@@ -156,12 +156,12 @@ public struct ARCMapView<MarkerContent: View, SheetContent: View>: View {
     public init(viewModel: MapViewModel,
                 featureSelectionMode: MapFeatureSelectionMode = .disabled,
                 @ViewBuilder marker: @escaping (MapPlace) -> MarkerContent)
-    where SheetContent == PlaceCalloutView {
+        where SheetContent == PlaceCalloutView {
         self.viewModel = viewModel
         self.featureSelectionMode = featureSelectionMode
-        self.markerContent = marker
+        markerContent = marker
         let vm = viewModel
-        self.sheetContent = { place, userLocation in
+        sheetContent = { place, userLocation in
             PlaceCalloutView(place: place,
                              userLocation: userLocation,
                              onOpenInMaps: { app in
@@ -184,8 +184,8 @@ public struct ARCMapView<MarkerContent: View, SheetContent: View>: View {
                 @ViewBuilder sheet: @escaping (MapPlace, CLLocationCoordinate2D?) -> SheetContent) {
         self.viewModel = viewModel
         self.featureSelectionMode = featureSelectionMode
-        self.markerContent = marker
-        self.sheetContent = sheet
+        markerContent = marker
+        sheetContent = sheet
     }
 
     // MARK: - Body
