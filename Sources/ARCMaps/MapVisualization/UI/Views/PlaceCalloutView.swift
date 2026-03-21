@@ -9,7 +9,20 @@ import ARCUIComponents
 import CoreLocation
 import SwiftUI
 
-/// Callout view shown when tapping a place marker
+/// Default callout view shown when tapping a place marker.
+///
+/// `PlaceCalloutView` is the default sheet content used by ``ARCMapView``. It displays
+/// basic place information (name, category, rating, address, distance) and options to
+/// open the place in external map apps.
+///
+/// For a fully customized sheet, inject your own view via the ``ARCMapView`` initializer:
+/// ```swift
+/// ARCMapView(viewModel: vm) { place in
+///     MyMarker(place: place)
+/// } sheet: { place, userLocation in
+///     MyPlaceDetailView(place: place)
+/// }
+/// ```
 public struct PlaceCalloutView: View {
     let place: MapPlace
     let userLocation: CLLocationCoordinate2D?
@@ -31,14 +44,10 @@ public struct PlaceCalloutView: View {
                 VStack(alignment: .leading, spacing: 16) {
                     // Header
                     VStack(alignment: .leading, spacing: 8) {
-                        HStack {
-                            ARCTag(place.status.rawValue,
-                                   icon: place.status.iconName,
-                                   configuration: ARCTagConfiguration(style: .filled,
-                                                                      color: place.status == .pending ? .red : .green))
-                            Spacer()
-                            if let rating = place.rating {
+                        if let rating = place.rating {
+                            HStack {
                                 ARCRatingView(rating: rating, style: .circularGauge)
+                                Spacer()
                             }
                         }
 
@@ -73,17 +82,6 @@ public struct PlaceCalloutView: View {
                                 .foregroundStyle(.blue)
 
                             Text(distance)
-                                .font(.body)
-                        }
-                    }
-
-                    // Visit date
-                    if let visitDate = place.visitDate {
-                        HStack(spacing: 12) {
-                            Image(systemName: "calendar")
-                                .foregroundStyle(.purple)
-
-                            Text("Visited \(visitDate.formatted(date: .abbreviated, time: .omitted))")
                                 .font(.body)
                         }
                     }
