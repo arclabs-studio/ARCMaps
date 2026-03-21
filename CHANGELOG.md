@@ -12,7 +12,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `FeatureSelectionMapView` for enhanced POI interaction on iOS 18+
 - Comprehensive DocC documentation for all public APIs
 
+### Added
+- `ARCUIComponents` dependency for consistent UI components across ARC packages
+
 ### Changed
+- `PlaceCalloutView`: status badge now uses `ARCTag` (filled style, semantic green/red) instead of a custom hand-rolled pill
+- `PlaceCalloutView`: rating display now uses `ARCRatingView` with `.compactInline` style instead of a custom star+text `HStack`
 - Extracted magic numbers to named constants (`MapDefaults`, `CacheDefaults`, `ViewDefaults`)
 - Improved documentation with code examples and platform availability notes
 
