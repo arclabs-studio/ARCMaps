@@ -38,7 +38,7 @@ public struct PlaceCalloutView: View {
                                                                       color: place.status == .pending ? .red : .green))
                             Spacer()
                             if let rating = place.rating {
-                                ARCRatingView(rating: rating, style: .compactInline)
+                                ARCRatingView(rating: rating, style: .circularGauge)
                             }
                         }
 
