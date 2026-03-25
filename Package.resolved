@@ -1,5 +1,5 @@
 {
-  "originHash" : "1733722ff90eb8ba7da3ad78aed9cfbf3737b20b727008d7e83bd874b015ca0e",
+  "originHash" : "35cf42c7614e5bf057bbf3af8d8f47643ed69b4dac1495cc9a9838a56b9119c7",
   "pins" : [
     {
       "identity" : "arcdesignsystem",
@@ -25,7 +25,7 @@
       "location" : "https://github.com/arclabs-studio/ARCUIComponents",
       "state" : {
         "branch" : "develop",
-        "revision" : "3088147318d79319a48660aca1c6c51de4adc4a4"
+        "revision" : "646a0ae969e9110def240cc49895fdc340b69c14"
       }
     }
   ],
