@@ -10,6 +10,13 @@ import CoreLocation
 import Foundation
 import MapKit
 
+// MARK: - Constants
+
+private enum SearchDefaults {
+    /// Search radius used when a query does not specify one, in meters.
+    static let radiusMeters = 10000
+}
+
 /// Apple MapKit local search service implementation
 public actor AppleMapsSearchService: PlaceEnrichmentService {
     private let cache: PlaceSearchCache
@@ -30,40 +37,11 @@ public actor AppleMapsSearchService: PlaceEnrichmentService {
             return cachedResults
         }
 
-        let searchRequest = MKLocalSearch.Request()
-        searchRequest.naturalLanguageQuery = query.fullTextQuery
-
-        if let coordinate = query.coordinate {
-            let region = MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: coordinate.latitude,
-                                                                           longitude: coordinate.longitude),
-                                            latitudinalMeters: Double(query.radiusMeters ?? 10000),
-                                            longitudinalMeters: Double(query.radiusMeters ?? 10000))
-            searchRequest.region = region
-        }
-
-        let search = MKLocalSearch(request: searchRequest)
+        let search = MKLocalSearch(request: makeSearchRequest(for: query))
 
         do {
             let response = try await search.start()
-
-            let results = response.mapItems.compactMap { mapItem -> PlaceSearchResult? in
-                guard let name = mapItem.name,
-                      let coordinate = mapItem.placemark.location?.coordinate
-                else {
-                    return nil
-                }
-
-                return PlaceSearchResult(id: mapItem.placemark.description,
-                                         provider: .apple,
-                                         name: name,
-                                         address: formatAddress(mapItem.placemark),
-                                         coordinate: coordinate,
-                                         types: [],
-                                         rating: nil, // Apple Maps doesn't provide ratings in search
-                                         userRatingsTotal: nil,
-                                         priceLevel: nil,
-                                         photoReferences: [])
-            }
+            let results = response.mapItems.compactMap(makeSearchResult)
 
             // Cache results
             await cache.setResults(results, for: query)
@@ -74,6 +52,44 @@ public actor AppleMapsSearchService: PlaceEnrichmentService {
             logger.error("Failed to search places with Apple Maps: \(error.localizedDescription)")
             throw PlaceEnrichmentError.networkError(error.localizedDescription)
         }
+    }
+
+    /// Builds the MapKit request for a search query, scoping it to the query's region when present.
+    private func makeSearchRequest(for query: PlaceSearchQuery) -> MKLocalSearch.Request {
+        let searchRequest = MKLocalSearch.Request()
+        searchRequest.naturalLanguageQuery = query.fullTextQuery
+
+        if let coordinate = query.coordinate {
+            let radius = Double(query.radiusMeters ?? SearchDefaults.radiusMeters)
+            let center = CLLocationCoordinate2D(latitude: coordinate.latitude,
+                                                longitude: coordinate.longitude)
+
+            searchRequest.region = MKCoordinateRegion(center: center,
+                                                      latitudinalMeters: radius,
+                                                      longitudinalMeters: radius)
+        }
+
+        return searchRequest
+    }
+
+    /// Maps one MapKit item to a search result, discarding items missing a name or coordinate.
+    private func makeSearchResult(from mapItem: MKMapItem) -> PlaceSearchResult? {
+        guard let name = mapItem.name,
+              let coordinate = mapItem.placemark.location?.coordinate
+        else {
+            return nil
+        }
+
+        return PlaceSearchResult(id: mapItem.placemark.description,
+                                 provider: .apple,
+                                 name: name,
+                                 address: formatAddress(mapItem.placemark),
+                                 coordinate: coordinate,
+                                 types: [],
+                                 rating: nil, // Apple Maps doesn't provide ratings in search
+                                 userRatingsTotal: nil,
+                                 priceLevel: nil,
+                                 photoReferences: [])
     }
 
     public func getPlaceDetails(placeId _: String) async throws -> EnrichedPlaceData {

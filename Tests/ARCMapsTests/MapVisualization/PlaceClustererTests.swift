@@ -239,7 +239,9 @@ struct PlaceClustererTests {
 
 extension MapAnnotationItem {
     fileprivate var isPlace: Bool {
-        if case .place = self { return true }
+        if case .place = self {
+            return true
+        }
         return false
     }
 }

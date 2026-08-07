@@ -398,15 +398,13 @@ public struct ARCMapView<MarkerContent: View, SheetContent: View, ClusterContent
     @State private var nativeSelection: MapSelection<MKMapItem>?
 
     var body: some View {
-        Group {
-            switch featureSelectionMode {
-            case .disabled:
-                mapWithSelectionDisabled
-            case .pointsOfInterestOnly:
-                mapWithPOISelection
-            case .all:
-                mapWithAllSelection
-            }
+        switch featureSelectionMode {
+        case .disabled:
+            mapWithSelectionDisabled
+        case .pointsOfInterestOnly:
+            mapWithPOISelection
+        case .all:
+            mapWithAllSelection
         }
     }
 
