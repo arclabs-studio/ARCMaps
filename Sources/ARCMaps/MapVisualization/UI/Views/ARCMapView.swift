@@ -114,7 +114,7 @@ public enum MapFeatureSelectionMode: Sendable {
 ///     featureSelectionMode: .pointsOfInterestOnly
 /// )
 /// ```
-public struct ARCMapView<MarkerContent: View, SheetContent: View>: View {
+public struct ARCMapView<MarkerContent: View, SheetContent: View, ClusterContent: View>: View {
     /// The view model managing map state and place data.
     @Bindable var viewModel: MapViewModel
 
@@ -123,20 +123,24 @@ public struct ARCMapView<MarkerContent: View, SheetContent: View>: View {
 
     private let markerContent: (MapPlace) -> MarkerContent
     private let sheetContent: (MapPlace, CLLocationCoordinate2D?) -> SheetContent
+    private let clusterContent: (MapCluster) -> ClusterContent
 
     // MARK: - Initializers
 
-    /// Creates a map view with default ``PlaceMarker`` and ``PlaceCalloutView``.
+    /// Creates a map view with default ``PlaceMarker``, ``PlaceCalloutView``, and ``ClusterMarker``.
     ///
     /// - Parameters:
     ///   - viewModel: The view model managing map state, places, and user location.
     ///   - featureSelectionMode: Controls native POI selection behavior on iOS 18+.
     public init(viewModel: MapViewModel,
                 featureSelectionMode: MapFeatureSelectionMode = .disabled)
-        where MarkerContent == PlaceMarker, SheetContent == PlaceCalloutView {
+        where MarkerContent == PlaceMarker,
+        SheetContent == PlaceCalloutView,
+        ClusterContent == ClusterMarker {
         self.viewModel = viewModel
         self.featureSelectionMode = featureSelectionMode
         markerContent = { PlaceMarker(place: $0) }
+        clusterContent = { ClusterMarker(count: $0.count) }
         let vm = viewModel
         sheetContent = { place, userLocation in
             PlaceCalloutView(place: place,
@@ -156,10 +160,38 @@ public struct ARCMapView<MarkerContent: View, SheetContent: View>: View {
     public init(viewModel: MapViewModel,
                 featureSelectionMode: MapFeatureSelectionMode = .disabled,
                 @ViewBuilder marker: @escaping (MapPlace) -> MarkerContent)
+        where SheetContent == PlaceCalloutView, ClusterContent == ClusterMarker {
+        self.viewModel = viewModel
+        self.featureSelectionMode = featureSelectionMode
+        markerContent = marker
+        clusterContent = { ClusterMarker(count: $0.count) }
+        let vm = viewModel
+        sheetContent = { place, userLocation in
+            PlaceCalloutView(place: place,
+                             userLocation: userLocation,
+                             onOpenInMaps: { app in
+                                 await vm.openInExternalMaps(place, app: app)
+                             })
+        }
+    }
+
+    /// Creates a map view with custom marker and cluster builders and default ``PlaceCalloutView``.
+    ///
+    /// - Parameters:
+    ///   - viewModel: The view model managing map state, places, and user location.
+    ///   - featureSelectionMode: Controls native POI selection behavior on iOS 18+.
+    ///   - marker: A `@ViewBuilder` closure that builds the marker view for each place.
+    ///   - cluster: A `@ViewBuilder` closure that builds the bubble for a group of nearby places.
+    ///     Tapping it zooms to fit the cluster's members.
+    public init(viewModel: MapViewModel,
+                featureSelectionMode: MapFeatureSelectionMode = .disabled,
+                @ViewBuilder marker: @escaping (MapPlace) -> MarkerContent,
+                @ViewBuilder cluster: @escaping (MapCluster) -> ClusterContent)
         where SheetContent == PlaceCalloutView {
         self.viewModel = viewModel
         self.featureSelectionMode = featureSelectionMode
         markerContent = marker
+        clusterContent = cluster
         let vm = viewModel
         sheetContent = { place, userLocation in
             PlaceCalloutView(place: place,
@@ -181,11 +213,35 @@ public struct ARCMapView<MarkerContent: View, SheetContent: View>: View {
     public init(viewModel: MapViewModel,
                 featureSelectionMode: MapFeatureSelectionMode = .disabled,
                 @ViewBuilder marker: @escaping (MapPlace) -> MarkerContent,
-                @ViewBuilder sheet: @escaping (MapPlace, CLLocationCoordinate2D?) -> SheetContent) {
+                @ViewBuilder sheet: @escaping (MapPlace, CLLocationCoordinate2D?) -> SheetContent)
+        where ClusterContent == ClusterMarker {
         self.viewModel = viewModel
         self.featureSelectionMode = featureSelectionMode
         markerContent = marker
         sheetContent = sheet
+        clusterContent = { ClusterMarker(count: $0.count) }
+    }
+
+    /// Creates a map view with custom marker, sheet, and cluster builders.
+    ///
+    /// - Parameters:
+    ///   - viewModel: The view model managing map state, places, and user location.
+    ///   - featureSelectionMode: Controls native POI selection behavior on iOS 18+.
+    ///   - marker: A `@ViewBuilder` closure that builds the marker view for each place.
+    ///   - sheet: A `@ViewBuilder` closure that builds the detail sheet for a selected place.
+    ///     Receives the place and the user's current location (if available).
+    ///   - cluster: A `@ViewBuilder` closure that builds the bubble for a group of nearby places.
+    ///     Tapping it zooms to fit the cluster's members.
+    public init(viewModel: MapViewModel,
+                featureSelectionMode: MapFeatureSelectionMode = .disabled,
+                @ViewBuilder marker: @escaping (MapPlace) -> MarkerContent,
+                @ViewBuilder sheet: @escaping (MapPlace, CLLocationCoordinate2D?) -> SheetContent,
+                @ViewBuilder cluster: @escaping (MapCluster) -> ClusterContent) {
+        self.viewModel = viewModel
+        self.featureSelectionMode = featureSelectionMode
+        markerContent = marker
+        sheetContent = sheet
+        clusterContent = cluster
     }
 
     // MARK: - Body
@@ -242,6 +298,12 @@ public struct ARCMapView<MarkerContent: View, SheetContent: View>: View {
                 MapCompass()
                 MapScaleView()
             }
+            // Applied once here rather than at each of the four `Map` sites below.
+            // `.onEnd` keeps reclustering off the pan path; the view model additionally
+            // ignores changes that stay within the same zoom bucket.
+            .onMapCameraChange(frequency: .onEnd) { context in
+                viewModel.updateCameraSpan(context.region.span)
+            }
             .sheet(item: $viewModel.selectedPlace) { place in
                 placeCalloutSheet(for: place)
             }
@@ -271,19 +333,49 @@ public struct ARCMapView<MarkerContent: View, SheetContent: View>: View {
     }
 
     /// Shared map content (annotations) used by both iOS 17 and iOS 18 views.
+    ///
+    /// Draws ``MapViewModel/annotationItems`` rather than the raw filtered places, so
+    /// dense areas collapse into clusters instead of stacking unreadably.
     @MapContentBuilder private var mapContent: some MapContent {
         // User location
         if viewModel.userLocation != nil {
             UserAnnotation()
         }
 
-        ForEach(viewModel.filteredPlaces) { place in
-            Annotation(place.name, coordinate: place.coordinate) {
-                markerContent(place)
-                    .onTapGesture {
-                        viewModel.selectPlace(place)
-                    }
+        ForEach(viewModel.annotationItems) { item in
+            Annotation(annotationTitle(for: item), coordinate: item.coordinate) {
+                annotationBody(for: item)
             }
+        }
+        // Applied as a value rather than an `if`/`else`, which would make this
+        // property a `_ConditionalContent` and change the type flowing into
+        // `FeatureSelectionMapView`.
+        .annotationTitles(viewModel.showsAnnotationTitles ? .automatic : .hidden)
+    }
+
+    /// The label SwiftUI renders beneath an annotation when titles are visible.
+    private func annotationTitle(for item: MapAnnotationItem) -> String {
+        switch item {
+        case let .place(place):
+            place.name
+        case let .cluster(cluster):
+            "\(cluster.count)"
+        }
+    }
+
+    /// The marker or cluster bubble drawn for an annotation, with its tap behaviour.
+    @ViewBuilder private func annotationBody(for item: MapAnnotationItem) -> some View {
+        switch item {
+        case let .place(place):
+            markerContent(place)
+                .onTapGesture {
+                    viewModel.selectPlace(place)
+                }
+        case let .cluster(cluster):
+            clusterContent(cluster)
+                .onTapGesture {
+                    viewModel.selectCluster(cluster)
+                }
         }
     }
 
@@ -306,15 +398,13 @@ public struct ARCMapView<MarkerContent: View, SheetContent: View>: View {
     @State private var nativeSelection: MapSelection<MKMapItem>?
 
     var body: some View {
-        Group {
-            switch featureSelectionMode {
-            case .disabled:
-                mapWithSelectionDisabled
-            case .pointsOfInterestOnly:
-                mapWithPOISelection
-            case .all:
-                mapWithAllSelection
-            }
+        switch featureSelectionMode {
+        case .disabled:
+            mapWithSelectionDisabled
+        case .pointsOfInterestOnly:
+            mapWithPOISelection
+        case .all:
+            mapWithAllSelection
         }
     }
 

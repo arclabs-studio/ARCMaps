@@ -12,6 +12,7 @@ import SwiftUI
 /// Provides navigation between the demo screens:
 /// - Map Demo: Interactive map with default markers and sheet
 /// - Custom Markers: Custom marker and sheet via ViewBuilder injection
+/// - Clustering Demo: Country-wide dataset with custom cluster bubbles
 /// - Filter Demo: Category and rating filters
 /// - PlaceMapper Demo: Bridges PlaceSearchResult to MapPlace using PlaceMapper
 /// - About: Information about the demo app
@@ -32,23 +33,29 @@ struct ContentView: View {
                 }
                 .tag(1)
 
+            ClusteringDemoView()
+                .tabItem {
+                    Label("Cluster", systemImage: "circle.grid.3x3.fill")
+                }
+                .tag(2)
+
             FilterDemoView()
                 .tabItem {
                     Label("Filter", systemImage: "line.3.horizontal.decrease.circle")
                 }
-                .tag(2)
+                .tag(3)
 
             PlaceMapperDemoView()
                 .tabItem {
                     Label("Mapper", systemImage: "arrow.triangle.2.circlepath.circle")
                 }
-                .tag(3)
+                .tag(4)
 
             AboutView()
                 .tabItem {
                     Label("About", systemImage: "info.circle")
                 }
-                .tag(4)
+                .tag(5)
         }
     }
 }

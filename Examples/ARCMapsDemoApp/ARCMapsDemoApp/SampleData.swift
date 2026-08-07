@@ -79,4 +79,45 @@ enum SampleData {
     static var categories: [String] {
         Array(Set(places.compactMap(\.category))).sorted()
     }
+
+    // MARK: - Clustering
+
+    /// Spanish cities used as cluster centres in the clustering demo.
+    private static let cities: [(name: String, coordinate: CLLocationCoordinate2D)] =
+        [("Madrid", CLLocationCoordinate2D(latitude: 40.4168, longitude: -3.7038)),
+         ("Barcelona", CLLocationCoordinate2D(latitude: 41.3874, longitude: 2.1686)),
+         ("Valencia", CLLocationCoordinate2D(latitude: 39.4699, longitude: -0.3763)),
+         ("Sevilla", CLLocationCoordinate2D(latitude: 37.3891, longitude: -5.9845)),
+         ("Bilbao", CLLocationCoordinate2D(latitude: 43.2630, longitude: -2.9350))]
+
+    /// A country-wide dataset dense enough to show clustering in action.
+    ///
+    /// Each city gets a differently sized cluster, so zooming out produces bubbles of
+    /// visibly different weight and zooming in dissolves them into individual pins.
+    static let clusteredPlaces: [MapPlace] = cities.enumerated().flatMap(makePlaces)
+
+    /// Builds one city's block of places, offset in a small grid around its centre.
+    ///
+    /// Split out of ``clusteredPlaces`` with fully annotated types: expressed inline,
+    /// the nested coordinate arithmetic exceeded the type-checker's time budget.
+    private static func makePlaces(cityIndex: Int,
+                                   city: (name: String, coordinate: CLLocationCoordinate2D)) -> [MapPlace] {
+        let count = 4 + cityIndex * 3
+        let spacing = 0.004
+
+        return (0 ..< count).map { index -> MapPlace in
+            let row = Double(index % 4)
+            let column = Double(index / 4)
+            let latitude: Double = city.coordinate.latitude + row * spacing
+            let longitude: Double = city.coordinate.longitude + column * spacing
+            let rating = 3.5 + row * 0.4
+
+            return MapPlace(id: "\(city.name.lowercased())_\(index)",
+                            name: "\(city.name) spot \(index + 1)",
+                            coordinate: CLLocationCoordinate2D(latitude: latitude, longitude: longitude),
+                            address: city.name,
+                            category: categories[index % categories.count],
+                            rating: rating)
+        }
+    }
 }

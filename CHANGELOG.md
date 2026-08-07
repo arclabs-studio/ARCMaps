@@ -8,6 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Annotation clustering** — nearby places collapse into a single bubble as the map zooms out, replacing the unreadable pin stacks that appeared at country and world zoom
+  - `MapCluster` and `MapAnnotationItem` domain models
+  - `PlaceClusterer`, a pure `Sendable` grid clusterer, and `ZoomBucket`, which snaps the camera span to discrete rungs so clusters only re-form on meaningful zoom changes
+  - `MapViewModel.annotationItems`, `updateCameraSpan(_:)`, and `selectCluster(_:)`; tapping a cluster zooms to fit its members
+  - `ClusterMarker`, the default cluster bubble, plus a `cluster:` `@ViewBuilder` on `ARCMapView` for custom bubbles
+  - `MapViewModel.clusteringEnabled` and `showsAnnotationTitles` toggles
 - iOS 18+ native map feature selection support with `MapFeatureSelectionMode`
 - `FeatureSelectionMapView` for enhanced POI interaction on iOS 18+
 - Comprehensive DocC documentation for all public APIs
@@ -16,6 +22,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `ARCUIComponents` dependency for consistent UI components across ARC packages
 
 ### Changed
+- **`ARCMapView` gained a third generic parameter**, `ClusterContent`. Existing initialisers pin it to `ClusterMarker`, so call sites keep compiling — but code that spells the type explicitly (`ARCMapView<Marker, Sheet>`) must add the third argument
+- **Clustering is enabled by default.** Maps that previously drew every pin will now group them when zoomed out. Set `MapViewModel.clusteringEnabled = false` to restore the old behaviour
+- **Annotation titles are hidden by default.** Place names no longer render beneath markers, since the labels are a large part of what makes dense areas unreadable. Set `MapViewModel.showsAnnotationTitles = true` to restore them
 - `PlaceCalloutView`: status badge now uses `ARCTag` (filled style, semantic green/red) instead of a custom hand-rolled pill
 - `PlaceCalloutView`: rating display now uses `ARCRatingView` with `.compactInline` style instead of a custom star+text `HStack`
 - Extracted magic numbers to named constants (`MapDefaults`, `CacheDefaults`, `ViewDefaults`)

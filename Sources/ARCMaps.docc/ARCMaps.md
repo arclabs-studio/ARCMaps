@@ -41,9 +41,17 @@ The package follows Clean Architecture principles with a modular, testable desig
 - ``LocationService``
 - ``CoreLocationService``
 
+### Clustering
+
+- ``MapAnnotationItem``
+- ``MapCluster``
+- ``PlaceClusterer``
+- ``ZoomBucket``
+
 ### UI Components
 
 - ``PlaceMarker``
+- ``ClusterMarker``
 - ``PlaceCalloutView``
 - ``MapControlsView``
 
