@@ -45,6 +45,15 @@ public struct PlaceSearchQuery: Sendable, Equatable, Hashable {
     /// Search radius in meters when using coordinate-based search.
     public let radiusMeters: Int?
 
+    /// Optional Point-of-Interest categories to restrict results to.
+    ///
+    /// When non-nil, place enrichment services that support category filtering
+    /// (e.g. `AppleMapsSearchService` via `MKPointOfInterestFilter`) will
+    /// restrict results to these categories. Services that do not support
+    /// filtering ignore this field. `nil` preserves the prior unfiltered
+    /// behaviour.
+    public let poiCategories: [PlaceCategory]?
+
     /// Creates a new place search query with the specified parameters.
     ///
     /// - Parameters:
@@ -54,18 +63,21 @@ public struct PlaceSearchQuery: Sendable, Equatable, Hashable {
     ///   - countryCode: ISO 3166-1 alpha-2 country code (optional).
     ///   - coordinate: Geographic coordinates for proximity search (optional).
     ///   - radiusMeters: Search radius in meters (optional, used with coordinate).
+    ///   - poiCategories: Optional POI category filter (optional).
     public init(name: String,
                 address: String? = nil,
                 city: String? = nil,
                 countryCode: String? = nil,
                 coordinate: (latitude: Double, longitude: Double)? = nil,
-                radiusMeters: Int? = nil) {
+                radiusMeters: Int? = nil,
+                poiCategories: [PlaceCategory]? = nil) {
         self.name = name
         self.address = address
         self.city = city
         self.countryCode = countryCode
         self.coordinate = coordinate
         self.radiusMeters = radiusMeters
+        self.poiCategories = poiCategories
     }
 
     /// A combined text query string using all available location fields.
@@ -92,6 +104,7 @@ public struct PlaceSearchQuery: Sendable, Equatable, Hashable {
         hasher.combine(city)
         hasher.combine(countryCode)
         hasher.combine(radiusMeters)
+        hasher.combine(poiCategories)
         if let coordinate {
             hasher.combine(coordinate.latitude)
             hasher.combine(coordinate.longitude)
@@ -105,6 +118,7 @@ public struct PlaceSearchQuery: Sendable, Equatable, Hashable {
             lhs.city == rhs.city &&
             lhs.countryCode == rhs.countryCode &&
             lhs.radiusMeters == rhs.radiusMeters &&
+            lhs.poiCategories == rhs.poiCategories &&
             lhs.coordinate?.latitude == rhs.coordinate?.latitude &&
             lhs.coordinate?.longitude == rhs.coordinate?.longitude
     }

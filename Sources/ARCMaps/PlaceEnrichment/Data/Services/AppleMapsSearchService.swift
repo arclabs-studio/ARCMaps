@@ -54,7 +54,10 @@ public actor AppleMapsSearchService: PlaceEnrichmentService {
         }
     }
 
-    /// Builds the MapKit request for a search query, scoping it to the query's region when present.
+    /// Builds the MapKit request for a search query.
+    ///
+    /// Scopes the search to the query's region when present, and restricts results to
+    /// the requested point-of-interest categories when the query supplies them.
     private func makeSearchRequest(for query: PlaceSearchQuery) -> MKLocalSearch.Request {
         let searchRequest = MKLocalSearch.Request()
         searchRequest.naturalLanguageQuery = query.fullTextQuery
@@ -67,6 +70,18 @@ public actor AppleMapsSearchService: PlaceEnrichmentService {
             searchRequest.region = MKCoordinateRegion(center: center,
                                                       latitudinalMeters: radius,
                                                       longitudinalMeters: radius)
+
+            // Treat the region as a hard constraint when categories are supplied
+            // (POI-only nearby search). Falls back gracefully on iOS < 18.
+            if query.poiCategories != nil, #available(iOS 18.0, macOS 15.0, *) {
+                searchRequest.regionPriority = .required
+            }
+        }
+
+        if let categories = query.poiCategories, !categories.isEmpty {
+            let mkCategories = categories.map(Self.mapCategory(_:))
+            searchRequest.pointOfInterestFilter = MKPointOfInterestFilter(including: mkCategories)
+            searchRequest.resultTypes = .pointOfInterest
         }
 
         return searchRequest
@@ -80,7 +95,7 @@ public actor AppleMapsSearchService: PlaceEnrichmentService {
             return nil
         }
 
-        return PlaceSearchResult(id: mapItem.placemark.description,
+        return PlaceSearchResult(id: Self.stableId(for: mapItem),
                                  provider: .apple,
                                  name: name,
                                  address: formatAddress(mapItem.placemark),
@@ -103,6 +118,29 @@ public actor AppleMapsSearchService: PlaceEnrichmentService {
     }
 
     // MARK: - Private Helpers
+
+    /// Prefer the stable `MKMapItem.Identifier` (iOS 18+) over placemark description,
+    /// which is volatile across catalog updates.
+    private static func stableId(for mapItem: MKMapItem) -> String {
+        if #available(iOS 18.0, macOS 15.0, *), let identifier = mapItem.identifier {
+            return identifier.rawValue
+        }
+        return mapItem.placemark.description
+    }
+
+    /// Maps the provider-agnostic `PlaceCategory` to `MKPointOfInterestCategory`.
+    /// MapKit import is kept isolated to the Data layer per Clean Architecture.
+    private static func mapCategory(_ category: PlaceCategory) -> MKPointOfInterestCategory {
+        switch category {
+        case .restaurant: .restaurant
+        case .cafe: .cafe
+        case .bakery: .bakery
+        case .brewery: .brewery
+        case .winery: .winery
+        case .foodMarket: .foodMarket
+        case .nightlife: .nightlife
+        }
+    }
 
     private func formatAddress(_ placemark: MKPlacemark) -> String? {
         var components: [String] = []
