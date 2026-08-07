@@ -77,6 +77,60 @@ ARCMapView(viewModel: viewModel) { place in
 
 The `sheet` closure receives the selected `MapPlace` and the user's current `CLLocationCoordinate2D?` (if location permission is granted).
 
+## Clustering
+
+At city zoom every pin is legible. At country or world zoom they pile into an unreadable stack, and it gets worse linearly with collection size. `ARCMapView` therefore groups nearby places into clusters, and dissolves them back into individual pins as you zoom in.
+
+Clustering is on by default — there is nothing to enable:
+
+```swift
+ARCMapView(viewModel: viewModel)
+```
+
+Tapping a cluster zooms the camera to fit its members rather than opening a sheet.
+
+### Custom Cluster Bubbles
+
+By default clusters render as ``ClusterMarker`` — a red circle showing the member count, growing with cluster size. Inject a `@ViewBuilder` to replace it:
+
+```swift
+ARCMapView(viewModel: viewModel) { place in
+    MyMarker(place: place)
+} cluster: { cluster in
+    MyClusterBubble(count: cluster.count,
+                    topRating: cluster.places.compactMap(\.rating).max())
+}
+```
+
+The closure receives a ``MapCluster`` carrying its `count` and the full `places` array, so the bubble can reflect whatever its members have in common.
+
+### Opting Out
+
+Collections small enough to stay legible unclustered can turn it off:
+
+```swift
+viewModel.clusteringEnabled = false
+```
+
+### Annotation Titles
+
+Place names are hidden by default: SwiftUI's `Annotation` always draws a label, and those labels are a large part of what makes dense areas unreadable. Turn them back on when your dataset is sparse:
+
+```swift
+viewModel.showsAnnotationTitles = true
+```
+
+### Tuning Cluster Density
+
+Three places per grid cell is the default threshold — clustering a pair usually hides more than it helps. Pass a differently configured ``PlaceClusterer`` to change it:
+
+```swift
+let viewModel = MapViewModel(locationService: CoreLocationService(),
+                             clusterer: PlaceClusterer(minimumClusterSize: 5))
+```
+
+> Note: Clusters spanning the antimeridian (±180° longitude) are not supported. Grid cell indices do not wrap and the cluster centroid is a plain arithmetic mean.
+
 ## Filtering Places
 
 ### Category Filter

@@ -25,6 +25,7 @@ Whether you're building a restaurant tracker, travel planner, or any location-ce
 - **Multi-Provider Search** - Google Places API with Apple MapKit fallback
 - **Rich Place Data** - Photos, reviews, ratings, hours, and contact information
 - **Interactive Maps** - Native MapKit with custom markers and filtering
+- **Annotation Clustering** - Nearby places group as you zoom out, with custom cluster bubbles
 - **iOS 18+ Enhancements** - Native POI selection with Apple callouts
 - **External Navigation** - Launch Apple Maps, Google Maps, or Waze
 - **Smart Caching** - Automatic result caching with configurable TTL
@@ -165,6 +166,33 @@ viewModel.updateFilter(MapFilter(
     dateRange: DateRange(start: lastMonth, end: today)
 ))
 ```
+
+### Annotation Clustering
+
+Nearby places collapse into a single bubble as the map zooms out, and dissolve back
+into individual pins as it zooms in. This is on by default — tapping a cluster zooms
+to fit its members.
+
+```swift
+// Custom cluster bubble alongside a custom marker
+ARCMapView(viewModel: viewModel) { place in
+    MyMarker(place: place)
+} cluster: { cluster in
+    MyClusterBubble(count: cluster.count)
+}
+
+// Opt out for collections that stay legible unclustered
+viewModel.clusteringEnabled = false
+
+// Place names are hidden by default — turn them back on for sparse datasets
+viewModel.showsAnnotationTitles = true
+
+// Cluster less eagerly (default is 3 places per grid cell)
+let viewModel = MapViewModel(locationService: CoreLocationService(),
+                             clusterer: PlaceClusterer(minimumClusterSize: 5))
+```
+
+> **Note:** Clusters spanning the antimeridian (±180° longitude) are not supported.
 
 ### iOS 18+ Native POI Selection
 

@@ -79,4 +79,34 @@ enum SampleData {
     static var categories: [String] {
         Array(Set(places.compactMap(\.category))).sorted()
     }
+
+    // MARK: - Clustering
+
+    /// Spanish cities used as cluster centres in the clustering demo.
+    private static let cities: [(name: String, coordinate: CLLocationCoordinate2D)] =
+        [("Madrid", CLLocationCoordinate2D(latitude: 40.4168, longitude: -3.7038)),
+         ("Barcelona", CLLocationCoordinate2D(latitude: 41.3874, longitude: 2.1686)),
+         ("Valencia", CLLocationCoordinate2D(latitude: 39.4699, longitude: -0.3763)),
+         ("Sevilla", CLLocationCoordinate2D(latitude: 37.3891, longitude: -5.9845)),
+         ("Bilbao", CLLocationCoordinate2D(latitude: 43.2630, longitude: -2.9350))]
+
+    /// A country-wide dataset dense enough to show clustering in action.
+    ///
+    /// Each city gets a differently sized cluster, so zooming out produces bubbles of
+    /// visibly different weight and zooming in dissolves them into individual pins.
+    static let clusteredPlaces: [MapPlace] = cities.enumerated().flatMap { cityIndex, city in
+        let count = 4 + cityIndex * 3
+
+        return (0 ..< count).map { index in
+            MapPlace(id: "\(city.name.lowercased())_\(index)",
+                     name: "\(city.name) spot \(index + 1)",
+                     coordinate: CLLocationCoordinate2D(latitude: city.coordinate.latitude
+                         + Double(index % 4) * 0.004,
+                         longitude: city.coordinate.longitude
+                             + Double(index / 4) * 0.004),
+                     address: city.name,
+                     category: categories[index % categories.count],
+                     rating: 3.5 + Double(index % 4) * 0.4)
+        }
+    }
 }
