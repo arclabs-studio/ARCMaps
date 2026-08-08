@@ -275,7 +275,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 4W652PD582;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ARCMapsDemoApp/Info.plist;
@@ -306,7 +306,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 4W652PD582;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ARCMapsDemoApp/Info.plist;
@@ -333,20 +333,20 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		A1800001239ABCDE /* Build configuration list for PBXNativeTarget "ARCMapsDemoApp" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				A2000001239ABCDE /* Debug */,
-				A2100001239ABCDE /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
 		A1C00001239ABCDE /* Build configuration list for PBXProject "ARCMapsDemoApp" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				A1E00001239ABCDE /* Debug */,
 				A1F00001239ABCDE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A1800001239ABCDE /* Build configuration list for PBXNativeTarget "ARCMapsDemoApp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A2000001239ABCDE /* Debug */,
+				A2100001239ABCDE /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

@@ -52,9 +52,8 @@ private struct TestPayload: Codable, Equatable {
 
 /// Tests must run serially because MockURLProtocol uses shared static state for the request handler.
 @Suite(.serialized) struct DefaultNetworkClientTests {
-    /// Non-optional by construction: the literal always parses, and the fallback keeps
-    /// the fixture free of a force unwrap that SwiftLint versions disagree about.
-    static let testURL = URL(string: "https://test.example.com/api") ?? URL(fileURLWithPath: "/")
+    // swiftlint:disable:next force_unwrapping
+    static let testURL = URL(string: "https://test.example.com/api")!
 
     init() {
         // Clear shared handler between tests to prevent cross-test contamination.

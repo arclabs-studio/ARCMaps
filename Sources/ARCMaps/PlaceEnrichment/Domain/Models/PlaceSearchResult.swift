@@ -99,18 +99,10 @@ public struct PlaceSearchResult: Sendable, Identifiable, Equatable {
     /// Use this to sort or filter results by data quality.
     public var matchScore: Double {
         var score = 0.0
-        if rating != nil {
-            score += 0.3
-        }
-        if userRatingsTotal ?? 0 > 0 {
-            score += 0.2
-        }
-        if !photoReferences.isEmpty {
-            score += 0.3
-        }
-        if address != nil {
-            score += 0.2
-        }
+        if rating != nil { score += 0.3 }
+        if userRatingsTotal ?? 0 > 0 { score += 0.2 }
+        if !photoReferences.isEmpty { score += 0.3 }
+        if address != nil { score += 0.2 }
         return score
     }
 }

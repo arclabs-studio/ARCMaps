@@ -88,12 +88,8 @@ public struct PlaceSearchQuery: Sendable, Equatable, Hashable {
     /// - Returns: A comma-separated string like "La Taverna, 123 Main St, Madrid".
     public var fullTextQuery: String {
         var components = [name]
-        if let address {
-            components.append(address)
-        }
-        if let city {
-            components.append(city)
-        }
+        if let address { components.append(address) }
+        if let city { components.append(city) }
         return components.joined(separator: ", ")
     }
 
