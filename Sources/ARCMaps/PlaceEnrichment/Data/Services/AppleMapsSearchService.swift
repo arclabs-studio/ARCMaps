@@ -34,11 +34,9 @@ public actor AppleMapsSearchService: PlaceEnrichmentService {
         searchRequest.naturalLanguageQuery = query.fullTextQuery
 
         if let coordinate = query.coordinate {
-            let region = MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: coordinate.latitude,
-                                                                           longitude: coordinate.longitude),
-                                            latitudinalMeters: Double(query.radiusMeters ?? 10000),
-                                            longitudinalMeters: Double(query.radiusMeters ?? 10000))
-            searchRequest.region = region
+            searchRequest.region = Self.searchRegion(latitude: coordinate.latitude,
+                                                     longitude: coordinate.longitude,
+                                                     radiusMeters: query.radiusMeters)
 
             // Treat the region as a hard constraint when categories are supplied
             // (POI-only nearby search). Falls back gracefully on iOS < 18.
@@ -98,6 +96,30 @@ public actor AppleMapsSearchService: PlaceEnrichmentService {
     public func getPhotoURL(photoReference: String, maxWidth _: Int) async throws -> URL {
         logger.warning("Apple Maps does not support photo URLs")
         throw PlaceEnrichmentError.photoDownloadFailed(photoReference)
+    }
+
+    // MARK: - Internal Helpers
+
+    /// Default search radius when a query supplies a coordinate but no radius.
+    static let defaultRadiusMeters = 10000
+
+    /// Builds the search window around a coordinate from a **radius**.
+    ///
+    /// `MKCoordinateRegion(center:latitudinalMeters:longitudinalMeters:)` takes the
+    /// full north-to-south and east-to-west *span* — a diameter, not a radius. Passing
+    /// the radius straight through therefore halved the window: a caller asking for
+    /// 5 km got a 5 km-wide box, i.e. 2.5 km in every direction, and candidates it
+    /// would have accepted were never returned.
+    ///
+    /// Longitude uses the same metre value; MapKit applies the cos(latitude)
+    /// conversion itself.
+    static func searchRegion(latitude: Double, longitude: Double, radiusMeters: Int?) -> MKCoordinateRegion {
+        let radius = Double(radiusMeters ?? defaultRadiusMeters)
+        let span = radius * 2
+
+        return MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: latitude, longitude: longitude),
+                                  latitudinalMeters: span,
+                                  longitudinalMeters: span)
     }
 
     // MARK: - Private Helpers
