@@ -8,12 +8,10 @@
 import ARCLogger
 import Foundation
 import Observation
-import SwiftUI
 
 /// ViewModel for place enrichment flow
-@Observable
-@MainActor
-public final class PlaceEnrichmentViewModel {
+@Observable // swiftlint:disable:next observable_viewmodel
+@MainActor public final class PlaceEnrichmentViewModel {
     // MARK: - State
 
     public var searchResults: [PlaceSearchResult] = []
@@ -27,16 +25,24 @@ public final class PlaceEnrichmentViewModel {
     // MARK: - Dependencies
 
     private let googleService: PlaceEnrichmentService
+    private let appleServerService: PlaceEnrichmentService?
     private let appleService: PlaceEnrichmentService
     private let logger = ARCLogger(category: "PlaceEnrichmentViewModel")
 
     // MARK: - Initialization
 
-    public init(
-        googleService: PlaceEnrichmentService,
-        appleService: PlaceEnrichmentService
-    ) {
+    /// Creates a view model with a three-tier provider chain: Google → Apple Server → Apple native.
+    ///
+    /// - Parameters:
+    ///   - googleService: Google Places service (primary).
+    ///   - appleServerService: Apple Maps Server service (secondary fallback). Pass `nil` if
+    ///     Apple Maps Server API credentials are not configured.
+    ///   - appleService: Apple MapKit on-device service (final fallback, always available).
+    public init(googleService: PlaceEnrichmentService,
+                appleServerService: PlaceEnrichmentService? = nil,
+                appleService: PlaceEnrichmentService) {
         self.googleService = googleService
+        self.appleServerService = appleServerService
         self.appleService = appleService
     }
 
@@ -133,27 +139,48 @@ public final class PlaceEnrichmentViewModel {
     // MARK: - Private Helpers
 
     private var currentService: PlaceEnrichmentService {
-        selectedProvider == .google ? googleService : appleService
+        switch selectedProvider {
+        case .google:
+            googleService
+        case .appleServer:
+            appleServerService ?? appleService
+        case .apple:
+            appleService
+        }
+    }
+
+    /// Ordered fallback chain excluding the currently selected provider.
+    private var fallbackProviders: [(PlaceProvider, PlaceEnrichmentService)] {
+        var providers: [(PlaceProvider, PlaceEnrichmentService)] = []
+        if selectedProvider != .appleServer, let serverService = appleServerService {
+            providers.append((.appleServer, serverService))
+        }
+        if selectedProvider != .apple {
+            providers.append((.apple, appleService))
+        }
+        return providers
     }
 
     private func searchWithFallback(query: PlaceSearchQuery) async {
-        let fallbackProvider: PlaceProvider = selectedProvider == .google ? .apple : .google
-        let fallbackService = fallbackProvider == .google ? googleService : appleService
+        for (provider, service) in fallbackProviders {
+            logger.info("Attempting fallback to \(provider.displayName)")
+            do {
+                let results = try await service.searchPlaces(query: query)
+                searchResults = results.sorted { $0.matchScore > $1.matchScore }
+                selectedProvider = provider
 
-        logger.info("Attempting fallback to \(fallbackProvider.displayName)")
+                logger.info("Fallback successful: \(results.count) results from \(provider.displayName)")
 
-        do {
-            let results = try await fallbackService.searchPlaces(query: query)
-            searchResults = results.sorted { $0.matchScore > $1.matchScore }
-            selectedProvider = fallbackProvider
-
-            logger.info("Fallback successful: \(results.count) results")
-
-            if results.isEmpty {
-                error = .noResultsFound
+                if results.isEmpty {
+                    error = .noResultsFound
+                } else {
+                    error = nil
+                }
+                return
+            } catch {
+                logger.error("Fallback to \(provider.displayName) failed: \(error.localizedDescription)")
             }
-        } catch {
-            logger.error("Fallback also failed: \(error.localizedDescription)")
         }
+        logger.error("All providers exhausted — no results available")
     }
 }

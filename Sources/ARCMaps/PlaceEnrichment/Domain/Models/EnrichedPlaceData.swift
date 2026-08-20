@@ -81,22 +81,20 @@ public struct EnrichedPlaceData: Sendable, Equatable {
     ///   - photos: Available photos.
     ///   - reviews: User reviews.
     ///   - types: Place type categories.
-    public init(
-        placeId: String,
-        provider: PlaceProvider,
-        name: String,
-        formattedAddress: String? = nil,
-        coordinate: CLLocationCoordinate2D,
-        phoneNumber: String? = nil,
-        website: URL? = nil,
-        rating: Double? = nil,
-        userRatingsTotal: Int? = nil,
-        priceLevel: Int? = nil,
-        openingHours: OpeningHours? = nil,
-        photos: [PlacePhoto] = [],
-        reviews: [PlaceReview] = [],
-        types: [String] = []
-    ) {
+    public init(placeId: String,
+                provider: PlaceProvider,
+                name: String,
+                formattedAddress: String? = nil,
+                coordinate: CLLocationCoordinate2D,
+                phoneNumber: String? = nil,
+                website: URL? = nil,
+                rating: Double? = nil,
+                userRatingsTotal: Int? = nil,
+                priceLevel: Int? = nil,
+                openingHours: OpeningHours? = nil,
+                photos: [PlacePhoto] = [],
+                reviews: [PlaceReview] = [],
+                types: [String] = []) {
         self.placeId = placeId
         self.provider = provider
         self.name = name
@@ -134,11 +132,9 @@ public struct OpeningHours: Sendable, Equatable {
     ///   - isOpen: Whether the place is currently open.
     ///   - weekdayText: Human-readable hours for each weekday.
     ///   - periods: Structured time periods.
-    public init(
-        isOpen: Bool? = nil,
-        weekdayText: [String] = [],
-        periods: [Period] = []
-    ) {
+    public init(isOpen: Bool? = nil,
+                weekdayText: [String] = [],
+                periods: [Period] = []) {
         self.isOpen = isOpen
         self.weekdayText = weekdayText
         self.periods = periods
@@ -211,13 +207,11 @@ public struct PlacePhoto: Sendable, Identifiable, Equatable {
     ///   - width: Maximum available width in pixels.
     ///   - height: Maximum available height in pixels.
     ///   - attributions: Required attribution strings.
-    public init(
-        id: String,
-        photoReference: String,
-        width: Int,
-        height: Int,
-        attributions: [String] = []
-    ) {
+    public init(id: String,
+                photoReference: String,
+                width: Int,
+                height: Int,
+                attributions: [String] = []) {
         self.id = id
         self.photoReference = photoReference
         self.width = width
@@ -257,14 +251,12 @@ public struct PlaceReview: Sendable, Identifiable, Equatable {
     ///   - text: Full text content of the review.
     ///   - time: Date and time of submission.
     ///   - language: ISO 639-1 language code.
-    public init(
-        id: String,
-        authorName: String,
-        rating: Int,
-        text: String,
-        time: Date,
-        language: String? = nil
-    ) {
+    public init(id: String,
+                authorName: String,
+                rating: Int,
+                text: String,
+                time: Date,
+                language: String? = nil) {
         self.id = id
         self.authorName = authorName
         self.rating = rating

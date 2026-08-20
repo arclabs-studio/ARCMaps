@@ -45,6 +45,15 @@ public struct PlaceSearchQuery: Sendable, Equatable, Hashable {
     /// Search radius in meters when using coordinate-based search.
     public let radiusMeters: Int?
 
+    /// Optional Point-of-Interest categories to restrict results to.
+    ///
+    /// When non-nil, place enrichment services that support category filtering
+    /// (e.g. `AppleMapsSearchService` via `MKPointOfInterestFilter`) will
+    /// restrict results to these categories. Services that do not support
+    /// filtering ignore this field. `nil` preserves the prior unfiltered
+    /// behaviour.
+    public let poiCategories: [PlaceCategory]?
+
     /// Creates a new place search query with the specified parameters.
     ///
     /// - Parameters:
@@ -54,20 +63,21 @@ public struct PlaceSearchQuery: Sendable, Equatable, Hashable {
     ///   - countryCode: ISO 3166-1 alpha-2 country code (optional).
     ///   - coordinate: Geographic coordinates for proximity search (optional).
     ///   - radiusMeters: Search radius in meters (optional, used with coordinate).
-    public init(
-        name: String,
-        address: String? = nil,
-        city: String? = nil,
-        countryCode: String? = nil,
-        coordinate: (latitude: Double, longitude: Double)? = nil,
-        radiusMeters: Int? = nil
-    ) {
+    ///   - poiCategories: Optional POI category filter (optional).
+    public init(name: String,
+                address: String? = nil,
+                city: String? = nil,
+                countryCode: String? = nil,
+                coordinate: (latitude: Double, longitude: Double)? = nil,
+                radiusMeters: Int? = nil,
+                poiCategories: [PlaceCategory]? = nil) {
         self.name = name
         self.address = address
         self.city = city
         self.countryCode = countryCode
         self.coordinate = coordinate
         self.radiusMeters = radiusMeters
+        self.poiCategories = poiCategories
     }
 
     /// A combined text query string using all available location fields.
@@ -78,31 +88,37 @@ public struct PlaceSearchQuery: Sendable, Equatable, Hashable {
     /// - Returns: A comma-separated string like "La Taverna, 123 Main St, Madrid".
     public var fullTextQuery: String {
         var components = [name]
-        if let address { components.append(address) }
-        if let city { components.append(city) }
+        if let address {
+            components.append(address)
+        }
+        if let city {
+            components.append(city)
+        }
         return components.joined(separator: ", ")
     }
 
-    // Hashable conformance
+    /// Hashable conformance
     public func hash(into hasher: inout Hasher) {
         hasher.combine(name)
         hasher.combine(address)
         hasher.combine(city)
         hasher.combine(countryCode)
         hasher.combine(radiusMeters)
+        hasher.combine(poiCategories)
         if let coordinate {
             hasher.combine(coordinate.latitude)
             hasher.combine(coordinate.longitude)
         }
     }
 
-    // Equatable conformance
+    /// Equatable conformance
     public static func == (lhs: PlaceSearchQuery, rhs: PlaceSearchQuery) -> Bool {
         lhs.name == rhs.name &&
             lhs.address == rhs.address &&
             lhs.city == rhs.city &&
             lhs.countryCode == rhs.countryCode &&
             lhs.radiusMeters == rhs.radiusMeters &&
+            lhs.poiCategories == rhs.poiCategories &&
             lhs.coordinate?.latitude == rhs.coordinate?.latitude &&
             lhs.coordinate?.longitude == rhs.coordinate?.longitude
     }

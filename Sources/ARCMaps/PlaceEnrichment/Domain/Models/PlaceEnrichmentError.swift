@@ -94,3 +94,15 @@ public enum PlaceEnrichmentError: LocalizedError, Sendable, Equatable {
         }
     }
 }
+
+// MARK: - Internal Utilities
+
+extension PlaceEnrichmentError {
+    /// Wraps an arbitrary error as a ``PlaceEnrichmentError``.
+    ///
+    /// If the error is already a ``PlaceEnrichmentError`` it is returned unchanged;
+    /// otherwise it is wrapped in ``networkError(_:)``.
+    static func wrap(_ error: Error) -> PlaceEnrichmentError {
+        (error as? PlaceEnrichmentError) ?? .networkError(error.localizedDescription)
+    }
+}

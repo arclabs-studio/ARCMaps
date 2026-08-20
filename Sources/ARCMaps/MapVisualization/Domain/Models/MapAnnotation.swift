@@ -17,14 +17,12 @@ public struct MapAnnotation: Sendable, Identifiable, Equatable {
     public let markerType: MarkerType
     public let metadata: [String: String]
 
-    public init(
-        id: String,
-        coordinate: CLLocationCoordinate2D,
-        title: String,
-        subtitle: String? = nil,
-        markerType: MarkerType = .standard,
-        metadata: [String: String] = [:]
-    ) {
+    public init(id: String,
+                coordinate: CLLocationCoordinate2D,
+                title: String,
+                subtitle: String? = nil,
+                markerType: MarkerType = .standard,
+                metadata: [String: String] = [:]) {
         self.id = id
         self.coordinate = coordinate
         self.title = title
@@ -35,8 +33,6 @@ public struct MapAnnotation: Sendable, Identifiable, Equatable {
 }
 
 public enum MarkerType: Sendable, Equatable {
-    case wishlist
-    case visited
     case standard
     case custom(iconName: String)
 }

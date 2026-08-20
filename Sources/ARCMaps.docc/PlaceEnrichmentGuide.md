@@ -4,30 +4,28 @@ Learn how to search for places and enrich them with detailed information.
 
 ## Overview
 
-The Place Enrichment module allows you to search for places and retrieve detailed information including photos, reviews, ratings, and business hours from Google Places API or Apple MapKit.
+The Place Enrichment module allows you to search for places and retrieve detailed information including photos, reviews, ratings, and business hours. ARCMaps supports three providers with an automatic fallback chain:
+
+1. **Google Places API** — full detail: photos, ratings, opening hours, phone, reviews
+2. **Apple Maps Server API** — structured address, category, place ID, coordinates (no photos/ratings)
+3. **Apple MapKit (on-device)** — basic name, coordinate, address; no API key required
 
 ## Searching for Places
 
 ### Basic Search
 
-Search for places by name and location:
-
 ```swift
 import ARCMaps
 
-// Create services
 let networkClient = DefaultNetworkClient()
-let logger = DefaultLogger()
 let cache = InMemoryPlaceCache()
 
 let googleService = GooglePlacesService(
     apiKey: "YOUR_API_KEY",
     networkClient: networkClient,
-    logger: logger,
     cache: cache
 )
 
-// Create a search query
 let query = PlaceSearchQuery(
     name: "La Taverna",
     address: "Madrid",
@@ -35,7 +33,6 @@ let query = PlaceSearchQuery(
     countryCode: "ES"
 )
 
-// Search for places
 let results = try await googleService.searchPlaces(query: query)
 
 for result in results {
@@ -45,13 +42,11 @@ for result in results {
 
 ### Proximity Search
 
-Search for places near a specific location:
-
 ```swift
 let query = PlaceSearchQuery(
     name: "Restaurant",
     coordinate: (latitude: 40.4168, longitude: -3.7038),
-    radiusMeters: 1000 // 1km radius
+    radiusMeters: 1000
 )
 
 let results = try await googleService.searchPlaces(query: query)
@@ -61,10 +56,7 @@ let results = try await googleService.searchPlaces(query: query)
 
 ### Place Details
 
-Retrieve comprehensive information about a specific place:
-
 ```swift
-// Get the first search result
 if let firstResult = results.first {
     let details = try await googleService.getPlaceDetails(placeId: firstResult.id)
 
@@ -74,18 +66,13 @@ if let firstResult = results.first {
     print("Phone: \(details.phoneNumber ?? "N/A")")
     print("Website: \(details.website?.absoluteString ?? "N/A")")
 
-    // Opening hours
     if let hours = details.openingHours {
         print("Open now: \(hours.isOpen ?? false)")
-        for day in hours.weekdayText {
-            print(day)
-        }
+        for day in hours.weekdayText { print(day) }
     }
 
-    // Photos
     print("Photos: \(details.photos.count)")
 
-    // Reviews
     for review in details.reviews {
         print("\(review.authorName): \(review.rating)/5 - \(review.text)")
     }
@@ -94,61 +81,99 @@ if let firstResult = results.first {
 
 ### Photo URLs
 
-Get URLs for place photos:
-
 ```swift
 for photo in details.photos {
     let photoURL = try await googleService.getPhotoURL(
         photoReference: photo.photoReference,
         maxWidth: 800
     )
-
-    // Use the URL to load the image
-    // e.g., with AsyncImage in SwiftUI
+    // Use with AsyncImage in SwiftUI
 }
+```
+
+## Apple Maps Server API
+
+`AppleMapsServerService` uses the Apple Maps Server REST API authenticated with a short-lived JWT (ES256). It returns structured address data and place categories without requiring any on-device MapKit usage.
+
+### When to Use It
+
+- You want a server-side provider that doesn't depend on Google
+- You need structured place data (address components, place category)
+- Your app already targets developers who have an Apple Developer account
+
+### Limitations vs Google Places
+
+| Feature | Google Places | Apple Maps Server | Apple MapKit |
+|---------|:---:|:---:|:---:|
+| Photos | ✓ | ✗ | ✗ |
+| Ratings | ✓ | ✗ | ✗ |
+| Opening hours | ✓ | ✗ | ✗ |
+| Phone number | ✓ | ✗ | ✗ |
+| Structured address | ✓ | ✓ | partial |
+| Place category | ✓ | ✓ | ✓ |
+| No API key needed | ✗ | ✗ | ✓ |
+
+### Configuration
+
+```swift
+ARCMapsConfiguration.shared = ARCMapsConfiguration(
+    googlePlacesAPIKey: "YOUR_GOOGLE_KEY",
+    appleMapsKeyID: "XXXXXXXXXX",
+    appleMapsTeamID: "XXXXXXXXXX",
+    appleMapsPrivateKey: """
+        -----BEGIN PRIVATE KEY-----
+        MIGHAgEAMBMGByq...
+        -----END PRIVATE KEY-----
+        """
+)
 ```
 
 ## Using the ViewModel
 
-### Place Enrichment ViewModel
-
-The `PlaceEnrichmentViewModel` provides a higher-level interface with state management:
+`PlaceEnrichmentViewModel` manages state and orchestrates the three-tier provider chain automatically.
 
 ```swift
 import SwiftUI
 import ARCMaps
 
+@Observable
 @MainActor
-class MyViewModel: ObservableObject {
+final class SearchDemoViewModel {
     let enrichmentVM: PlaceEnrichmentViewModel
 
     init() {
-        let logger = DefaultLogger()
         let networkClient = DefaultNetworkClient()
         let cache = InMemoryPlaceCache()
 
         let googleService = GooglePlacesService(
             apiKey: "YOUR_KEY",
             networkClient: networkClient,
-            logger: logger,
             cache: cache
         )
 
-        let appleService = AppleMapsSearchService(
-            logger: logger,
+        // Apple Maps Server — pass nil if credentials are not configured
+        let appleServerService = AppleMapsServerService(
+            tokenProvider: AppleMapsTokenProvider(
+                keyID: "XXXXXXXXXX",
+                teamID: "XXXXXXXXXX",
+                privateKey: "-----BEGIN PRIVATE KEY-----\n..."
+            ),
+            networkClient: networkClient,
             cache: cache
         )
+
+        let appleService = AppleMapsSearchService(cache: cache)
 
         enrichmentVM = PlaceEnrichmentViewModel(
             googleService: googleService,
-            appleService: appleService,
-            logger: logger
+            appleServerService: appleServerService,
+            appleService: appleService
         )
     }
 }
 
 struct SearchView: View {
-    @StateObject private var viewModel = MyViewModel()
+    @State private var viewModel = SearchDemoViewModel()
 
     var body: some View {
         VStack {
@@ -178,50 +203,68 @@ struct SearchView: View {
 }
 ```
 
-## Provider Fallback
+## Provider Fallback Chain
 
-ARCMaps automatically falls back to the alternative provider if the primary one fails:
+ARCMaps automatically falls back through the provider chain when the primary provider fails:
+
+```
+Google Places  →  Apple Maps Server  →  Apple MapKit (on-device)
+   (primary)          (fallback 1)           (fallback 2)
+```
+
+- If Google is unavailable (network error, quota exceeded), the search retries with Apple Maps Server.
+- If Apple Maps Server is also unavailable (or not configured), it falls back to on-device MapKit.
+- `PlaceEnrichmentViewModel.selectedProvider` updates automatically to reflect the active provider.
 
 ```swift
-// Set Google as primary
-viewModel.selectedProvider = .google
+// Observe which provider is currently active
+Text("Provider: \(viewModel.enrichmentVM.selectedProvider.displayName)")
 
-// Search will try Google first
-await viewModel.searchPlaces(query: query)
+// Manually switch provider
+viewModel.enrichmentVM.changeProvider(.appleServer)
+```
 
-// If Google fails, it automatically tries Apple Maps
-// The viewModel.selectedProvider will be updated to .apple
+## Bridging Search Results to the Map
+
+Use ``PlaceMapper`` to convert a ``PlaceSearchResult`` into a ``MapPlace`` for display on the map. This bridges the PlaceEnrichment and MapVisualization modules without coupling them.
+
+```swift
+// Convert a search result to a map place
+let mapPlace = PlaceMapper.toMapPlace(searchResult)
+mapViewModel.setPlaces([mapPlace])
+
+// The resulting MapPlace uses:
+// - result.id, result.name, result.coordinate, result.address
+// - result.types.first as the category
+// - result.rating (if available)
 ```
 
 ## Caching
 
-Search results are automatically cached to improve performance and reduce API calls:
+Search results are automatically cached to reduce API calls:
 
 ```swift
-// First search - hits the API
+// First search — hits the API
 let results1 = try await service.searchPlaces(query: query)
 
-// Second search with same query - returns cached results
+// Same query again — returns cached results instantly
 let results2 = try await service.searchPlaces(query: query)
 
-// Clear cache if needed
+// Clear cache explicitly if needed
 await cache.clearCache()
 ```
 
 ## Error Handling
 
-Handle errors gracefully:
-
 ```swift
 do {
     let results = try await service.searchPlaces(query: query)
-    // Process results
 } catch PlaceEnrichmentError.noResultsFound {
     print("No places found")
 } catch PlaceEnrichmentError.invalidAPIKey {
-    print("Invalid API key - check your configuration")
+    print("Invalid API key — check your configuration")
 } catch PlaceEnrichmentError.rateLimitExceeded {
-    print("Rate limit exceeded - try again later")
+    print("Rate limit exceeded — try again later")
 } catch {
     print("Error: \(error.localizedDescription)")
 }
@@ -235,3 +278,6 @@ do {
 - ``EnrichedPlaceData``
 - ``PlaceEnrichmentViewModel``
 - ``PlaceEnrichmentError``
+- ``PlaceProvider``
+- ``PlaceMapper``
+- ``AppleMapsServerService``

@@ -9,8 +9,7 @@ import CoreLocation
 import Foundation
 
 /// Abstraction over map providers (Apple MapKit, Google Maps)
-@MainActor
-public protocol MapProvider: Sendable {
+@MainActor public protocol MapProvider: Sendable {
     /// Display places on the map
     /// - Parameter places: Places to display
     func showPlaces(_ places: [MapPlace]) async

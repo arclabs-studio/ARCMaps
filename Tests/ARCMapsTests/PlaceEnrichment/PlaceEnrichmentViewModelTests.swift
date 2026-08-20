@@ -9,9 +9,8 @@ import Testing
 @testable import ARCMaps
 @testable import ARCMapsTestHelpers
 
-@Suite("PlaceEnrichmentViewModel Tests", .serialized)
-@MainActor
-struct PlaceEnrichmentViewModelTests {
+@Suite(.serialized)
+@MainActor struct PlaceEnrichmentViewModelTests {
     let mockGoogleService: MockPlaceEnrichmentService
     let mockAppleService: MockPlaceEnrichmentService
     let sut: PlaceEnrichmentViewModel
@@ -19,16 +18,13 @@ struct PlaceEnrichmentViewModelTests {
     init() async throws {
         mockGoogleService = MockPlaceEnrichmentService()
         mockAppleService = MockPlaceEnrichmentService()
-        sut = PlaceEnrichmentViewModel(
-            googleService: mockGoogleService,
-            appleService: mockAppleService
-        )
+        sut = PlaceEnrichmentViewModel(googleService: mockGoogleService,
+                                       appleService: mockAppleService)
     }
 
     // MARK: - Initial State
 
-    @Test("Initial state has empty search results")
-    func initialStateHasEmptySearchResults() {
+    @Test("Initial state has empty search results") func initialStateHasEmptySearchResults() {
         #expect(sut.searchResults.isEmpty)
         #expect(sut.selectedResult == nil)
         #expect(sut.enrichedData == nil)
@@ -37,15 +33,13 @@ struct PlaceEnrichmentViewModelTests {
         #expect(sut.error == nil)
     }
 
-    @Test("Default provider is Google")
-    func defaultProviderIsGoogle() {
+    @Test("Default provider is Google") func defaultProviderIsGoogle() {
         #expect(sut.selectedProvider == .google)
     }
 
     // MARK: - Search Places
 
-    @Test("Search places updates search results")
-    func searchPlacesUpdatesSearchResults() async {
+    @Test("Search places updates search results") func searchPlacesUpdatesSearchResults() async {
         // Given
         let expectedResults = PlaceSearchResultFixtures.allSamples
         await mockGoogleService.setMockSearchResults(expectedResults)
@@ -59,8 +53,7 @@ struct PlaceEnrichmentViewModelTests {
         #expect(sut.isSearching == false)
     }
 
-    @Test("Search places sets isSearching during search")
-    func searchPlacesSetsIsSearchingDuringSearch() async {
+    @Test("Search places sets isSearching during search") func searchPlacesSetsIsSearchingDuringSearch() async {
         // Given
         await mockGoogleService.setMockSearchResults([])
         let query = PlaceSearchQuery(name: "Test")
@@ -75,8 +68,7 @@ struct PlaceEnrichmentViewModelTests {
         #expect(sut.isSearching == false)
     }
 
-    @Test("Search places clears previous results before searching")
-    func searchPlacesClearsPreviousResults() async {
+    @Test("Search places clears previous results before searching") func searchPlacesClearsPreviousResults() async {
         // Given
         await mockGoogleService.setMockSearchResults(PlaceSearchResultFixtures.allSamples)
         await sut.searchPlaces(query: PlaceSearchQuery(name: "First"))
@@ -92,8 +84,7 @@ struct PlaceEnrichmentViewModelTests {
         #expect(sut.searchResults.count == 1)
     }
 
-    @Test("Search places sets error when no results found")
-    func searchPlacesSetsErrorWhenNoResultsFound() async {
+    @Test("Search places sets error when no results found") func searchPlacesSetsErrorWhenNoResultsFound() async {
         // Given
         await mockGoogleService.setMockSearchResults([])
         let query = PlaceSearchQuery(name: "NonexistentPlace")
@@ -105,8 +96,7 @@ struct PlaceEnrichmentViewModelTests {
         #expect(sut.error == .noResultsFound)
     }
 
-    @Test("Search places sorts results by match score")
-    func searchPlacesSortsResultsByMatchScore() async {
+    @Test("Search places sorts results by match score") func searchPlacesSortsResultsByMatchScore() async {
         // Given - results with different match scores
         let results = PlaceSearchResultFixtures.allSamples
         await mockGoogleService.setMockSearchResults(results)
@@ -125,8 +115,7 @@ struct PlaceEnrichmentViewModelTests {
 
     // MARK: - Select Result
 
-    @Test("Select result updates selected result")
-    func selectResultUpdatesSelectedResult() async {
+    @Test("Select result updates selected result") func selectResultUpdatesSelectedResult() async {
         // Given
         let result = PlaceSearchResultFixtures.sampleRestaurant
         await mockGoogleService.setMockEnrichedData(EnrichedPlaceDataFixtures.sampleRestaurant)
@@ -138,8 +127,7 @@ struct PlaceEnrichmentViewModelTests {
         #expect(sut.selectedResult == result)
     }
 
-    @Test("Select result loads enriched data")
-    func selectResultLoadsEnrichedData() async {
+    @Test("Select result loads enriched data") func selectResultLoadsEnrichedData() async {
         // Given
         let result = PlaceSearchResultFixtures.sampleRestaurant
         let enrichedData = EnrichedPlaceDataFixtures.sampleRestaurant
@@ -155,8 +143,7 @@ struct PlaceEnrichmentViewModelTests {
 
     // MARK: - Change Provider
 
-    @Test("Change provider updates selected provider")
-    func changeProviderUpdatesSelectedProvider() {
+    @Test("Change provider updates selected provider") func changeProviderUpdatesSelectedProvider() {
         // When
         sut.changeProvider(.apple)
 
@@ -164,8 +151,7 @@ struct PlaceEnrichmentViewModelTests {
         #expect(sut.selectedProvider == .apple)
     }
 
-    @Test("Change provider clears previous results")
-    func changeProviderClearsPreviousResults() async {
+    @Test("Change provider clears previous results") func changeProviderClearsPreviousResults() async {
         // Given
         await mockGoogleService.setMockSearchResults(PlaceSearchResultFixtures.allSamples)
         await sut.searchPlaces(query: PlaceSearchQuery(name: "Test"))
@@ -181,8 +167,7 @@ struct PlaceEnrichmentViewModelTests {
 
     // MARK: - Reset
 
-    @Test("Reset clears all state")
-    func resetClearsAllState() async {
+    @Test("Reset clears all state") func resetClearsAllState() async {
         // Given
         await mockGoogleService.setMockSearchResults(PlaceSearchResultFixtures.allSamples)
         await sut.searchPlaces(query: PlaceSearchQuery(name: "Test"))
@@ -201,8 +186,7 @@ struct PlaceEnrichmentViewModelTests {
 
     // MARK: - Error Handling
 
-    @Test("Search places handles network error")
-    func searchPlacesHandlesNetworkError() async {
+    @Test("Search places handles network error") func searchPlacesHandlesNetworkError() async {
         // Given
         await mockGoogleService.setShouldThrowError(true)
         await mockGoogleService.setErrorToThrow(.networkError("Network failed"))

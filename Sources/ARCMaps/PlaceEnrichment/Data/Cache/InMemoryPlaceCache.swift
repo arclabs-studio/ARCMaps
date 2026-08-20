@@ -33,10 +33,8 @@ public actor InMemoryPlaceCache: PlaceSearchCache {
     /// - Parameters:
     ///   - maxCacheSize: Maximum number of cached queries. Default is ``CacheDefaults/maxSize``.
     ///   - expirationInterval: Time in seconds before entries expire. Default is ``CacheDefaults/expirationSeconds``.
-    public init(
-        maxCacheSize: Int = CacheDefaults.maxSize,
-        expirationInterval: TimeInterval = CacheDefaults.expirationSeconds
-    ) {
+    public init(maxCacheSize: Int = CacheDefaults.maxSize,
+                expirationInterval: TimeInterval = CacheDefaults.expirationSeconds) {
         self.maxCacheSize = maxCacheSize
         self.expirationInterval = expirationInterval
     }

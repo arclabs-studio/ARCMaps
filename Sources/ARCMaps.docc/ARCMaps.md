@@ -6,8 +6,8 @@ Comprehensive mapping and place enrichment solution for iOS apps.
 
 ARCMaps provides two main functionalities that work seamlessly together:
 
-1. **Place Enrichment**: Automatically enrich manually-created restaurant entries with rich data from external providers
-2. **Map Visualization**: Display places on an interactive map with custom markers, filters, and navigation capabilities
+1. **Place Enrichment**: Enrich place data with rich information from external providers (Google Places, Apple Maps Server)
+2. **Map Visualization**: Display places on an interactive map with customizable markers, filters, and navigation capabilities
 
 The package follows Clean Architecture principles with a modular, testable design that supports Swift 6 strict concurrency.
 
@@ -35,7 +35,6 @@ The package follows Clean Architecture principles with a modular, testable desig
 - ``ARCMapView``
 - ``MapViewModel``
 - ``MapPlace``
-- ``PlaceStatus``
 - ``MapFilter``
 - ``MapRegion``
 - ``MapStyle``
@@ -44,8 +43,7 @@ The package follows Clean Architecture principles with a modular, testable desig
 
 ### UI Components
 
-- ``WishlistMarker``
-- ``VisitedMarker``
+- ``PlaceMarker``
 - ``PlaceCalloutView``
 - ``MapControlsView``
 
@@ -64,6 +62,7 @@ The package follows Clean Architecture principles with a modular, testable desig
 - ``DistanceCalculator``
 - ``ExternalMapLauncher``
 - ``ExternalMapApp``
+- ``PlaceMapper``
 
 ### Error Handling
 

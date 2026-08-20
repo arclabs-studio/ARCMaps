@@ -9,12 +9,10 @@ import Testing
 @testable import ARCMaps
 @testable import ARCMapsTestHelpers
 
-@Suite("InMemoryPlaceCache Tests")
 struct InMemoryPlaceCacheTests {
     // MARK: - Basic Cache Operations
 
-    @Test("Get results returns nil for empty cache")
-    func getResultsReturnsNilForEmptyCache() async {
+    @Test("Get results returns nil for empty cache") func getResultsReturnsNilForEmptyCache() async {
         // Given
         let sut = InMemoryPlaceCache()
         let query = PlaceSearchQuery(name: "Test")
@@ -26,8 +24,7 @@ struct InMemoryPlaceCacheTests {
         #expect(results == nil)
     }
 
-    @Test("Set and get results works correctly")
-    func setAndGetResultsWorksCorrectly() async {
+    @Test("Set and get results works correctly") func setAndGetResultsWorksCorrectly() async {
         // Given
         let sut = InMemoryPlaceCache()
         let query = PlaceSearchQuery(name: "Test Restaurant")
@@ -41,8 +38,7 @@ struct InMemoryPlaceCacheTests {
         #expect(results == expectedResults)
     }
 
-    @Test("Different queries return different cached results")
-    func differentQueriesReturnDifferentResults() async {
+    @Test("Different queries return different cached results") func differentQueriesReturnDifferentResults() async {
         // Given
         let sut = InMemoryPlaceCache()
         let query1 = PlaceSearchQuery(name: "Restaurant A")
@@ -64,8 +60,7 @@ struct InMemoryPlaceCacheTests {
 
     // MARK: - Cache Clearing
 
-    @Test("Clear cache removes all entries")
-    func clearCacheRemovesAllEntries() async {
+    @Test("Clear cache removes all entries") func clearCacheRemovesAllEntries() async {
         // Given
         let sut = InMemoryPlaceCache()
         let query = PlaceSearchQuery(name: "Test")
@@ -81,8 +76,7 @@ struct InMemoryPlaceCacheTests {
 
     // MARK: - Cache Expiration
 
-    @Test("Expired entries are removed on access")
-    func expiredEntriesAreRemovedOnAccess() async throws {
+    @Test("Expired entries are removed on access") func expiredEntriesAreRemovedOnAccess() async throws {
         // Given - cache with 1 second expiration
         let sut = InMemoryPlaceCache(maxCacheSize: 100, expirationInterval: 0.1)
         let query = PlaceSearchQuery(name: "Test")
@@ -96,8 +90,7 @@ struct InMemoryPlaceCacheTests {
         #expect(results == nil)
     }
 
-    @Test("Non-expired entries are returned")
-    func nonExpiredEntriesAreReturned() async {
+    @Test("Non-expired entries are returned") func nonExpiredEntriesAreReturned() async {
         // Given - cache with long expiration
         let sut = InMemoryPlaceCache(maxCacheSize: 100, expirationInterval: 3600)
         let query = PlaceSearchQuery(name: "Test")
@@ -113,8 +106,7 @@ struct InMemoryPlaceCacheTests {
 
     // MARK: - Cache Size Limits
 
-    @Test("Cache evicts oldest entry when full")
-    func cacheEvictsOldestEntryWhenFull() async throws {
+    @Test("Cache evicts oldest entry when full") func cacheEvictsOldestEntryWhenFull() async throws {
         // Given - small cache with 2 entries max
         let sut = InMemoryPlaceCache(maxCacheSize: 2, expirationInterval: 3600)
 

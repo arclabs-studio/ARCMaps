@@ -41,10 +41,8 @@ public struct MapRegion: Sendable, Equatable {
     /// - Parameters:
     ///   - center: The geographic center of the region.
     ///   - span: A tuple containing the latitude and longitude deltas in degrees.
-    public init(
-        center: CLLocationCoordinate2D,
-        span: (latitudeDelta: Double, longitudeDelta: Double)
-    ) {
+    public init(center: CLLocationCoordinate2D,
+                span: (latitudeDelta: Double, longitudeDelta: Double)) {
         self.center = center
         self.span = span
     }
@@ -53,13 +51,9 @@ public struct MapRegion: Sendable, Equatable {
     ///
     /// - Returns: An equivalent `MKCoordinateRegion` for use with MapKit APIs.
     public var mkCoordinateRegion: MKCoordinateRegion {
-        MKCoordinateRegion(
-            center: center,
-            span: MKCoordinateSpan(
-                latitudeDelta: span.latitudeDelta,
-                longitudeDelta: span.longitudeDelta
-            )
-        )
+        MKCoordinateRegion(center: center,
+                           span: MKCoordinateSpan(latitudeDelta: span.latitudeDelta,
+                                                  longitudeDelta: span.longitudeDelta))
     }
 
     /// Creates a region that encompasses all provided coordinates with optional padding.
@@ -91,10 +85,8 @@ public struct MapRegion: Sendable, Equatable {
         let spanLat = (maxLat - minLat) * (1 + padding)
         let spanLon = (maxLon - minLon) * (1 + padding)
 
-        return MapRegion(
-            center: CLLocationCoordinate2D(latitude: centerLat, longitude: centerLon),
-            span: (latitudeDelta: max(spanLat, 0.01), longitudeDelta: max(spanLon, 0.01))
-        )
+        return MapRegion(center: CLLocationCoordinate2D(latitude: centerLat, longitude: centerLon),
+                         span: (latitudeDelta: max(spanLat, 0.01), longitudeDelta: max(spanLon, 0.01)))
     }
 
     public static func == (lhs: MapRegion, rhs: MapRegion) -> Bool {

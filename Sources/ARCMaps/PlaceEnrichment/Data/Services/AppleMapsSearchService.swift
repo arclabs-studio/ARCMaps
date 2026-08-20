@@ -34,12 +34,23 @@ public actor AppleMapsSearchService: PlaceEnrichmentService {
         searchRequest.naturalLanguageQuery = query.fullTextQuery
 
         if let coordinate = query.coordinate {
-            let region = MKCoordinateRegion(
-                center: CLLocationCoordinate2D(latitude: coordinate.latitude, longitude: coordinate.longitude),
-                latitudinalMeters: Double(query.radiusMeters ?? 10000),
-                longitudinalMeters: Double(query.radiusMeters ?? 10000)
-            )
-            searchRequest.region = region
+            searchRequest.region = Self.searchRegion(latitude: coordinate.latitude,
+                                                     longitude: coordinate.longitude,
+                                                     radiusMeters: query.radiusMeters)
+
+            // Treat the region as a hard constraint when categories are supplied
+            // (POI-only nearby search). Falls back gracefully on iOS < 18.
+            if query.poiCategories != nil {
+                if #available(iOS 18.0, macOS 15.0, *) {
+                    searchRequest.regionPriority = .required
+                }
+            }
+        }
+
+        if let categories = query.poiCategories, !categories.isEmpty {
+            let mkCategories = categories.map(Self.mapCategory(_:))
+            searchRequest.pointOfInterestFilter = MKPointOfInterestFilter(including: mkCategories)
+            searchRequest.resultTypes = .pointOfInterest
         }
 
         let search = MKLocalSearch(request: searchRequest)
@@ -54,18 +65,16 @@ public actor AppleMapsSearchService: PlaceEnrichmentService {
                     return nil
                 }
 
-                return PlaceSearchResult(
-                    id: mapItem.placemark.description,
-                    provider: .apple,
-                    name: name,
-                    address: formatAddress(mapItem.placemark),
-                    coordinate: coordinate,
-                    types: [],
-                    rating: nil, // Apple Maps doesn't provide ratings in search
-                    userRatingsTotal: nil,
-                    priceLevel: nil,
-                    photoReferences: []
-                )
+                return PlaceSearchResult(id: Self.stableId(for: mapItem),
+                                         provider: .apple,
+                                         name: name,
+                                         address: formatAddress(mapItem.placemark),
+                                         coordinate: coordinate,
+                                         types: [],
+                                         rating: nil, // Apple Maps doesn't provide ratings in search
+                                         userRatingsTotal: nil,
+                                         priceLevel: nil,
+                                         photoReferences: [])
             }
 
             // Cache results
@@ -89,7 +98,54 @@ public actor AppleMapsSearchService: PlaceEnrichmentService {
         throw PlaceEnrichmentError.photoDownloadFailed(photoReference)
     }
 
+    // MARK: - Internal Helpers
+
+    /// Default search radius when a query supplies a coordinate but no radius.
+    static let defaultRadiusMeters = 10000
+
+    /// Builds the search window around a coordinate from a **radius**.
+    ///
+    /// `MKCoordinateRegion(center:latitudinalMeters:longitudinalMeters:)` takes the
+    /// full north-to-south and east-to-west *span* — a diameter, not a radius. Passing
+    /// the radius straight through therefore halved the window: a caller asking for
+    /// 5 km got a 5 km-wide box, i.e. 2.5 km in every direction, and candidates it
+    /// would have accepted were never returned.
+    ///
+    /// Longitude uses the same metre value; MapKit applies the cos(latitude)
+    /// conversion itself.
+    static func searchRegion(latitude: Double, longitude: Double, radiusMeters: Int?) -> MKCoordinateRegion {
+        let radius = Double(radiusMeters ?? defaultRadiusMeters)
+        let span = radius * 2
+
+        return MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: latitude, longitude: longitude),
+                                  latitudinalMeters: span,
+                                  longitudinalMeters: span)
+    }
+
     // MARK: - Private Helpers
+
+    /// Prefer the stable `MKMapItem.Identifier` (iOS 18+) over placemark description,
+    /// which is volatile across catalog updates.
+    private static func stableId(for mapItem: MKMapItem) -> String {
+        if #available(iOS 18.0, macOS 15.0, *), let identifier = mapItem.identifier {
+            return identifier.rawValue
+        }
+        return mapItem.placemark.description
+    }
+
+    /// Maps the provider-agnostic `PlaceCategory` to `MKPointOfInterestCategory`.
+    /// MapKit import is kept isolated to the Data layer per Clean Architecture.
+    private static func mapCategory(_ category: PlaceCategory) -> MKPointOfInterestCategory {
+        switch category {
+        case .restaurant: .restaurant
+        case .cafe: .cafe
+        case .bakery: .bakery
+        case .brewery: .brewery
+        case .winery: .winery
+        case .foodMarket: .foodMarket
+        case .nightlife: .nightlife
+        }
+    }
 
     private func formatAddress(_ placemark: MKPlacemark) -> String? {
         var components: [String] = []

@@ -23,45 +23,37 @@ struct AboutView: View {
 
                 // Features demonstrated
                 Section("Features Demonstrated") {
-                    FeatureRow(
-                        icon: "map",
-                        title: "Map Visualization",
-                        description: "Interactive map with custom markers for wishlist and visited places"
-                    )
+                    FeatureRow(icon: "map",
+                               title: "Map Visualization",
+                               description: "Interactive map with default or fully custom markers and detail sheet")
 
-                    FeatureRow(
-                        icon: "line.3.horizontal.decrease.circle",
-                        title: "Place Filtering",
-                        description: "Filter by status, category, and minimum rating"
-                    )
+                    FeatureRow(icon: "mappin.and.ellipse",
+                               title: "Custom Markers & Sheet",
+                               description: "Inject custom marker and sheet views via ViewBuilder")
 
-                    FeatureRow(
-                        icon: "mappin.and.ellipse",
-                        title: "Native POI Selection",
-                        description: "iOS 18+ feature to tap Apple Maps locations"
-                    )
+                    FeatureRow(icon: "line.3.horizontal.decrease.circle",
+                               title: "Place Filtering",
+                               description: "Filter by category and minimum rating")
 
-                    FeatureRow(
-                        icon: "location",
-                        title: "User Location",
-                        description: "Display current location and calculate distances"
-                    )
+                    FeatureRow(icon: "mappin.and.ellipse",
+                               title: "Native POI Selection",
+                               description: "iOS 18+ feature to tap Apple Maps locations")
 
-                    FeatureRow(
-                        icon: "arrow.up.forward.app",
-                        title: "External Maps",
-                        description: "Open places in Apple Maps or Google Maps"
-                    )
+                    FeatureRow(icon: "location",
+                               title: "User Location",
+                               description: "Display current location and calculate distances")
+
+                    FeatureRow(icon: "arrow.up.forward.app",
+                               title: "External Maps",
+                               description: "Open places in Apple Maps or Google Maps")
                 }
 
                 // Sample data info
                 Section("Sample Data") {
-                    Text(
-                        """
-                        This demo uses fictional places in Madrid, Spain. \
-                        In a real app, you would fetch places from Google Places API or Apple MapKit.
-                        """
-                    )
+                    Text("""
+                    This demo uses fictional places in Madrid, Spain. \
+                    In a real app, you would fetch places from Google Places API or Apple MapKit.
+                    """)
                     .font(.caption)
                     .foregroundStyle(.secondary)
                 }

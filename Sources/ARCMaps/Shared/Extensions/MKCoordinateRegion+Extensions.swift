@@ -30,9 +30,8 @@ extension MKCoordinateRegion {
         let spanLat = (maxLat - minLat) * (1 + padding)
         let spanLon = (maxLon - minLon) * (1 + padding)
 
-        return MKCoordinateRegion(
-            center: CLLocationCoordinate2D(latitude: centerLat, longitude: centerLon),
-            span: MKCoordinateSpan(latitudeDelta: max(spanLat, 0.01), longitudeDelta: max(spanLon, 0.01))
-        )
+        return MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: centerLat, longitude: centerLon),
+                                  span: MKCoordinateSpan(latitudeDelta: max(spanLat, 0.01),
+                                                         longitudeDelta: max(spanLon, 0.01)))
     }
 }

@@ -9,12 +9,10 @@ import CoreLocation
 import Testing
 @testable import ARCMaps
 
-@Suite("DistanceCalculator Tests")
 struct DistanceCalculatorTests {
     // MARK: - Distance Calculation
 
-    @Test("Distance between two coordinates is calculated correctly")
-    func distanceBetweenCoordinates() {
+    @Test("Distance between two coordinates is calculated correctly") func distanceBetweenCoordinates() {
         // Given
         let madrid = CLLocationCoordinate2D(latitude: 40.4168, longitude: -3.7038)
         let barcelona = CLLocationCoordinate2D(latitude: 41.3874, longitude: 2.1686)
@@ -28,8 +26,7 @@ struct DistanceCalculatorTests {
         #expect(distance < 700_000) // Less than 700km
     }
 
-    @Test("Distance to same coordinate is zero")
-    func distanceToSameCoordinateIsZero() {
+    @Test("Distance to same coordinate is zero") func distanceToSameCoordinateIsZero() {
         // Given
         let coordinate = CLLocationCoordinate2D(latitude: 40.4168, longitude: -3.7038)
 
@@ -88,44 +85,35 @@ struct DistanceCalculatorTests {
 
     // MARK: - Radius Check
 
-    @Test("Is within radius returns true for nearby point")
-    func isWithinRadiusReturnsTrueForNearbyPoint() {
+    @Test("Is within radius returns true for nearby point") func isWithinRadiusReturnsTrueForNearbyPoint() {
         // Given
         let center = CLLocationCoordinate2D(latitude: 40.4168, longitude: -3.7038)
         let nearbyPoint = CLLocationCoordinate2D(latitude: 40.4170, longitude: -3.7040)
 
         // When/Then
-        #expect(DistanceCalculator.isWithinRadius(
-            coordinate: nearbyPoint,
-            center: center,
-            radiusMeters: 1000
-        ))
+        #expect(DistanceCalculator.isWithinRadius(coordinate: nearbyPoint,
+                                                  center: center,
+                                                  radiusMeters: 1000))
     }
 
-    @Test("Is within radius returns false for far point")
-    func isWithinRadiusReturnsFalseForFarPoint() {
+    @Test("Is within radius returns false for far point") func isWithinRadiusReturnsFalseForFarPoint() {
         // Given
         let center = CLLocationCoordinate2D(latitude: 40.4168, longitude: -3.7038)
         let farPoint = CLLocationCoordinate2D(latitude: 41.3874, longitude: 2.1686)
 
         // When/Then
-        #expect(!DistanceCalculator.isWithinRadius(
-            coordinate: farPoint,
-            center: center,
-            radiusMeters: 1000
-        ))
+        #expect(!DistanceCalculator.isWithinRadius(coordinate: farPoint,
+                                                   center: center,
+                                                   radiusMeters: 1000))
     }
 
-    @Test("Is within radius returns true for point exactly at center")
-    func isWithinRadiusReturnsTrueAtExactCenter() {
+    @Test("Is within radius returns true for point exactly at center") func isWithinRadiusReturnsTrueAtExactCenter() {
         // Given
         let center = CLLocationCoordinate2D(latitude: 40.4168, longitude: -3.7038)
 
         // When/Then - same point should always be within any radius
-        #expect(DistanceCalculator.isWithinRadius(
-            coordinate: center,
-            center: center,
-            radiusMeters: 0
-        ))
+        #expect(DistanceCalculator.isWithinRadius(coordinate: center,
+                                                  center: center,
+                                                  radiusMeters: 0))
     }
 }

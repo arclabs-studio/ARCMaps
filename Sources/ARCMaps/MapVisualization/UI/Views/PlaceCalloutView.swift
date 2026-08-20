@@ -5,10 +5,24 @@
 //  Created by ARC Labs Studio on 13/01/2026.
 //
 
+import ARCUIComponents
 import CoreLocation
 import SwiftUI
 
-/// Callout view shown when tapping a place marker
+/// Default callout view shown when tapping a place marker.
+///
+/// `PlaceCalloutView` is the default sheet content used by ``ARCMapView``. It displays
+/// basic place information (name, category, rating, address, distance) and options to
+/// open the place in external map apps.
+///
+/// For a fully customized sheet, inject your own view via the ``ARCMapView`` initializer:
+/// ```swift
+/// ARCMapView(viewModel: vm) { place in
+///     MyMarker(place: place)
+/// } sheet: { place, userLocation in
+///     MyPlaceDetailView(place: place)
+/// }
+/// ```
 public struct PlaceCalloutView: View {
     let place: MapPlace
     let userLocation: CLLocationCoordinate2D?
@@ -16,11 +30,9 @@ public struct PlaceCalloutView: View {
 
     @Environment(\.dismiss) private var dismiss
 
-    public init(
-        place: MapPlace,
-        userLocation: CLLocationCoordinate2D?,
-        onOpenInMaps: @escaping (ExternalMapApp) async -> Void
-    ) {
+    public init(place: MapPlace,
+                userLocation: CLLocationCoordinate2D?,
+                onOpenInMaps: @escaping (ExternalMapApp) async -> Void) {
         self.place = place
         self.userLocation = userLocation
         self.onOpenInMaps = onOpenInMaps
@@ -32,11 +44,10 @@ public struct PlaceCalloutView: View {
                 VStack(alignment: .leading, spacing: 16) {
                     // Header
                     VStack(alignment: .leading, spacing: 8) {
-                        HStack {
-                            statusBadge
-                            Spacer()
-                            if let rating = place.rating {
-                                ratingView(rating)
+                        if let rating = place.rating {
+                            HStack {
+                                ARCRatingView(rating: rating, style: .circularGauge)
+                                Spacer()
                             }
                         }
 
@@ -71,17 +82,6 @@ public struct PlaceCalloutView: View {
                                 .foregroundStyle(.blue)
 
                             Text(distance)
-                                .font(.body)
-                        }
-                    }
-
-                    // Visit date
-                    if let visitDate = place.visitDate {
-                        HStack(spacing: 12) {
-                            Image(systemName: "calendar")
-                                .foregroundStyle(.purple)
-
-                            Text("Visited \(visitDate.formatted(date: .abbreviated, time: .omitted))")
                                 .font(.body)
                         }
                     }
@@ -129,30 +129,6 @@ public struct PlaceCalloutView: View {
                 }
             }
         }
-    }
-
-    private var statusBadge: some View {
-        HStack(spacing: 4) {
-            Image(systemName: place.status.iconName)
-            Text(place.status.rawValue)
-        }
-        .font(.caption)
-        .fontWeight(.semibold)
-        .foregroundStyle(.white)
-        .padding(.horizontal, 12)
-        .padding(.vertical, 6)
-        .background(place.status == .wishlist ? Color.red : Color.green)
-        .cornerRadius(12)
-    }
-
-    private func ratingView(_ rating: Double) -> some View {
-        HStack(spacing: 4) {
-            Image(systemName: "star.fill")
-                .foregroundStyle(.yellow)
-            Text(String(format: "%.1f", rating))
-                .fontWeight(.semibold)
-        }
-        .font(.subheadline)
     }
 
     private var distanceText: String? {

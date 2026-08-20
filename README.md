@@ -2,9 +2,9 @@
 
 [![Swift](https://img.shields.io/badge/Swift-6.0-orange.svg)](https://swift.org)
 [![Platforms](https://img.shields.io/badge/Platforms-iOS%2017%2B%20%7C%20macOS%2014%2B-blue.svg)](https://developer.apple.com)
-[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![License](https://img.shields.io/badge/License-PolyForm%20Noncommercial%201.0.0-orange.svg)](LICENSE)
 [![Version](https://img.shields.io/badge/Version-1.0.0-blue.svg)](CHANGELOG.md)
-[![CI](https://github.com/carlosrasensio/ARCMaps/actions/workflows/ci.yml/badge.svg)](https://github.com/carlosrasensio/ARCMaps/actions/workflows/ci.yml)
+[![CI](https://github.com/arclabs-studio/ARCMaps/actions/workflows/ci.yml/badge.svg)](https://github.com/arclabs-studio/ARCMaps/actions/workflows/ci.yml)
 
 **A comprehensive Swift Package for place enrichment and map visualization in iOS and macOS apps.**
 
@@ -55,7 +55,7 @@ Whether you're building a restaurant tracker, travel planner, or any location-ce
 #### For Xcode Projects
 
 1. **File > Add Package Dependencies**
-2. Enter: `https://github.com/carlosrasensio/ARCMaps.git`
+2. Enter: `https://github.com/arclabs-studio/ARCMaps.git`
 3. Select version: `1.0.0` or later
 4. Add to your target
 
@@ -63,7 +63,7 @@ Whether you're building a restaurant tracker, travel planner, or any location-ce
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/carlosrasensio/ARCMaps.git", from: "1.0.0")
+    .package(url: "https://github.com/arclabs-studio/ARCMaps.git", from: "1.0.0")
 ]
 ```
 
@@ -263,7 +263,7 @@ brew install swiftlint swiftformat
 
 ```bash
 # Clone with submodules
-git clone --recursive https://github.com/carlosrasensio/ARCMaps.git
+git clone --recursive https://github.com/arclabs-studio/ARCMaps.git
 cd ARCMaps
 
 # Or initialize submodules after cloning
@@ -323,7 +323,13 @@ See [CHANGELOG.md](CHANGELOG.md) for version history.
 
 ## 📄 License
 
-MIT License - See [LICENSE](LICENSE) for details.
+**PolyForm Noncommercial License 1.0.0** © 2025–2026 ARC Labs Studio.
+
+Source-available. Free for non-commercial use (research, study, hobby, evaluation). **Commercial use requires a separate license** — contact `arclabs.studio@gmail.com`.
+
+ARC Labs Studio's own commercial products are covered by an internal use grant — see [INTERNAL-USE.md](INTERNAL-USE.md).
+
+See [LICENSE](LICENSE) for the full license text.
 
 ---
 
@@ -339,6 +345,6 @@ MIT License - See [LICENSE](LICENSE) for details.
 
 **Made with love by ARC Labs Studio**
 
-[GitHub](https://github.com/arclabs-studio) | [Issues](https://github.com/carlosrasensio/ARCMaps/issues)
+[GitHub](https://github.com/arclabs-studio) | [Issues](https://github.com/arclabs-studio/ARCMaps/issues)
 
 </div>

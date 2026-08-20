@@ -1,34 +1,24 @@
 # Map Visualization Guide
 
-Display places on an interactive map with custom markers and filters.
+Display places on an interactive map with customizable markers, filters, and navigation.
 
 ## Overview
 
-The Map Visualization module provides SwiftUI components to display places on a map with distinctive markers for wishlist vs. visited places, along with filtering and navigation capabilities.
+The Map Visualization module provides SwiftUI components to display places on a map. Markers and the detail sheet are fully customizable via `@ViewBuilder` — the package ships with sensible defaults and you can override either or both.
 
 ## Basic Map Display
 
 ### Simple Map View
-
-Display places on a map:
 
 ```swift
 import SwiftUI
 import MapKit
 import ARCMaps
 
-struct RestaurantMapView: View {
-    @StateObject private var viewModel: MapViewModel
-
-    init() {
-        let logger = DefaultLogger()
-        let locationService = CoreLocationService(logger: logger)
-
-        _viewModel = StateObject(wrappedValue: MapViewModel(
-            locationService: locationService,
-            logger: logger
-        ))
-    }
+struct PlaceMapView: View {
+    @State private var viewModel = MapViewModel(
+        locationService: CoreLocationService()
+    )
 
     var body: some View {
         ARCMapView(viewModel: viewModel)
@@ -42,239 +32,185 @@ struct RestaurantMapView: View {
         [
             MapPlace(
                 id: "1",
-                name: "La Taverna",
+                name: "Café Luna",
                 coordinate: CLLocationCoordinate2D(latitude: 40.4168, longitude: -3.7038),
                 address: "Calle Mayor 15, Madrid",
-                category: "Restaurant",
-                rating: 4.5,
-                status: .wishlist
+                category: "cafe",
+                rating: 4.5
             ),
             MapPlace(
                 id: "2",
-                name: "El Café",
-                coordinate: CLLocationCoordinate2D(latitude: 40.4200, longitude: -3.7050),
-                address: "Gran Vía 20, Madrid",
-                category: "Cafe",
-                rating: 4.2,
-                status: .visited,
-                visitDate: Date()
+                name: "Museo del Prado",
+                coordinate: CLLocationCoordinate2D(latitude: 40.4138, longitude: -3.6922),
+                address: "Paseo del Prado, Madrid",
+                category: "museum",
+                rating: 4.9
             )
         ]
     }
 }
 ```
 
-## Filtering Places
+## Custom Markers
 
-### Status Filter
-
-Filter places by status (wishlist/visited):
+By default, `ARCMapView` uses ``PlaceMarker`` — a simple red circle pin. Inject a `@ViewBuilder` to render your own marker per place:
 
 ```swift
-// Show only wishlist places
-var filter = MapFilter()
-filter.statuses = [.wishlist]
-viewModel.updateFilter(filter)
-
-// Show only visited places
-filter.statuses = [.visited]
-viewModel.updateFilter(filter)
-
-// Show all
-viewModel.updateFilter(.all)
+ARCMapView(viewModel: viewModel) { place in
+    MyMarker(place: place)
+}
 ```
+
+Your `MyMarker` view receives the `MapPlace` and can render any SwiftUI view — different colors per category, icons, badges, etc.
+
+## Custom Detail Sheet
+
+By default, tapping a marker presents ``PlaceCalloutView`` with name, category, rating, address, distance, and "Open in" options. Inject a `@ViewBuilder` to replace it entirely:
+
+```swift
+ARCMapView(viewModel: viewModel) { place in
+    MyMarker(place: place)
+} sheet: { place, userLocation in
+    MyPlaceDetailView(place: place, userLocation: userLocation)
+}
+```
+
+The `sheet` closure receives the selected `MapPlace` and the user's current `CLLocationCoordinate2D?` (if location permission is granted).
+
+## Filtering Places
 
 ### Category Filter
 
-Filter by category:
-
 ```swift
-var filter = MapFilter()
-filter.categories = ["Restaurant", "Cafe"]
+var filter = MapFilter(categories: ["cafe", "restaurant"])
 viewModel.updateFilter(filter)
 ```
 
 ### Rating Filter
 
-Show only highly-rated places:
-
 ```swift
-var filter = MapFilter()
-filter.minRating = 4.0
+var filter = MapFilter(minRating: 4.0)
 viewModel.updateFilter(filter)
 ```
 
-### Date Range Filter
+### Combining Filters
 
-Filter visited places by date:
+All conditions are combined with AND logic:
 
 ```swift
-let lastMonth = Calendar.current.date(byAdding: .month, value: -1, to: Date())!
-var filter = MapFilter()
-filter.dateRange = DateRange(start: lastMonth, end: Date())
+let filter = MapFilter(
+    categories: ["cafe"],
+    minRating: 4.0
+)
 viewModel.updateFilter(filter)
+```
+
+### Resetting Filters
+
+```swift
+viewModel.updateFilter(.all)
+```
+
+## Adding Places from Search Results
+
+Use ``PlaceMapper`` to bridge a ``PlaceSearchResult`` from the enrichment module directly to the map:
+
+```swift
+// User picks a search result → convert and pin it on the map
+let mapPlace = PlaceMapper.toMapPlace(searchResult)
+mapViewModel.setPlaces([mapPlace])
 ```
 
 ## Map Interaction
 
 ### Selecting Places
 
-Handle place selection:
-
 ```swift
-// The place callout is shown automatically when tapping a marker
-// Access the selected place:
+// Callout is shown automatically on marker tap
 if let selected = viewModel.selectedPlace {
     print("Selected: \(selected.name)")
 }
 
-// Programmatically select a place:
+// Programmatic selection
 viewModel.selectPlace(myPlace)
 ```
 
 ### Camera Control
 
-Control the map camera:
-
 ```swift
-// Center on a specific place
 viewModel.centerOnPlace(place, animated: true)
-
-// Fit all places in view
 viewModel.fitAllPlaces()
-
-// Change map style
 viewModel.changeMapStyle(.satellite)
 ```
 
 ## Location Services
-
-### Request Permission
-
-Request user location permission:
 
 ```swift
 Task {
     await viewModel.requestLocationPermission()
 }
 
-// Check if permission was granted
 if viewModel.userLocation != nil {
-    print("Location: \(viewModel.userLocation!)")
+    print("Location available")
 }
 ```
 
 ### Distance to Places
 
-Calculate distance from user to places:
-
 ```swift
 for place in viewModel.filteredPlaces {
-    if let distance = viewModel.distanceToPlace(place) {
-        print("\(place.name): \(distance)m away")
-    }
-
-    // Or get formatted distance
     if let formatted = viewModel.formattedDistance(place) {
         print("\(place.name): \(formatted)")
     }
 }
 ```
 
-## External Navigation
+## iOS 18+ Native POI Selection
 
-### Open in Maps Apps
-
-Launch navigation in external apps:
+Enable native Apple Maps point-of-interest selection:
 
 ```swift
-// In the place callout view, or custom UI:
+ARCMapView(
+    viewModel: viewModel,
+    featureSelectionMode: .pointsOfInterestOnly
+)
+```
+
+## External Navigation
+
+```swift
 Button("Navigate") {
     Task {
         await viewModel.openInExternalMaps(place, app: .appleMaps)
     }
 }
-
-// Available apps:
-// - .appleMaps (always available)
-// - .googleMaps (if installed)
-// - .waze (if installed)
+// Available: .appleMaps, .googleMaps, .waze
 ```
-
-### Check App Availability
-
-```swift
-// Check if an external app is installed
-// (This is handled automatically by ExternalMapLauncher)
-do {
-    try await ExternalMapLauncher.open(
-        coordinate: place.coordinate,
-        name: place.name,
-        app: .googleMaps
-    )
-} catch MapError.externalAppNotInstalled(let appName) {
-    print("\(appName) is not installed")
-}
-```
-
-## Custom Markers
-
-### Using Built-in Markers
-
-ARCMaps provides two built-in marker styles:
-
-- ``WishlistMarker``: Red heart icon for wishlist places
-- ``VisitedMarker``: Green checkmark for visited places
-
-These are automatically used based on the `MapPlace.status` property.
-
-### Custom Marker Colors
-
-The markers use system colors that adapt to light/dark mode automatically.
 
 ## Error Handling
 
-Handle map-related errors:
-
 ```swift
-// Observe errors in the ViewModel
 if let error = viewModel.error {
     switch error {
     case .locationPermissionDenied:
-        // Show settings alert
         break
     case .locationUnavailable:
-        // Show error message
         break
     case .externalAppNotInstalled(let app):
-        // Suggest alternative
         break
     default:
-        // Handle other errors
         break
     }
-
-    // Clear the error
     viewModel.error = nil
 }
 ```
 
 ## Performance Tips
 
-### Large Number of Places
-
 For best performance with many places:
 
 1. Use filtering to reduce visible markers
-2. Implement clustering (future feature)
-3. Only load places in visible region
-
-### Memory Management
-
-The map view automatically handles memory management, but you can help by:
-
-- Clearing unused places: `viewModel.setPlaces([])`
-- Limiting photo sizes when loading images
+2. Clear places when no longer needed: `viewModel.setPlaces([])`
 
 ## See Also
 
@@ -282,6 +218,9 @@ The map view automatically handles memory management, but you can help by:
 - ``MapViewModel``
 - ``MapPlace``
 - ``MapFilter``
+- ``PlaceMarker``
+- ``PlaceCalloutView``
+- ``PlaceMapper``
 - ``LocationService``
 - ``ExternalMapLauncher``
 - ``MapError``

@@ -66,18 +66,16 @@ public struct PlaceSearchResult: Sendable, Identifiable, Equatable {
     ///   - userRatingsTotal: Total number of user ratings.
     ///   - priceLevel: Price level indicator (0-4).
     ///   - photoReferences: References to available photos.
-    public init(
-        id: String,
-        provider: PlaceProvider,
-        name: String,
-        address: String? = nil,
-        coordinate: CLLocationCoordinate2D,
-        types: [String] = [],
-        rating: Double? = nil,
-        userRatingsTotal: Int? = nil,
-        priceLevel: Int? = nil,
-        photoReferences: [String] = []
-    ) {
+    public init(id: String,
+                provider: PlaceProvider,
+                name: String,
+                address: String? = nil,
+                coordinate: CLLocationCoordinate2D,
+                types: [String] = [],
+                rating: Double? = nil,
+                userRatingsTotal: Int? = nil,
+                priceLevel: Int? = nil,
+                photoReferences: [String] = []) {
         self.id = id
         self.provider = provider
         self.name = name
@@ -101,10 +99,18 @@ public struct PlaceSearchResult: Sendable, Identifiable, Equatable {
     /// Use this to sort or filter results by data quality.
     public var matchScore: Double {
         var score = 0.0
-        if rating != nil { score += 0.3 }
-        if userRatingsTotal ?? 0 > 0 { score += 0.2 }
-        if !photoReferences.isEmpty { score += 0.3 }
-        if address != nil { score += 0.2 }
+        if rating != nil {
+            score += 0.3
+        }
+        if userRatingsTotal ?? 0 > 0 {
+            score += 0.2
+        }
+        if !photoReferences.isEmpty {
+            score += 0.3
+        }
+        if address != nil {
+            score += 0.2
+        }
         return score
     }
 }
