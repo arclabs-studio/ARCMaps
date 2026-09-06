@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2026-09-06
+
+### Added
+
+- **`PlaceCompleting`** — place autocompletion as a first-class capability, separate from `PlaceEnrichmentService`. Enrichment is request/response; completion is incremental, keeping a live query fragment that the provider republishes results for as the user types. Folding the two together would have forced every enrichment implementation to carry state it does not have.
+
+- **`PlaceCompletion`** — a suggestion with `id`, `title` and `subtitle`, and deliberately no coordinate: the provider has not resolved the place yet. `resolve(_:)` turns a picked suggestion into a full `PlaceSearchResult`.
+
+- **`AppleMapsCompletionService`** — the MapKit implementation, backed by `MKLocalSearchCompleter`. Debounces internally (250 ms by default), ignores fragments under three characters, biases results to a caller-supplied `MapRegion`, and deduplicates repeated title/subtitle pairs so list identity stays stable.
+
+- **`MockPlaceCompletionService`** in `ARCMapsTestHelpers`.
+
+### Changed
+
+- `AppleMapsSearchService` now maps `MKMapItem` through the new internal `AppleMapsPlaceMapper` instead of its own private helpers. Both Apple-backed services must agree on the identifier and the address format, or the same place would arrive with two different ids depending on whether the user typed it or picked a suggestion. No behaviour change.
+
 ## [1.0.0] - 2026-08-20
 
 First public release of **ARCMaps**.
