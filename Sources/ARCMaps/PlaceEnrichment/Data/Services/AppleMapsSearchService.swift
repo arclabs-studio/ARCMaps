@@ -58,24 +58,9 @@ public actor AppleMapsSearchService: PlaceEnrichmentService {
         do {
             let response = try await search.start()
 
-            let results = response.mapItems.compactMap { mapItem -> PlaceSearchResult? in
-                guard let name = mapItem.name,
-                      let coordinate = mapItem.placemark.location?.coordinate
-                else {
-                    return nil
-                }
-
-                return PlaceSearchResult(id: Self.stableId(for: mapItem),
-                                         provider: .apple,
-                                         name: name,
-                                         address: formatAddress(mapItem.placemark),
-                                         coordinate: coordinate,
-                                         types: [],
-                                         rating: nil, // Apple Maps doesn't provide ratings in search
-                                         userRatingsTotal: nil,
-                                         priceLevel: nil,
-                                         photoReferences: [])
-            }
+            // Mapping is shared with AppleMapsCompletionService so a place found by typing
+            // and the same place found by picking a suggestion carry the same id.
+            let results = response.mapItems.compactMap(AppleMapsPlaceMapper.searchResult(from:))
 
             // Cache results
             await cache.setResults(results, for: query)
@@ -124,15 +109,6 @@ public actor AppleMapsSearchService: PlaceEnrichmentService {
 
     // MARK: - Private Helpers
 
-    /// Prefer the stable `MKMapItem.Identifier` (iOS 18+) over placemark description,
-    /// which is volatile across catalog updates.
-    private static func stableId(for mapItem: MKMapItem) -> String {
-        if #available(iOS 18.0, macOS 15.0, *), let identifier = mapItem.identifier {
-            return identifier.rawValue
-        }
-        return mapItem.placemark.description
-    }
-
     /// Maps the provider-agnostic `PlaceCategory` to `MKPointOfInterestCategory`.
     /// MapKit import is kept isolated to the Data layer per Clean Architecture.
     private static func mapCategory(_ category: PlaceCategory) -> MKPointOfInterestCategory {
@@ -145,27 +121,5 @@ public actor AppleMapsSearchService: PlaceEnrichmentService {
         case .foodMarket: .foodMarket
         case .nightlife: .nightlife
         }
-    }
-
-    private func formatAddress(_ placemark: MKPlacemark) -> String? {
-        var components: [String] = []
-
-        if let thoroughfare = placemark.thoroughfare {
-            components.append(thoroughfare)
-        }
-        if let subThoroughfare = placemark.subThoroughfare {
-            components.append(subThoroughfare)
-        }
-        if let locality = placemark.locality {
-            components.append(locality)
-        }
-        if let administrativeArea = placemark.administrativeArea {
-            components.append(administrativeArea)
-        }
-        if let postalCode = placemark.postalCode {
-            components.append(postalCode)
-        }
-
-        return components.isEmpty ? nil : components.joined(separator: ", ")
     }
 }

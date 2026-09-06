@@ -3,7 +3,7 @@
 [![Swift](https://img.shields.io/badge/Swift-6.0-orange.svg)](https://swift.org)
 [![Platforms](https://img.shields.io/badge/Platforms-iOS%2017%2B%20%7C%20macOS%2014%2B-blue.svg)](https://developer.apple.com)
 [![License](https://img.shields.io/badge/License-PolyForm%20Noncommercial%201.0.0-orange.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/Version-1.0.0-blue.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/Version-1.1.0-blue.svg)](CHANGELOG.md)
 [![CI](https://github.com/arclabs-studio/ARCMaps/actions/workflows/ci.yml/badge.svg)](https://github.com/arclabs-studio/ARCMaps/actions/workflows/ci.yml)
 
 **A comprehensive Swift Package for place enrichment and map visualization in iOS and macOS apps.**
@@ -23,6 +23,7 @@ Whether you're building a restaurant tracker, travel planner, or any location-ce
 ### Key Features
 
 - **Multi-Provider Search** - Google Places API with Apple MapKit fallback
+- **Place Autocompletion** - Incremental suggestions as the user types, resolved to a coordinate on selection
 - **Rich Place Data** - Photos, reviews, ratings, hours, and contact information
 - **Interactive Maps** - Native MapKit with custom markers and filtering
 - **iOS 18+ Enhancements** - Native POI selection with Apple callouts
@@ -148,6 +149,36 @@ struct PlaceSearchView: View {
 }
 ```
 
+### Autocomplete a Location
+
+`PlaceCompleting` covers what search cannot: suggestions while the user is still typing. One
+selection resolves to both the display text and the coordinate, so nothing has to be geocoded
+again afterwards.
+
+```swift
+import ARCMaps
+
+@MainActor
+final class CityFieldModel {
+    private let completer: any PlaceCompleting = AppleMapsCompletionService()
+
+    var suggestions: [PlaceCompletion] = []
+
+    func textChanged(_ fragment: String, near region: MapRegion?) async {
+        // Debouncing and the too-short-to-search guard live in the service.
+        suggestions = await completer.completions(for: fragment, near: region)
+    }
+
+    func pick(_ suggestion: PlaceCompletion) async throws -> CLLocationCoordinate2D? {
+        try await completer.resolve(suggestion)?.coordinate
+    }
+}
+```
+
+`AppleMapsCompletionService` is `@MainActor`, not an actor: `MKLocalSearchCompleter` is a
+stateful delegate API that publishes on the main thread. `PlaceCompleting` only requires
+`Sendable`, which a main-actor type satisfies.
+
 ### Filter Map Places
 
 ```swift
@@ -235,6 +266,7 @@ import ARCMapsTestHelpers
 
 // Use mocks for testing
 let mockService = MockPlaceEnrichmentService()
+let mockCompleter = MockPlaceCompletionService()
 let mockLocation = MockLocationService()
 let mockCache = MockPlaceSearchCache()
 
