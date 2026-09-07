@@ -47,15 +47,27 @@ import MapKit
     /// Creates a completion service.
     ///
     /// - Parameters:
-    ///   - resultTypes: What MapKit may suggest. Defaults to addresses and points of
-    ///     interest; query suggestions ("coffee") are excluded because they resolve to no
-    ///     single place.
+    ///   - scope: What kind of place may be suggested. Defaults to ``PlaceCompletionScope/all``.
     ///   - debounce: How long typing must pause before a fragment is sent.
-    public init(resultTypes: MKLocalSearchCompleter.ResultType = [.address, .pointOfInterest],
+    public init(scope: PlaceCompletionScope = .all,
                 debounce: Duration = .milliseconds(250)) {
         self.debounce = debounce
         completer = MKLocalSearchCompleter()
-        completer.resultTypes = resultTypes
+        // Query suggestions ("coffee") are excluded from every scope: they resolve to no
+        // single place, so `resolve(_:)` could never return anything for them.
+        completer.resultTypes = scope == .all ? [.address, .pointOfInterest] : [.address]
+
+        if scope == .administrativeAreas {
+            // iOS 17 has no address filter, so this scope degrades to addresses-only there:
+            // venues are still excluded, streets are not.
+            if #available(iOS 18.0, macOS 15.0, *) {
+                completer.addressFilter = MKAddressFilter(including: [.locality,
+                                                                      .subLocality,
+                                                                      .administrativeArea,
+                                                                      .subAdministrativeArea])
+            }
+        }
+
         completer.delegate = completerDelegate
         completerDelegate.owner = self
     }
