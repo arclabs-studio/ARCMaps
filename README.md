@@ -3,7 +3,7 @@
 [![Swift](https://img.shields.io/badge/Swift-6.0-orange.svg)](https://swift.org)
 [![Platforms](https://img.shields.io/badge/Platforms-iOS%2017%2B%20%7C%20macOS%2014%2B-blue.svg)](https://developer.apple.com)
 [![License](https://img.shields.io/badge/License-PolyForm%20Noncommercial%201.0.0-orange.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/Version-1.1.0-blue.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/Version-1.1.1-blue.svg)](CHANGELOG.md)
 [![CI](https://github.com/arclabs-studio/ARCMaps/actions/workflows/ci.yml/badge.svg)](https://github.com/arclabs-studio/ARCMaps/actions/workflows/ci.yml)
 
 **A comprehensive Swift Package for place enrichment and map visualization in iOS and macOS apps.**
@@ -160,7 +160,8 @@ import ARCMaps
 
 @MainActor
 final class CityFieldModel {
-    private let completer: any PlaceCompleting = AppleMapsCompletionService()
+    // A city field wants places, not venues and not streets.
+    private let completer: any PlaceCompleting = AppleMapsCompletionService(scope: .administrativeAreas)
 
     var suggestions: [PlaceCompletion] = []
 

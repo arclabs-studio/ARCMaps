@@ -13,8 +13,24 @@ import Testing
 /// a request from being made at all, and the failure path of `resolve`. Anything past
 /// `queryFragment` is MapKit's own network service, which is not an oracle a test can hold.
 @MainActor struct AppleMapsCompletionServiceTests {
-    private func makeSUT(debounce: Duration = .milliseconds(1)) -> AppleMapsCompletionService {
-        AppleMapsCompletionService(debounce: debounce)
+    private func makeSUT(scope: PlaceCompletionScope = .all,
+                         debounce: Duration = .milliseconds(1)) -> AppleMapsCompletionService {
+        AppleMapsCompletionService(scope: scope, debounce: debounce)
+    }
+
+    // MARK: - Scope
+
+    @Test("Every scope builds a usable service", arguments: PlaceCompletionScope.allCases)
+    func everyScopeBuilds(scope: PlaceCompletionScope) async {
+        // Given — .administrativeAreas configures an address filter on iOS 18+ and nothing on
+        // iOS 17; neither path may trap, and the short-fragment guard must still hold.
+        let sut = makeSUT(scope: scope)
+
+        // When
+        let suggestions = await sut.completions(for: "ca", near: nil)
+
+        // Then
+        #expect(suggestions.isEmpty)
     }
 
     // MARK: - Fragment Guards
