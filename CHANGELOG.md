@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.1] - 2026-09-07
+
+### Added
+
+- **`PlaceCompletionScope`** — `all` / `addresses` / `administrativeAreas`, replacing the raw `MKLocalSearchCompleter.ResultType` parameter on `AppleMapsCompletionService`. An address *field* usually wants towns and neighbourhoods, not venues and not streets: typing "torrelodon" should offer "Torrelodones, Madrid", not "Calle Torrelodones" or a health centre on it. Expressing that needed a result-type mask *and* an `MKAddressFilter`, which is exactly the MapKit detail a caller should not have to know.
+
+  `.administrativeAreas` requires iOS 18 / macOS 15 for the address filter; on earlier systems it degrades to `.addresses`, so venues are still excluded and streets are not.
+
+### Changed
+
+- `AppleMapsCompletionService.init` now takes `scope:` instead of `resultTypes:`. Source-breaking for anyone who passed `resultTypes` explicitly; the default (`.all`) matches the previous default behaviour.
+
 ## [1.1.0] - 2026-09-06
 
 ### Added
