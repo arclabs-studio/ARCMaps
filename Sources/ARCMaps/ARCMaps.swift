@@ -23,6 +23,11 @@ import Foundation
 /// - ``GooglePlacesService``
 /// - ``AppleMapsSearchService``
 ///
+/// ### Place Autocompletion
+/// - ``PlaceCompleting``
+/// - ``PlaceCompletion``
+/// - ``AppleMapsCompletionService``
+///
 /// ### Map Visualization
 /// - ``ARCMapView``
 /// - ``MapViewModel``
