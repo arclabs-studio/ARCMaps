@@ -13,7 +13,7 @@ import Testing
 /// String Catalog can translate it. The package ships no catalog of its own, so
 /// resolving here must fall back to the English default: that fallback is what
 /// guarantees the change cannot regress an app that has not added the keys yet.
-@Suite struct MapErrorMessageTests {
+struct MapErrorMessageTests {
     @Test("Each case resolves to its English default",
           arguments: [(MapError.locationPermissionDenied,
                        "Location permission denied. Please enable in Settings"),
@@ -27,8 +27,7 @@ import Testing
         #expect(String(localized: error.message) == expected)
     }
 
-    @Test("errorDescription still matches the resolved message")
-    func errorDescriptionMatchesMessage() {
+    @Test("errorDescription still matches the resolved message") func errorDescriptionMatchesMessage() {
         // Given
         let sut = MapError.locationPermissionDenied
 
