@@ -41,6 +41,11 @@ private enum MapDefaults {
     private let locationService: LocationService
     private let logger = ARCLogger(category: "MapViewModel")
 
+    /// Set once a denial has been surfaced. `ARCMapView`'s `.task` re-runs on every
+    /// appearance of the map, and a denied user can no longer be prompted — re-raising
+    /// the error would re-show the alert on every visit to the tab. [FVRS-324]
+    private var hasReportedPermissionDenial = false
+
     // MARK: - Initialization
 
     public init(locationService: LocationService) {
@@ -57,7 +62,17 @@ private enum MapDefaults {
     }
 
     /// Request location permission and get user location
+    ///
+    /// A denial is reported once. A user who has already denied cannot be prompted
+    /// again, so every later call would only re-raise the same error — and the
+    /// alert would come back on each visit to the map. [FVRS-324]
     public func requestLocationPermission() async {
+        let status = await locationService.authorizationStatus()
+        if hasReportedPermissionDenial, status == .denied || status == .restricted {
+            logger.debug("Location permission already denied and reported; skipping")
+            return
+        }
+
         logger.info("Requesting location permission")
 
         isLoadingLocation = true
@@ -68,6 +83,7 @@ private enum MapDefaults {
         if granted {
             await updateUserLocation()
         } else {
+            hasReportedPermissionDenial = true
             error = .locationPermissionDenied
             logger.warning("Location permission denied")
         }

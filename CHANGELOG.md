@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2026-09-16
+
+### Added
+
+- **`MapError.message`** — a `LocalizedStringResource` for every case, so the text can be translated. `LocalizedStringResource` resolves against `BundleDescription.main`, which at runtime is the *host app's* bundle: ARCMaps stays text-agnostic (no `.xcstrings`, no `resources:`), the app's String Catalog supplies the translations, and a key the host has not added yet falls back to the English default. Until now the strings were plain `String` literals, so a Spanish app showed an English map alert.
+
+- **`MockLocationService.setMockPermissionGranted(_:)`, `setMockAuthorizationStatus(_:)` and `setMockCurrentLocation(_:)`** in `ARCMapsTestHelpers`. The mock is an `actor`, so its stored configuration could not be assigned from outside it — these are the seam tests need.
+
+### Changed
+
+- `MapViewModel.requestLocationPermission()` reports a denial **once**. `ARCMapView`'s `.task` re-runs on every appearance of the map and a denied user can no longer be prompted, so each visit to the map re-armed `error` and the alert came back. The method now checks `authorizationStatus()` first and returns early when the denial has already been surfaced.
+
+- `ARCMapView`'s error alert renders `error.message` instead of `error.localizedDescription`, so the alert body goes through the host app's catalog.
+
+- `MapError.errorDescription` is now derived from `message`. The resolved English text is unchanged, so `localizedDescription` keeps working for system contexts that take an `Error`.
+
 ## [1.1.1] - 2026-09-07
 
 ### Added

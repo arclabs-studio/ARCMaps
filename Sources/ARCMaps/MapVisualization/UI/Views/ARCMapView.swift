@@ -227,7 +227,9 @@ public struct ARCMapView<MarkerContent: View, SheetContent: View>: View {
             }
         } message: {
             if let error = viewModel.error {
-                Text(error.localizedDescription)
+                // `message`, not `localizedDescription`: the resource resolves
+                // against the host app's String Catalog. [FVRS-324]
+                Text(error.message)
             }
         }
     }
