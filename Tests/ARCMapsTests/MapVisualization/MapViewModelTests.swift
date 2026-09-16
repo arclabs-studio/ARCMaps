@@ -5,6 +5,7 @@
 //  Created by ARC Labs Studio on 13/01/2026.
 //
 
+import CoreLocation
 import Testing
 @testable import ARCMaps
 @testable import ARCMapsTestHelpers
@@ -99,6 +100,61 @@ import Testing
 
         // Then
         #expect(sut.selectedPlace == nil)
+    }
+
+    // MARK: - Location Permission
+
+    @Test("A denied permission surfaces the error once") func deniedPermissionSetsError() async {
+        // Given
+        await mockLocationService.setMockPermissionGranted(false)
+        await mockLocationService.setMockAuthorizationStatus(.denied)
+
+        // When
+        await sut.requestLocationPermission()
+
+        // Then
+        #expect(sut.error == .locationPermissionDenied)
+        #expect(sut.isLoadingLocation == false)
+    }
+
+    /// FVRS-324 — `ARCMapView`'s `.task` re-runs on every appearance of the map,
+    /// so without this guard the alert came back on every visit to the tab.
+    @Test("A second request after a reported denial is skipped") func deniedPermissionDoesNotRenag() async {
+        // Given — a denial has already been surfaced and the user dismissed the alert
+        await mockLocationService.setMockPermissionGranted(false)
+        await mockLocationService.setMockAuthorizationStatus(.denied)
+        await sut.requestLocationPermission()
+        #expect(sut.error == .locationPermissionDenied)
+        sut.error = nil
+        await mockLocationService.reset()
+
+        // When — the map appears again
+        await sut.requestLocationPermission()
+
+        // Then — nothing was asked and no alert was re-armed
+        #expect(await mockLocationService.requestPermissionCalled == false)
+        #expect(sut.error == nil)
+    }
+
+    @Test("A still-undetermined status is requested even after an earlier denial")
+    func notDeterminedStatusStillRequests() async {
+        // Given — a denial was reported, then the status moved back to undetermined
+        await mockLocationService.setMockPermissionGranted(false)
+        await mockLocationService.setMockAuthorizationStatus(.denied)
+        await sut.requestLocationPermission()
+        sut.error = nil
+        await mockLocationService.reset()
+        await mockLocationService.setMockAuthorizationStatus(.notDetermined)
+        await mockLocationService.setMockPermissionGranted(true)
+        await mockLocationService.setMockCurrentLocation(CLLocationCoordinate2D(latitude: 40.41, longitude: -3.70))
+
+        // When
+        await sut.requestLocationPermission()
+
+        // Then — the guard only short-circuits a denied/restricted status
+        #expect(await mockLocationService.requestPermissionCalled == true)
+        #expect(sut.error == nil)
+        #expect(sut.userLocation != nil)
     }
 
     // MARK: - Camera Position
