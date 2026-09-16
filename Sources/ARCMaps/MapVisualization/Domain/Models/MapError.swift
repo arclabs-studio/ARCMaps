@@ -42,20 +42,41 @@ public enum MapError: LocalizedError, Sendable, Equatable {
     /// Failed to open external navigation.
     case navigationFailed
 
-    public var errorDescription: String? {
+    /// Localizable user-facing message.
+    ///
+    /// `LocalizedStringResource` defaults to `BundleDescription.main`, which at
+    /// runtime is the *host app's* bundle — so the app's String Catalog supplies
+    /// the translations and the literals here are only the English defaults.
+    /// ARC packages stay text-agnostic: no `.xcstrings` ships with ARCMaps, and a
+    /// key the host has not translated falls back to the default below. [FVRS-324]
+    public var message: LocalizedStringResource {
         switch self {
         case .locationPermissionDenied:
-            "Location permission denied. Please enable in Settings"
+            LocalizedStringResource("Location permission denied. Please enable in Settings",
+                                    comment: "Error: the user denied location permission for the map")
         case .locationUnavailable:
-            "Unable to determine your location"
+            LocalizedStringResource("Unable to determine your location",
+                                    comment: "Error: the device could not resolve the user's location")
         case .invalidCoordinate:
-            "Invalid coordinate provided"
+            LocalizedStringResource("Invalid coordinate provided",
+                                    comment: "Error: a place carries an out-of-range coordinate")
         case .noPlacesFound:
-            "No places found to display"
+            LocalizedStringResource("No places found to display",
+                                    comment: "Error: the map has no places to show")
         case let .externalAppNotInstalled(app):
-            "\(app) is not installed"
+            LocalizedStringResource("\(app) is not installed",
+                                    comment: "Error: external maps app missing. %@ is its name, e.g. Google Maps")
         case .navigationFailed:
-            "Failed to open navigation"
+            LocalizedStringResource("Failed to open navigation",
+                                    comment: "Error: launching the external navigation app failed")
         }
+    }
+
+    /// Plain-English bridge for system contexts that take an `Error`.
+    ///
+    /// UI should render ``message`` instead: resolving here would pin the string
+    /// to the current locale at throw time.
+    public var errorDescription: String? {
+        String(localized: message)
     }
 }

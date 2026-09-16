@@ -28,6 +28,28 @@ public actor MockLocationService: LocationService {
 
     public init() {}
 
+    // MARK: - Configuration
+
+    /// Sets what the next ``requestPermission()`` returns.
+    ///
+    /// The stored properties are actor-isolated, so a caller outside the actor
+    /// cannot assign to them directly — these setters are the seam.
+    public func setMockPermissionGranted(_ granted: Bool) {
+        mockPermissionGranted = granted
+    }
+
+    /// Sets what ``authorizationStatus()`` reports.
+    public func setMockAuthorizationStatus(_ status: CLAuthorizationStatus) {
+        mockAuthorizationStatus = status
+    }
+
+    /// Sets the coordinate ``getCurrentLocation()`` returns.
+    public func setMockCurrentLocation(_ location: CLLocationCoordinate2D?) {
+        mockCurrentLocation = location
+    }
+
+    // MARK: - LocationService
+
     public func requestPermission() async -> Bool {
         requestPermissionCalled = true
         return mockPermissionGranted
