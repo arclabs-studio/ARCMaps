@@ -31,15 +31,6 @@ struct CustomMarkerDemoView: View {
             }
             .navigationTitle("Custom Markers")
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        viewModel.fitAllPlaces()
-                    } label: {
-                        Image(systemName: "arrow.up.left.and.arrow.down.right")
-                    }
-                }
-            }
             .onAppear {
                 viewModel.setPlaces(SampleData.places)
                 viewModel.fitAllPlaces()

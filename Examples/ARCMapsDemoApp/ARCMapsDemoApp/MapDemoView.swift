@@ -13,7 +13,8 @@ import SwiftUI
 /// Shows how to:
 /// - Initialize MapViewModel with CoreLocationService
 /// - Display places on the map
-/// - Use the "Fit All" feature
+/// - Use the built-in map controls: user location, 3D, fit all places and map style
+///   (one Liquid Glass capsule, top trailing — no toolbar buttons needed)
 /// - Enable iOS 18+ native POI selection
 struct MapDemoView: View {
     @State private var viewModel: MapViewModel
@@ -39,15 +40,6 @@ struct MapDemoView: View {
             }
             .navigationTitle("Map Demo")
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        viewModel.fitAllPlaces()
-                    } label: {
-                        Image(systemName: "arrow.up.left.and.arrow.down.right")
-                    }
-                }
-            }
             .onAppear {
                 viewModel.setPlaces(SampleData.places)
                 viewModel.fitAllPlaces()

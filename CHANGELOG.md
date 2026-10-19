@@ -24,6 +24,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Both custom controls have accessibility labels ("Show all places", "Map style").
 - Added `MapPitchToggle` to the native controls.
 
+### Documentation
+
+- Map Visualization Guide: new *Map Controls* section — what each control is, where it comes from (MapKit or ARCMaps), and the String Catalog keys a host app must add.
+- README and demo README describe the built-in controls. The DocC index no longer lists the internal `MapControlsView`, whose link resolved to nothing.
+- Demo app: the Map and Custom Markers tabs drop their toolbar "fit all" buttons, which duplicated the in-map control; the About tab lists the map controls.
+
 ## [1.2.0] - 2026-09-16
 
 ### Added

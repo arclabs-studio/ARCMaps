@@ -39,6 +39,10 @@ struct AboutView: View {
                                title: "Native POI Selection",
                                description: "iOS 18+ feature to tap Apple Maps locations")
 
+                    FeatureRow(icon: "location.circle",
+                               title: "Map Controls",
+                               description: "Native location and 3D controls plus fit all and map style, in one glass capsule")
+
                     FeatureRow(icon: "location",
                                title: "User Location",
                                description: "Display current location and calculate distances")
