@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - 2026-10-19
+
+### Fixed
+
+- **The user-location button was unreachable.** `ARCMapView` declared `MapUserLocationButton` in `.mapControls`, which MapKit lays out top-trailing on its own — and the custom controls overlay sat at exactly the same frame, on top of it. The native controls now take the map's scope (`MapUserLocationButton(scope:)`, `MapCompass(scope:)`, `MapPitchToggle(scope:)`, `MapScaleView(scope:)`) and stack in one column with the custom ones, so nothing overlaps.
+
+- **Choosing a map style did nothing.** `MapViewModel.mapStyle` changed but was never applied to the `Map`. `ARCMapView` now renders it through `.mapStyle(_:)` (`satellite` → `.imagery`).
+
+- **`ExternalMapApp.canOpen()` read `UIApplication.shared` from a nonisolated context** (Swift 6.4 warning). It is now `@MainActor`; `ExternalMapLauncher.open` awaits it.
+
+### Changed
+
+- The map's controls share one Liquid Glass capsule (`.regularMaterial` before iOS 26 / macOS 26): location, pitch, fit all and style, with the compass below it. Standalone MapKit controls draw no background of their own, so the custom buttons' hand-drawn circles made the column look mismatched. Buttons are 44 pt, scaled with Dynamic Type.
+- `ExternalMapApp.canOpen()` is `@MainActor`. Source-breaking only for synchronous callers outside the main actor.
+- The fit-all button's icon is now `arrow.up.left.and.arrow.down.right`. The old `scope` crosshair read as a location button.
+- The style menu is a `Picker`, so the current style shows a checkmark. Style names are `LocalizedStringResource`s resolved by the host app's String Catalog, as `MapError.message` already is.
+- Both custom controls have accessibility labels ("Show all places", "Map style").
+- Added `MapPitchToggle` to the native controls.
+
 ## [1.2.0] - 2026-09-16
 
 ### Added
