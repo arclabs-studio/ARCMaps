@@ -49,7 +49,8 @@ public enum ExternalMapApp: String, CaseIterable, Sendable {
     ///
     /// - Returns: `true` if the app can be opened, `false` otherwise.
     /// - Note: Always returns `false` on macOS.
-    public func canOpen() -> Bool {
+    ///   Main-actor isolated because it queries `UIApplication.shared`.
+    @MainActor public func canOpen() -> Bool {
         #if canImport(UIKit)
         guard let url = URL(string: urlScheme + "://") else { return false }
         return UIApplication.shared.canOpenURL(url)
@@ -101,13 +102,13 @@ public enum ExternalMapLauncher {
             url = buildAppleMapsURL(coordinate: coordinate, name: name, address: address)
 
         case .googleMaps:
-            guard app.canOpen() else {
+            guard await app.canOpen() else {
                 throw MapError.externalAppNotInstalled(app.rawValue)
             }
             url = buildGoogleMapsURL(coordinate: coordinate, name: name)
 
         case .waze:
-            guard app.canOpen() else {
+            guard await app.canOpen() else {
                 throw MapError.externalAppNotInstalled(app.rawValue)
             }
             url = buildWazeURL(coordinate: coordinate)

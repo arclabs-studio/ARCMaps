@@ -45,7 +45,6 @@ The package follows Clean Architecture principles with a modular, testable desig
 
 - ``PlaceMarker``
 - ``PlaceCalloutView``
-- ``MapControlsView``
 
 ### Presentation Layer
 

@@ -21,7 +21,7 @@ Demo application for ARCMaps.
 - **Interactive Map**: Displays sample places on an Apple Maps view
 - **Custom Markers**: Wishlist places show red heart markers, visited places show green checkmark markers
 - **Place Details**: Tap any marker to see place information in a sheet
-- **Map Controls**: Use built-in controls to fit all places, change map style, and show user location
+- **Map Controls**: Built into `ARCMapView`, top trailing in one Liquid Glass capsule: user location and 3D (native MapKit), fit all places, and map style (standard, satellite, hybrid). The compass appears below it when the map is rotated
 - **iOS 18+ POI Selection**: Toggle to enable tapping native Apple Maps points of interest
 
 ### Filter Demo Tab
