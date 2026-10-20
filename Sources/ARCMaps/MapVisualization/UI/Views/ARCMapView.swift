@@ -77,7 +77,7 @@ public enum MapFeatureSelectionMode: Sendable {
 /// `ARCMapView` provides a full-featured map interface with:
 /// - Customizable place markers via `@ViewBuilder`
 /// - Customizable place detail sheet via `@ViewBuilder`
-/// - Map controls (fit all, style selector)
+/// - Map controls: MapKit's native location, compass, pitch and scale, plus fit all and style
 /// - User location display
 /// - Optional native POI selection (iOS 18+)
 ///
@@ -123,6 +123,9 @@ public struct ARCMapView<MarkerContent: View, SheetContent: View>: View {
 
     private let markerContent: (MapPlace) -> MarkerContent
     private let sheetContent: (MapPlace, CLLocationCoordinate2D?) -> SheetContent
+
+    /// Ties the standalone native controls in ``MapControlsView`` to this map.
+    @Namespace private var mapScope
 
     // MARK: - Initializers
 
@@ -195,15 +198,10 @@ public struct ARCMapView<MarkerContent: View, SheetContent: View>: View {
             mapView
 
             VStack {
-                HStack {
+                HStack(alignment: .top) {
+                    MapScaleView(scope: mapScope)
                     Spacer()
-                    MapControlsView(onFitAll: {
-                                        viewModel.fitAllPlaces()
-                                    },
-                                    onChangeStyle: { style in
-                                        viewModel.changeMapStyle(style)
-                                    },
-                                    currentStyle: viewModel.mapStyle)
+                    MapControlsView(viewModel: viewModel, scope: mapScope)
                 }
                 .padding()
 
@@ -217,6 +215,7 @@ public struct ARCMapView<MarkerContent: View, SheetContent: View>: View {
                     .cornerRadius(ViewDefaults.loadingIndicatorCornerRadius)
             }
         }
+        .mapScope(mapScope)
         .task {
             await viewModel.requestLocationPermission()
         }
@@ -239,11 +238,10 @@ public struct ARCMapView<MarkerContent: View, SheetContent: View>: View {
     /// Map view with shared controls and place detail sheet applied once for both iOS variants.
     private var mapView: some View {
         coreMap
-            .mapControls {
-                MapUserLocationButton()
-                MapCompass()
-                MapScaleView()
-            }
+            .mapStyle(viewModel.mapStyle.mapKitStyle)
+            // Empty on purpose: the native controls live in `MapControlsView`,
+            // bound through `mapScope`, so they stack with the custom ones.
+            .mapControls {}
             .sheet(item: $viewModel.selectedPlace) { place in
                 placeCalloutSheet(for: place)
             }
@@ -255,6 +253,7 @@ public struct ARCMapView<MarkerContent: View, SheetContent: View>: View {
         if #available(iOS 18.0, *) {
             FeatureSelectionMapView(viewModel: viewModel,
                                     featureSelectionMode: featureSelectionMode,
+                                    scope: mapScope,
                                     content: mapContent)
         } else {
             legacyMap
@@ -267,7 +266,7 @@ public struct ARCMapView<MarkerContent: View, SheetContent: View>: View {
 
     /// Map view for iOS 17 / macOS 14 (no native feature selection support).
     private var legacyMap: some View {
-        Map(position: $viewModel.cameraPosition) {
+        Map(position: $viewModel.cameraPosition, scope: mapScope) {
             mapContent
         }
     }
@@ -303,6 +302,7 @@ public struct ARCMapView<MarkerContent: View, SheetContent: View>: View {
 @available(iOS 18.0, *) private struct FeatureSelectionMapView<Content: MapContent>: View {
     @Bindable var viewModel: MapViewModel
     let featureSelectionMode: MapFeatureSelectionMode
+    let scope: Namespace.ID
     let content: Content
 
     @State private var nativeSelection: MapSelection<MKMapItem>?
@@ -319,14 +319,14 @@ public struct ARCMapView<MarkerContent: View, SheetContent: View>: View {
     }
 
     private var mapWithSelectionDisabled: some View {
-        Map(position: $viewModel.cameraPosition) {
+        Map(position: $viewModel.cameraPosition, scope: scope) {
             content
         }
         .mapFeatureSelectionDisabled { _ in true }
     }
 
     private var mapWithPOISelection: some View {
-        Map(position: $viewModel.cameraPosition, selection: $nativeSelection) {
+        Map(position: $viewModel.cameraPosition, selection: $nativeSelection, scope: scope) {
             content
         }
         .mapFeatureSelectionDisabled { feature in
@@ -336,7 +336,7 @@ public struct ARCMapView<MarkerContent: View, SheetContent: View>: View {
     }
 
     private var mapWithAllSelection: some View {
-        Map(position: $viewModel.cameraPosition, selection: $nativeSelection) {
+        Map(position: $viewModel.cameraPosition, selection: $nativeSelection, scope: scope) {
             content
         }
         .mapFeatureSelectionAccessory(.callout)

@@ -51,6 +51,35 @@ struct PlaceMapView: View {
 }
 ```
 
+## Map Controls
+
+`ARCMapView` ships its own controls; the host app adds none. They sit in one column, top trailing:
+
+| Control | Source | Notes |
+|---------|--------|-------|
+| User location | MapKit `MapUserLocationButton` | Centres on the user. MapKit picks the zoom; it has no distance parameter. Tap again to follow heading. |
+| 3D | MapKit `MapPitchToggle` | MapKit hides it when 3D is unavailable at the current zoom. |
+| Fit all places | ARCMaps | Calls ``MapViewModel/fitAllPlaces()``. |
+| Map style | ARCMaps | A `Picker` over ``MapStyle``: standard, satellite, hybrid. Bound to ``MapViewModel/mapStyle``. |
+| Compass | MapKit `MapCompass` | Below the column; MapKit shows it only while the map is rotated. |
+| Scale | MapKit `MapScaleView` | Top leading; MapKit shows it while zooming. |
+
+The first four share one Liquid Glass capsule on iOS 26 / macOS 26 and later, and a `.regularMaterial` capsule before that. The native controls are bound to the map through a map scope (`MapUserLocationButton(scope:)`), not `.mapControls`, so ARCMaps owns their order and nothing overlaps them.
+
+Tint the controls with the standard `.tint(_:)` modifier on `ARCMapView`.
+
+### Localization
+
+ARCMaps ships no string catalog. Its control labels resolve against the host app's String Catalog, with these English keys as defaults:
+
+| Key | Used for |
+|-----|----------|
+| `Show all places` | Fit-all button accessibility label |
+| `Map style` | Style menu title and accessibility label |
+| `Standard`, `Satellite`, `Hybrid` | Style names in the menu |
+
+Xcode does not extract strings from package dependencies, so add these keys to the app's catalog by hand.
+
 ## Custom Markers
 
 By default, `ARCMapView` uses ``PlaceMarker`` — a simple red circle pin. Inject a `@ViewBuilder` to render your own marker per place:
@@ -140,7 +169,7 @@ viewModel.selectPlace(myPlace)
 ```swift
 viewModel.centerOnPlace(place, animated: true)
 viewModel.fitAllPlaces()
-viewModel.changeMapStyle(.satellite)
+viewModel.changeMapStyle(.satellite)  // the built-in style menu does the same
 ```
 
 ## Location Services

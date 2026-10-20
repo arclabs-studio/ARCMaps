@@ -26,6 +26,7 @@ Whether you're building a restaurant tracker, travel planner, or any location-ce
 - **Place Autocompletion** - Incremental suggestions as the user types, resolved to a coordinate on selection
 - **Rich Place Data** - Photos, reviews, ratings, hours, and contact information
 - **Interactive Maps** - Native MapKit with custom markers and filtering
+- **Built-in Map Controls** - Native location, 3D, compass and scale, plus fit all and map style, in one Liquid Glass capsule
 - **iOS 18+ Enhancements** - Native POI selection with Apple callouts
 - **External Navigation** - Launch Apple Maps, Google Maps, or Waze
 - **Smart Caching** - Automatic result caching with configurable TTL
@@ -126,6 +127,8 @@ struct ContentView: View {
     }
 }
 ```
+
+`ARCMapView` brings its own controls: user location, 3D, fit all places and map style, top trailing in one Liquid Glass capsule. Their labels resolve against your app's String Catalog; the keys are listed in the Map Visualization Guide, under *Map Controls → Localization*.
 
 ### Search for Places
 
