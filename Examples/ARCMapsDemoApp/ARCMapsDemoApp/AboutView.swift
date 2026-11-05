@@ -41,7 +41,8 @@ struct AboutView: View {
 
                     FeatureRow(icon: "location.circle",
                                title: "Map Controls",
-                               description: "Native location and 3D controls plus fit all and map style, in one glass capsule")
+                               description: "Native location and 3D controls plus fit all and map style, "
+                                   + "in one glass capsule")
 
                     FeatureRow(icon: "location",
                                title: "User Location",
