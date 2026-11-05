@@ -106,7 +106,7 @@ private struct MinimalPlaceSheet: View {
                 Spacer()
 
                 if let rating = place.rating {
-                    Label(String(format: "%.1f", rating), systemImage: "star.fill")
+                    Label(rating.formatted(.number.precision(.fractionLength(1))), systemImage: "star.fill")
                         .font(.subheadline.weight(.medium))
                         .foregroundStyle(.orange)
                 }

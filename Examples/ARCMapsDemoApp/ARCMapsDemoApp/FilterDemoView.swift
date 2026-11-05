@@ -91,7 +91,7 @@ struct FilterDemoView: View {
         }
 
         if minRating > 0 {
-            parts.append("Rating \(String(format: "%.1f", minRating))+")
+            parts.append("Rating \(minRating.formatted(.number.precision(.fractionLength(1))))+")
         }
 
         return parts.isEmpty ? "No filters applied" : parts.joined(separator: " | ")
@@ -109,17 +109,7 @@ struct FilterDemoView: View {
                 // Category filter
                 Section("Category") {
                     ForEach(SampleData.categories, id: \.self) { category in
-                        Toggle(isOn: Binding(get: { selectedCategories.contains(category) },
-                                             set: { isSelected in
-                                                 if isSelected {
-                                                     selectedCategories.insert(category)
-                                                 } else {
-                                                     selectedCategories.remove(category)
-                                                 }
-                                                 applyFilters()
-                                             })) {
-                            Text(category.capitalized)
-                        }
+                        Toggle(category.capitalized, isOn: $selectedCategories[contains: category])
                     }
                 }
 
@@ -127,7 +117,7 @@ struct FilterDemoView: View {
                 Section("Minimum Rating") {
                     VStack(alignment: .leading) {
                         HStack {
-                            Text(minRating > 0 ? String(format: "%.1f", minRating) : "Any")
+                            Text(minRating > 0 ? minRating.formatted(.number.precision(.fractionLength(1))) : "Any")
                                 .font(.headline)
 
                             Spacer()
@@ -144,6 +134,9 @@ struct FilterDemoView: View {
                         }
                     }
                 }
+            }
+            .onChange(of: selectedCategories) {
+                applyFilters()
             }
             .navigationTitle("Filters")
             .navigationBarTitleDisplayMode(.inline)
@@ -180,4 +173,20 @@ struct FilterDemoView: View {
 
 #Preview {
     FilterDemoView()
+}
+
+// MARK: - Set Membership Binding
+
+extension Set {
+    /// Read-write membership, so a `Toggle` can bind to `$set[contains: element]`.
+    fileprivate subscript(contains element: Element) -> Bool {
+        get { contains(element) }
+        set {
+            if newValue {
+                insert(element)
+            } else {
+                remove(element)
+            }
+        }
+    }
 }
