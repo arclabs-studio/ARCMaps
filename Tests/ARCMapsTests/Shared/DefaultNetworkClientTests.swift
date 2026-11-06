@@ -6,14 +6,22 @@
 //
 
 import Foundation
+import os
 import Testing
 @testable import ARCMaps
 
 // MARK: - URLProtocol Mock
 
 /// URLProtocol stub for intercepting URLSession requests in tests.
-final class MockURLProtocol: URLProtocol, @unchecked Sendable {
-    nonisolated(unsafe) static var requestHandler: ((URLRequest) throws -> (HTTPURLResponse, Data))?
+final class MockURLProtocol: URLProtocol {
+    typealias Handler = @Sendable (URLRequest) throws -> (HTTPURLResponse, Data)
+
+    private static let handlerStore = OSAllocatedUnfairLock<Handler?>(initialState: nil)
+
+    static var requestHandler: Handler? {
+        get { handlerStore.withLock { $0 } }
+        set { handlerStore.withLock { $0 = newValue } }
+    }
 
     override static func canInit(with _: URLRequest) -> Bool {
         true
@@ -136,10 +144,10 @@ private struct TestPayload: Codable, Equatable {
 
     @Test("Provided HTTP headers are forwarded on the request") func requestForwardsHeaders() async throws {
         // Given
-        var capturedRequest: URLRequest?
+        let capturedRequest = OSAllocatedUnfairLock<URLRequest?>(initialState: nil)
         let responseData = try JSONEncoder().encode(TestPayload(id: 1, name: "x"))
         MockURLProtocol.requestHandler = { request in
-            capturedRequest = request
+            capturedRequest.withLock { $0 = request }
             return try (makeResponse(statusCode: 200),
                         responseData)
         }
@@ -152,15 +160,16 @@ private struct TestPayload: Codable, Equatable {
                                                    body: nil)
 
         // Then
-        #expect(capturedRequest?.value(forHTTPHeaderField: "Authorization") == "Bearer tok123")
+        let request = capturedRequest.withLock { $0 }
+        #expect(request?.value(forHTTPHeaderField: "Authorization") == "Bearer tok123")
     }
 
     @Test("Specified HTTP method is set on the request") func requestUsesSpecifiedHTTPMethod() async throws {
         // Given
-        var capturedRequest: URLRequest?
+        let capturedRequest = OSAllocatedUnfairLock<URLRequest?>(initialState: nil)
         let responseData = try JSONEncoder().encode(TestPayload(id: 1, name: "x"))
         MockURLProtocol.requestHandler = { request in
-            capturedRequest = request
+            capturedRequest.withLock { $0 = request }
             return try (makeResponse(statusCode: 200),
                         responseData)
         }
@@ -173,6 +182,7 @@ private struct TestPayload: Codable, Equatable {
                                                    body: nil)
 
         // Then
-        #expect(capturedRequest?.httpMethod == "POST")
+        let request = capturedRequest.withLock { $0 }
+        #expect(request?.httpMethod == "POST")
     }
 }
